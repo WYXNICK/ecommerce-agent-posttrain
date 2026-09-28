@@ -8,6 +8,7 @@ from unittest.mock import patch
 
 from shopping_grpo.environment.actions import action_guard_tool_message
 from shopping_grpo.environment.client import ShopEnvironmentError
+from shopping_grpo.environment.observation import render_structured_observation
 from shopping_grpo.evaluation.rollout import (
     CollectionInfrastructureError,
     OpenAIChatClient,
@@ -18,6 +19,14 @@ from shopping_grpo.evaluation.rollout import (
     load_tasks,
     rollout_interrupted,
 )
+
+
+SEARCH_OBSERVATION = render_structured_observation({
+    "observation_version": "shopping-observation-v2",
+    "page_type": "search_results", "search_available": False,
+    "actions": ["100000000001"],
+    "products": [{"rank": 1, "asin": "100000000001", "title": "乳胶枕", "price": 20}],
+})
 
 
 class FakeEnv:
@@ -32,7 +41,7 @@ class FakeEnv:
         self.actions.append(action)
         if action == "search[乳胶枕]":
             return {
-                "instruction": "results [SEP] 100000000001 [SEP] 乳胶枕",
+                "instruction": SEARCH_OBSERVATION,
                 "reward": 0.0,
                 "done": False,
             }
@@ -84,7 +93,7 @@ class GuardRecoveryEnv(FakeEnv):
         self.actions.append(action)
         if action == "search[乳胶枕]":
             return {
-                "instruction": "results [SEP] 100000000001 [SEP] 乳胶枕",
+                "instruction": SEARCH_OBSERVATION,
                 "reward": 0.0,
                 "done": False,
             }
@@ -275,7 +284,7 @@ class RolloutTest(unittest.TestCase):
             def step(self, action):
                 self.actions.append(action)
                 if action == "search[乳胶枕]":
-                    return {"instruction": "results [SEP] 100000000001", "reward": 0.0, "done": False}
+                    return {"instruction": SEARCH_OBSERVATION, "reward": 0.0, "done": False}
                 if action == "click[100000000001]":
                     return {
                         "instruction": 'detail\n\n可点击的按钮: ["满天星", "Description", "Buy Now"]',
@@ -334,7 +343,7 @@ class RolloutTest(unittest.TestCase):
             def step(self, action):
                 self.actions.append(action)
                 if action == "search[乳胶枕]":
-                    return {"instruction": "results [SEP] 100000000001", "reward": 0.0, "done": False}
+                    return {"instruction": SEARCH_OBSERVATION, "reward": 0.0, "done": False}
                 if action == "click[100000000001]":
                     return {
                         "instruction": 'detail\n\n可点击的按钮: ["满天星", "Buy Now"]',

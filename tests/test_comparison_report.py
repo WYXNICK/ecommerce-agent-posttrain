@@ -1,4 +1,5 @@
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -44,6 +45,21 @@ class ComparisonReportTest(unittest.TestCase):
             self.assertEqual(data["models"][0]["reward"]["mean"], 0.25)
             self.assertEqual(data["models"][0]["reward"]["median"], 0.25)
             self.assertEqual(sum(data["models"][0]["reward"]["histogram"]), 2)
+
+            # Baseline/SFT/GRPO are often served under the same API model name.
+            second = root / "model-b"
+            shutil.copytree(run, second)
+            compared = build_comparison_data(root)
+            self.assertEqual(
+                {model["name"] for model in compared["models"]},
+                {"model-a (Model A)", "model-b (Model A)"},
+            )
+            rows[1]["task_id"] = 3
+            (second / "trajectories.jsonl").write_text(
+                "".join(json.dumps(row) + "\n" for row in rows)
+            )
+            with self.assertRaisesRegex(ValueError, "identical task sets"):
+                build_comparison_data(root)
 
 
 if __name__ == "__main__":

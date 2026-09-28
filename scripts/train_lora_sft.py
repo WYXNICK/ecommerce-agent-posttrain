@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import os
 import time as _time
 from functools import partial
 from pathlib import Path
@@ -377,6 +378,11 @@ def main():
         TrainingArguments,
     ) = _training_dependencies()
 
+    # Trainer seeds its own loop, but LoRA initialization happens before Trainer.
+    from transformers import set_seed
+
+    set_seed(args.seed)
+
     # --- Progress callback: 只补充 Trainer 默认没有的耗时和显存指标。 ---
     class ProgressCallback(TrainerCallback):
         def __init__(self):
@@ -502,6 +508,12 @@ def main():
         ),
     )
     model.print_trainable_parameters()
+    linear_attention_kernels = sorted({
+        kernel.__module__
+        for module in model.modules()
+        if callable(kernel := getattr(module, "chunk_gated_delta_rule", None))
+    })
+    print(f"  linear_attention_kernels={linear_attention_kernels}")
 
     args.output.mkdir(parents=True, exist_ok=True)
     report_to, run_name = _swanlab_config(args)
@@ -572,6 +584,11 @@ def main():
         },
         "acceleration": {
             "dtype": dtype_name,
+            "linear_attention_kernels": linear_attention_kernels,
+            "fla_disable_backend_dispatch": os.environ.get(
+                "FLA_DISABLE_BACKEND_DISPATCH", "0"
+            ),
+            "fla_tilelang": os.environ.get("FLA_TILELANG", "default"),
             "liger_kernel": args.liger_kernel,
             "attention_implementation": args.attention_implementation,
             "qlora": args.qlora,

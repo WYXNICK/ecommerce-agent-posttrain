@@ -21,12 +21,12 @@ if ! command -v uv >/dev/null 2>&1; then
 fi
 
 cd "${ROOT}"
-uv sync --python "${MAIN_PYTHON}" --extra sft --extra grpo
+uv sync --frozen --python "${MAIN_PYTHON}" --extra sft --extra grpo
 
 if [[ ! -x "${ENV_DIR}/bin/python" ]]; then
   uv venv --python "${SHOPSIM_PYTHON}" "${ENV_DIR}"
 fi
-uv pip install \
+uv --no-config pip install \
   --python "${ENV_DIR}/bin/python" \
   -r "${SHOP_ENV_ROOT}/requirements.txt"
 

@@ -17,24 +17,19 @@ from shopping_grpo.environment.observation import render_structured_observation
 
 
 def search_page(product_count=12, page=1):
-    segments = [
-        "Instruction:",
-        "find a useful product",
-        "Back to Search",
-        f"Page {page} (Total results: 40)",
-        "Next >",
+    products = [
+        {"rank": index + 1, "asin": str(100000000000 + index),
+         "title": f"product title {index} " + "x" * 80, "price": index + 1}
+        for index in range(product_count)
     ]
-    buttons = ["back to search", "next >"]
-    for index in range(product_count):
-        asin = f"{100000000000 + index}"
-        segments.extend([asin, f"product title {index} " + "x" * 40, f"{index + 1}.0"])
-        buttons.append(asin)
-    return (
-        " [SEP] ".join(segments)
-        + "\n\n搜索功能是否可用: False"
-        + "\n\n可点击的按钮: "
-        + json.dumps(buttons, ensure_ascii=False)
-    )
+    return render_structured_observation({
+        "observation_version": "shopping-observation-v2",
+        "page_type": "search_results",
+        "search_available": False,
+        "actions": ["back to search", "next >", *[p["asin"] for p in products]],
+        "products": products, "page": page, "total_pages": 2, "total_results": 40,
+        "rank_start": 1, "rank_end": product_count, "query": "useful product",
+    })
 
 
 class ObservationProjectionTest(unittest.TestCase):
@@ -45,11 +40,11 @@ class ObservationProjectionTest(unittest.TestCase):
             raw,
             parameters={"query": "useful product"},
             count_tokens=len,
-            token_budget=1200,
+            token_budget=2000,
             search_top_k=20,
         )
 
-        self.assertLessEqual(len(visible), 1200)
+        self.assertLessEqual(len(visible), 2000)
         self.assertTrue(meta.truncated)
         self.assertTrue(meta.critical_footer_preserved)
         self.assertIn(TRUNCATION_MARKER, visible)
@@ -70,7 +65,7 @@ class ObservationProjectionTest(unittest.TestCase):
             raw,
             parameters={"query": "useful product"},
             count_tokens=len,
-            token_budget=1200,
+            token_budget=2000,
             search_top_k=20,
         )
         last_asin = product_ids(raw)[-1]
@@ -85,11 +80,11 @@ class ObservationProjectionTest(unittest.TestCase):
             "next_page",
             raw,
             count_tokens=len,
-            token_budget=1200,
+            token_budget=2000,
             search_top_k=20,
         )
 
-        self.assertIn("page: Page 2", visible)
+        self.assertIn("Page 2 of 2", visible)
         self.assertEqual(product_ids(visible), product_ids(raw))
 
     def test_capacity_mismatch_fails_instead_of_silently_dropping_products(self):
@@ -99,7 +94,7 @@ class ObservationProjectionTest(unittest.TestCase):
                 "search_products",
                 raw,
                 count_tokens=len,
-                token_budget=1200,
+                token_budget=2000,
                 search_top_k=10,
             )
 
