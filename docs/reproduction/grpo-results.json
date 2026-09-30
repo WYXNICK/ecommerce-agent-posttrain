@@ -1,0 +1,227 @@
+{
+  "scope": "completed reproduction; original author results excluded",
+  "completed_at_utc": "2026-09-28T18:13:53.849491+00:00",
+  "training": {
+    "planned_steps": 500,
+    "completed_optimizer_updates": 500,
+    "train_tasks": 1000,
+    "validation_tasks": 50,
+    "rollouts_per_prompt": 4,
+    "global_prompt_batch": 2,
+    "sequence_limit": 24576,
+    "gpus": 2,
+    "peak_allocated_gib_per_gpu": 59.05331325531006,
+    "resume_checkpoint": 100,
+    "initial_validation_reward": 0.37344789554947055
+  },
+  "checkpoint_selection": {
+    "criterion": "validation-50 mean reward, earliest step on ties",
+    "final_200_used": false,
+    "candidates": [
+      {
+        "step": 50,
+        "metric": "val-core/shopsimulator/reward/mean@1",
+        "value": 0.3770937294664327
+      },
+      {
+        "step": 100,
+        "metric": "val-core/shopsimulator/reward/mean@1",
+        "value": 0.3694478957878891
+      },
+      {
+        "step": 150,
+        "metric": "val-core/shopsimulator/reward/mean@1",
+        "value": 0.3600312293472234
+      },
+      {
+        "step": 200,
+        "metric": "val-core/shopsimulator/reward/mean@1",
+        "value": 0.4257395634951536
+      },
+      {
+        "step": 250,
+        "metric": "val-core/shopsimulator/reward/mean@1",
+        "value": 0.4164478974568192
+      },
+      {
+        "step": 300,
+        "metric": "val-core/shopsimulator/reward/mean@1",
+        "value": 0.44944789697998205
+      },
+      {
+        "step": 350,
+        "metric": "val-core/shopsimulator/reward/mean@1",
+        "value": 0.4327171282994095
+      },
+      {
+        "step": 400,
+        "metric": "val-core/shopsimulator/reward/mean@1",
+        "value": 0.45599986644112506
+      },
+      {
+        "step": 450,
+        "metric": "val-core/shopsimulator/reward/mean@1",
+        "value": 0.4878956991212908
+      },
+      {
+        "step": 500,
+        "metric": "val-core/shopsimulator/reward/mean@1",
+        "value": 0.4722359774413053
+      }
+    ],
+    "selected": {
+      "step": 450,
+      "metric": "val-core/shopsimulator/reward/mean@1",
+      "value": 0.4878956991212908
+    }
+  },
+  "evaluation": {
+    "baseline": {
+      "expected_tasks": 200,
+      "completed_tasks": 200,
+      "strict_successes": 2,
+      "strict_success_rate": 0.01,
+      "mean_final_reward": -0.12325000000000001,
+      "average_steps": 5.59,
+      "reward_type_counts": {
+        "gold_purchase": 2,
+        "repeat_loop": 41,
+        "reward_unverifiable": 1,
+        "unknown": 156
+      },
+      "status_counts": {
+        "assistant_final": 6,
+        "done": 44,
+        "invalid_action_limit": 150
+      },
+      "guard_reason_counts": {
+        "click_not_in_previous_observation": 689,
+        "schema_extra_arguments:asino": 1,
+        "search_not_available_on_current_page": 32,
+        "unknown_or_invalid_tool": 3
+      },
+      "protocol": {
+        "benchmark": "data/evaluation/tasks.jsonl",
+        "model": "shopping-agent",
+        "reward_contract": "shopsimulator-reward-v3",
+        "max_steps": 35,
+        "max_tokens": 512,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "context_window": 24576,
+        "context_safety_margin": 512,
+        "context_compaction": false,
+        "observation_token_budget": 1536,
+        "observation_detail_token_budget": 4096,
+        "observation_generic_token_budget": 768,
+        "observation_search_top_k": 20
+      }
+    },
+    "sft": {
+      "expected_tasks": 200,
+      "completed_tasks": 200,
+      "strict_successes": 131,
+      "strict_success_rate": 0.655,
+      "mean_final_reward": 0.5584081997863248,
+      "average_steps": 9.555,
+      "reward_type_counts": {
+        "gold_purchase": 131,
+        "max_steps": 2,
+        "partial_alternative_purchase": 41,
+        "repeat_loop": 11,
+        "reward_unverifiable": 1,
+        "unknown": 4,
+        "wrong_purchase": 10
+      },
+      "status_counts": {
+        "done": 196,
+        "error": 2,
+        "invalid_action_limit": 2
+      },
+      "guard_reason_counts": {
+        "click_not_in_previous_observation": 14,
+        "search_not_available_on_current_page": 3
+      },
+      "protocol": {
+        "benchmark": "data/evaluation/tasks.jsonl",
+        "model": "shopping-agent",
+        "reward_contract": "shopsimulator-reward-v3",
+        "max_steps": 35,
+        "max_tokens": 512,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "context_window": 24576,
+        "context_safety_margin": 512,
+        "context_compaction": false,
+        "observation_token_budget": 1536,
+        "observation_detail_token_budget": 4096,
+        "observation_generic_token_budget": 768,
+        "observation_search_top_k": 20
+      }
+    },
+    "grpo": {
+      "expected_tasks": 200,
+      "completed_tasks": 200,
+      "strict_successes": 132,
+      "strict_success_rate": 0.66,
+      "mean_final_reward": 0.5594196752899878,
+      "average_steps": 10.275,
+      "reward_type_counts": {
+        "gold_purchase": 132,
+        "max_steps": 3,
+        "partial_alternative_purchase": 36,
+        "repeat_loop": 18,
+        "reward_unverifiable": 1,
+        "unknown": 5,
+        "wrong_purchase": 5
+      },
+      "status_counts": {
+        "done": 195,
+        "error": 1,
+        "invalid_action_limit": 4
+      },
+      "guard_reason_counts": {
+        "click_not_in_previous_observation": 19,
+        "search_not_available_on_current_page": 16
+      },
+      "protocol": {
+        "benchmark": "data/evaluation/tasks.jsonl",
+        "model": "shopping-agent",
+        "reward_contract": "shopsimulator-reward-v3",
+        "max_steps": 35,
+        "max_tokens": 512,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "context_window": 24576,
+        "context_safety_margin": 512,
+        "context_compaction": false,
+        "observation_token_budget": 1536,
+        "observation_detail_token_budget": 4096,
+        "observation_generic_token_budget": 768,
+        "observation_search_top_k": 20
+      }
+    }
+  },
+  "paired_sft_grpo": {
+    "both_success": 123,
+    "new_success": 9,
+    "lost_success": 8,
+    "both_failure": 60,
+    "exact_mcnemar_p": 1.0
+  },
+  "artifacts": {
+    "hdfs_root": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/grpo-dual-h100-20260928",
+    "merged_model": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/grpo-dual-h100-20260928/grpo-merged",
+    "selected_checkpoint": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/grpo-dual-h100-20260928/global_step_450",
+    "logs": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/grpo-dual-h100-20260928/logs",
+    "source_sha256": {
+      "outputs/reproduction/grpo-dual-h100/evaluation/summary.json": "fab2000b1d60d354f2edf2f6f1b9595181c05bcf36d00b3125fe97dc4a016841",
+      "outputs/reproduction/grpo-dual-h100/evaluation/trajectories.jsonl": "837ffa40bdbae37aa6a3cf040d956881484bf9281a3a5e73c558943d16864e78",
+      "outputs/reproduction/grpo-dual-h100/checkpoint-selection.json": "91340d6d230b2c1c9170140ec2db897e684539652a5e6b48d061b5023e69d022",
+      "outputs/reproduction/grpo-dual-h100/training_diagnostics.jsonl": "d8034b03b8d5a3c57f6ae3c41eaf184c1a2bc402e39a1d0a7e906bd26feab585",
+      "outputs/evaluation/sft/summary.json": "92ed3ea7843cd461beee34ae098051fe1bc0d8a520a67a92e5a3dc4936c3fe60",
+      "outputs/evaluation/sft/trajectories.jsonl": "eef08298f53dc21b1a08f26b320825a9ae27895e120328036e073688de220cf4",
+      "data/evaluation/tasks.jsonl": "d99112a20ef47534c27a32e4b38229bf048dcc6b06fef2e3e919aac3093662f5"
+    }
+  }
+}

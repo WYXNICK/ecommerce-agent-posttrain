@@ -39,10 +39,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", type=Path, default=Path("outputs/models/grpo"))
     parser.add_argument(
         "--logger",
-        choices=("console", "swanlab"),
+        choices=("console", "swanlab", "tensorboard"),
         default="console",
     )
     parser.add_argument("--experiment-name", default="shopping-agent-grpo")
+    parser.add_argument("--resume-from", type=Path, help="complete veRL global_step_* checkpoint")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument(
@@ -73,10 +74,17 @@ def build_command(args: argparse.Namespace) -> tuple[list[str], dict[str, str]]:
     val_data = _validated_path(args.val_data, "validation parquet")
     config = _validated_path(args.config, "GRPO example config")
     output = args.output.expanduser().resolve()
+    resume = None
+    if args.resume_from is not None:
+        resume = _validated_path(args.resume_from, "resume checkpoint")
+        if not (resume / "actor").is_dir() or not (resume / "data.pt").is_file():
+            raise SystemExit("resume checkpoint must contain actor/ and data.pt")
+        if not resume.name.startswith("global_step_") or not resume.name[12:].isdigit():
+            raise SystemExit("resume checkpoint must be named global_step_<number>")
     if output.exists():
         if not output.is_dir():
             raise SystemExit(f"output must be a directory: {output}")
-        if any(output.iterdir()):
+        if any(output.iterdir()) and resume is None:
             raise SystemExit(f"output directory must be new or empty: {output}")
     if args.logger == "swanlab" and not os.environ.get("SWANLAB_API_KEY"):
         raise SystemExit("--logger swanlab requires SWANLAB_API_KEY")
@@ -99,6 +107,7 @@ def build_command(args: argparse.Namespace) -> tuple[list[str], dict[str, str]]:
             "SHOPPING_AGENT_LOOP_CONFIG": str(DEFAULT_AGENT_CONFIG),
             "SHOPPING_TOOL_CONFIG": str(DEFAULT_TOOL_CONFIG),
             "GRPO_CONFIG_NAME": config.stem,
+            "GRPO_CONFIG_DIR": str(config.parent),
         }
     )
     if args.logger == "swanlab":
@@ -108,15 +117,21 @@ def build_command(args: argparse.Namespace) -> tuple[list[str], dict[str, str]]:
                 "SWANLAB_LOG_DIR": str(output / "swanlab"),
             }
         )
+    if args.logger == "tensorboard":
+        environment["TENSORBOARD_DIR"] = str(output / "tensorboard")
     logger_override = (
-        "trainer.logger=[console,swanlab]"
-        if args.logger == "swanlab"
-        else "trainer.logger=[console]"
+        "trainer.logger=[console]" if args.logger == "console"
+        else f"trainer.logger=[console,{args.logger}]"
     )
     overrides = [
         logger_override,
         f"trainer.experiment_name={args.experiment_name}",
     ]
+    if resume is not None:
+        overrides.extend([
+            "trainer.resume_mode=resume_path",
+            f"trainer.resume_from_path={resume}",
+        ])
     extra = list(args.hydra_overrides)
     if extra[:1] == ["--"]:
         extra = extra[1:]
@@ -148,16 +163,16 @@ def main() -> None:
     print(json.dumps(audit, ensure_ascii=False, indent=2))
     if args.dry_run:
         return
-    Path(environment["GRPO_OUTPUT_DIR"]).mkdir(parents=True, exist_ok=True)
     preflight = [
         sys.executable,
         str(ROOT / "scripts/check_grpo_runtime.py"),
-        *overrides,
-        *extra,
+        # Use exactly the Hydra overrides resolved for training above.
+        *command[5:],
     ]
     preflight_status = subprocess.call(preflight, cwd=ROOT, env=environment)
     if preflight_status:
         raise SystemExit(preflight_status)
+    Path(environment["GRPO_OUTPUT_DIR"]).mkdir(parents=True, exist_ok=True)
     raise SystemExit(subprocess.call(command, cwd=ROOT, env=environment))
 
 

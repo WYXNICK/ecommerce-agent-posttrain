@@ -57,8 +57,11 @@ def _install_trace_actor_update():
 
 def install_torch_padding_fallback():
     """安装项目所需的 veRL 窄范围 runtime hooks。"""
+    import torch
+
     from verl.utils import attention_utils
     from verl.utils import npu_flash_attn_utils as fallback
+    from verl.utils import torch_functional
 
     functions = (
         fallback.index_first_axis,
@@ -68,4 +71,9 @@ def install_torch_padding_fallback():
     )
     # ponytail: veRL 0.8 在 CUDA 上硬导入 FA2；上游提供 torch fallback 后删除此 hook。
     attention_utils._get_attention_functions = lambda: functions
+    # Fuse log-softmax and gather (including backward). Eager evaluation creates
+    # full sequence-by-vocabulary intermediates that exhaust memory on long turns.
+    torch_functional.logprobs_from_logits_v2 = torch.compile(
+        torch_functional.logprobs_from_logits_naive, dynamic=True
+    )
     _install_trace_actor_update()

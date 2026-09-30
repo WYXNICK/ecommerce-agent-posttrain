@@ -134,7 +134,9 @@ def compose_runtime_config(overrides):
         raise SystemExit(f"cannot parse GRPO config before preflight: {exc}") from exc
 
     GlobalHydra.instance().clear()
-    config_dir = Path(__file__).resolve().parents[1] / "configs"
+    config_dir = Path(os.environ.get(
+        "GRPO_CONFIG_DIR", Path(__file__).resolve().parents[1] / "configs"
+    )).resolve()
     config_name = os.environ.get("GRPO_CONFIG_NAME", "grpo")
     with initialize_config_dir(version_base=None, config_dir=str(config_dir)):
         return compose(config_name=config_name, overrides=list(overrides))

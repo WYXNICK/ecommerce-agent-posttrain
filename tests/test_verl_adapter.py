@@ -171,7 +171,7 @@ class VerlAdapterRuntimeTest(unittest.TestCase):
     def test_runtime_state_has_no_hidden_goal_fields(self):
         state = make_runtime_state(task_id=2, max_steps=35)
         self.assertNotIn("goal", state)
-        self.assertNotIn("reward_detail", state)
+        self.assertIsNone(state["reward_detail"])
 
     def test_task_id_is_read_from_verl_extra_info(self):
         self.assertEqual(task_id_from_kwargs({"extra_info": {"task_id": 42}}), 42)
@@ -216,25 +216,30 @@ class VerlAdapterRuntimeTest(unittest.TestCase):
             self.assertTrue(state["terminate"])
             self.assertEqual(state["terminal_result"], {"done": True, "over": True})
             self.assertTrue(state["infrastructure_invalid"])
-            self.assertIsNone(state["reward_components"])
+            self.assertIsNone(state["reward_detail"])
             self.assertNotIn("hidden", str(state))
 
         asyncio.run(run())
 
-    def test_terminal_reward_components_are_validated_without_entering_tool_observation(self):
+    def test_terminal_reward_v3_is_validated_without_entering_tool_observation(self):
         class FakeEnv:
             def step(self, action):
                 return {
                     "instruction": "Goal: hidden answer",
                     "done": True,
                     "over": True,
-                    "reward": 0.6,
+                    "reward": 0.25,
                     "goal": {"secret": True},
                     "reward_detail": {
-                        "r_type": 1,
-                        "r_att": 1,
-                        "r_option": 0.5,
-                        "r_price": 1,
+                        "reward_version": "shopsimulator-reward-v3",
+                        "reward_type": "partial_alternative_purchase",
+                        "termination_reason": "partial_alternative_purchase",
+                        "reward_valid": True,
+                        "terminal_utility": 0.25,
+                        "purchase_success": False,
+                        "sampling_invalid": False,
+                        "hard_gates": {},
+                        "dimension_scores": {"key_options": 0.5},
                         "hidden_answer": "do not retain",
                     },
                 }
@@ -255,8 +260,8 @@ class VerlAdapterRuntimeTest(unittest.TestCase):
             self.assertEqual(response.text, "Environment terminated.")
             self.assertFalse(state["infrastructure_invalid"])
             self.assertEqual(
-                state["reward_components"],
-                {"r_type": 1.0, "r_att": 1.0, "r_option": 0.5, "r_price": 1.0},
+                state["reward_detail"]["dimension_scores"]["key_options"],
+                0.5,
             )
             self.assertNotIn("hidden", str(state))
 
@@ -273,13 +278,16 @@ class VerlAdapterRuntimeTest(unittest.TestCase):
                     "termination_reason": "reward_unverifiable",
                     "reward_valid": False,
                     "reward_detail": {
-                        "reward_version": "unsupported-reward",
+                        "reward_version": "shopsimulator-reward-v3",
                         "reward_type": "reward_unverifiable",
                         "reward_valid": False,
                         "termination_reason": "reward_unverifiable",
                         "target_asin_match": False,
+                        "terminal_utility": 0.0,
+                        "purchase_success": False,
+                        "sampling_invalid": True,
                         "hard_gates": {
-                            "category": {"passed": True, "verifiable": True}
+                            "category": {"status": "pass", "passed": True, "verifiable": True}
                         },
                         "weighted_score": 0.0,
                     },
@@ -437,7 +445,7 @@ class VerlAdapterRuntimeTest(unittest.TestCase):
             self.assertEqual(state["action_attempt_after_truncation_count"], 3)
             self.assertEqual(
                 state["guard_rejection_reason_counts"],
-                {"asin_not_visible": 3},
+                {"click_not_in_previous_observation": 3},
             )
             self.assertIn("maximum", response.text)
 

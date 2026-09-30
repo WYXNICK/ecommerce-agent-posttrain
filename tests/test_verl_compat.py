@@ -3,7 +3,7 @@
 import sys
 from types import ModuleType
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 
 class VerlCompatTest(unittest.TestCase):
@@ -20,6 +20,11 @@ class VerlCompatTest(unittest.TestCase):
         utils = ModuleType("verl.utils")
         utils.attention_utils = attention
         utils.npu_flash_attn_utils = fallback
+        torch_functional = ModuleType("verl.utils.torch_functional")
+        torch_functional.logprobs_from_logits_naive = object()
+        torch = ModuleType("torch")
+        torch.compile = Mock(return_value=object())
+        utils.torch_functional = torch_functional
         verl = ModuleType("verl")
         verl.utils = utils
         trainer = ModuleType("verl.trainer")
@@ -35,6 +40,7 @@ class VerlCompatTest(unittest.TestCase):
         with patch.dict(
             sys.modules,
             {
+                "torch": torch,
                 "verl": verl,
                 "verl.utils": utils,
                 "verl.utils.attention_utils": attention,
@@ -50,6 +56,13 @@ class VerlCompatTest(unittest.TestCase):
 
         self.assertEqual(attention._get_attention_functions(), expected)
         self.assertTrue(RayPPOTrainer._update_actor._shopping_trace)
+        self.assertIs(
+            torch_functional.logprobs_from_logits_v2,
+            torch.compile.return_value,
+        )
+        torch.compile.assert_called_once_with(
+            torch_functional.logprobs_from_logits_naive, dynamic=True
+        )
 
 
 if __name__ == "__main__":  # pragma: no cover

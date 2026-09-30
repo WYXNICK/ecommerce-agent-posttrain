@@ -41,7 +41,7 @@ actor_rollout_ref:
     clip_ratio_low: 0.20
     clip_ratio_high: 0.20
     entropy_coeff: 0.0
-    calculate_entropy: true
+    calculate_entropy: false
     use_kl_loss: false
     kl_loss_coef: 0.0
     kl_loss_type: low_var_kl
@@ -106,7 +106,7 @@ algorithm:
 shopping_dynamic_sampling:
   enable: true
   metric: seq_reward
-  max_num_gen_batches: 3
+  max_num_gen_batches: 8
   max_consecutive_skipped_updates: 10
   reward_tolerance: 1.0e-8
 
@@ -138,5 +138,5 @@ trainer:
   project_name: shopping-grpo
   experiment_name: shopping-agent-grpo
   default_local_dir: ${oc.env:GRPO_OUTPUT_DIR}
-  n_gpus_per_node: 1
+  n_gpus_per_node: 2
   nnodes: 1
