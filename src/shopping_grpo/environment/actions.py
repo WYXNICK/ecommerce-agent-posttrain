@@ -12,6 +12,7 @@ from shopping_grpo.environment.tools import SHOP_TOOL_SCHEMAS, tool_call_to_acti
 
 
 RUNTIME_GUARD_FIELD = "runtime_action_guard"
+MAX_BLOCKED_TOOL_CALLS = 3
 NAVIGATION_BUTTONS = {
     "description",
     "features",
@@ -34,6 +35,15 @@ def action_reject_reason(name, arguments, observation):
 检查顺序很重要：先拦截 schema 外字段，再处理无需页面状态的动作，最后只允许
 点击最新 observation 中仍然存在的目标。
 """
+    if not isinstance(arguments, dict):
+        return "invalid_tool_arguments"
+    schema = next((t["function"]["parameters"] for t in SHOP_TOOL_SCHEMAS
+                   if t["function"]["name"] == name), None)
+    if schema is None:
+        return "unknown_or_invalid_tool"
+    for key in schema["required"]:
+        if key not in arguments or not isinstance(arguments[key], str):
+            return "invalid_tool_arguments"
     extra_argument_names = _schema_extra_argument_names(name, arguments)
     if extra_argument_names:
         return "schema_extra_arguments:" + ",".join(extra_argument_names)
@@ -69,8 +79,13 @@ def action_reject_reason(name, arguments, observation):
     return None
 
 
+def serial_tool_calls(tool_calls):
+    """Both execution paths keep only the first call against the current page."""
+    return list(tool_calls[:1]), list(tool_calls[1:])
+
+
 def _schema_extra_argument_names(name, arguments):
-    """只拒绝 schema 未声明字段；缺少必填字段仍由工具动作转换报错。"""
+    """列出 schema 未声明字段；必填字段由动作守卫统一校验。"""
     allowed_names = TOOL_ARGUMENT_NAMES.get(name)
     if allowed_names is None or not isinstance(arguments, dict):
         return []

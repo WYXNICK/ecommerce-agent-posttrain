@@ -140,6 +140,32 @@ class VerlAdapterRuntimeTest(unittest.TestCase):
         )
         self.assertTrue(created[0].released)
 
+    def test_validation_keeps_environment_score_while_training_uses_model_failure_cost(self):
+        class Env:
+            def __init__(self, **kwargs): pass
+            def reset(self, task_id): return {'instruction': 'task'}
+            def release(self): pass
+
+        async def parent(loop, sampling_params, **kwargs):
+            state = current_runtime_state.get()
+            state.update(termination_reason='invalid_action_limit', error='invalid_action_limit')
+            return AgentLoopOutput(prompt_ids=[1], response_ids=[2], response_mask=[1],
+                                   metrics=AgentLoopMetrics(), extra_fields={})
+
+        async def run():
+            loop = object.__new__(ShoppingToolAgentLoop)
+            loop.base_url, loop.timeout, loop.max_steps = 'http://test', 60, 35
+            loop.required_environment_version = None
+            loop.reward_mode, loop.env_factory = 'constraint_aware', Env
+            with patch.object(ToolAgentLoop, 'run', parent):
+                training = await loop.run({}, extra_info={'task_id': 1})
+                validation = await loop.run({}, extra_info={'task_id': 1}, shopping_validate=True)
+            self.assertEqual(training.reward_score, -0.65)
+            self.assertEqual(validation.reward_score, 0.0)
+            self.assertEqual(training.extra_fields['shopping']['training_reward'], -0.65)
+            self.assertFalse(training.extra_fields['shopping']['reward']['sampling_invalid'])
+        asyncio.run(run())
+
     def test_terminal_reward_only_uses_a_normal_environment_completion(self):
         done = make_runtime_state(task_id=1, max_steps=35)
         done.update({"done": True, "terminal_result": {"done": True, "over": True}, "final_reward": 0.75})
@@ -417,7 +443,7 @@ class VerlAdapterRuntimeTest(unittest.TestCase):
             self.assertEqual(len(state["steps"]), 1)
             self.assertTrue(state["terminate"])
             self.assertEqual(state["error"], "max_steps")
-            self.assertIn("maximum", response.text)
+            self.assertEqual(response.text, "plan")
 
         asyncio.run(run())
 
@@ -436,7 +462,7 @@ class VerlAdapterRuntimeTest(unittest.TestCase):
                 current_runtime_state.reset(state_token)
                 current_environment.reset(env_token)
             self.assertTrue(state["terminate"])
-            self.assertEqual(state["error"], "too_many_guard_rejections")
+            self.assertEqual(state["error"], "invalid_action_limit")
             self.assertEqual(state["steps"], [])
             self.assertEqual(state["action_attempt_count"], 3)
             self.assertEqual(state["repeat_action_count"], 2)
@@ -447,7 +473,7 @@ class VerlAdapterRuntimeTest(unittest.TestCase):
                 state["guard_rejection_reason_counts"],
                 {"click_not_in_previous_observation": 3},
             )
-            self.assertIn("maximum", response.text)
+            self.assertIn("本地动作守卫拒绝", response.text)
 
         asyncio.run(run())
 

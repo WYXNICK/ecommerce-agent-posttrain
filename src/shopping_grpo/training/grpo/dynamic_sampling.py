@@ -55,6 +55,26 @@ def append_training_diagnostic(
         handle.write("\n")
 
 
+def sampling_batch_diagnostics(shopping_infos, group_stats, accepted_uids):
+    """Count generated failures separately from accepted groups and reward classes."""
+    by_kind = {}
+    for info in shopping_infos:
+        reward = info["reward"]
+        kind = reward["failure_kind"]
+        by_kind.setdefault(kind, []).append(float(reward["training_reward"]))
+    return {
+        "model_failure_count": sum(bool(info["reward"]["model_failure"]) for info in shopping_infos),
+        "infrastructure_failure_count": sum(bool(info["reward"]["sampling_invalid"]) for info in shopping_infos),
+        "filtered_group_count": group_stats["dropped_group_count"],
+        "accepted_group_count": len(accepted_uids),
+        "training_reward_by_kind": {
+            kind: {"count": len(values), "min": min(values), "max": max(values),
+                   "mean": sum(values) / len(values)}
+            for kind, values in by_kind.items()
+        },
+    }
+
+
 def aggregate_shopping_metrics(shopping_infos: Sequence[object]) -> dict[str, float]:
     """把 AgentLoop 轨迹诊断聚合为 veRL 每步指标。"""
     if not shopping_infos:
@@ -90,10 +110,14 @@ def aggregate_shopping_metrics(shopping_infos: Sequence[object]) -> dict[str, fl
     match_scores = []
     evidence_coverage = []
     partial_purchase = []
+    training_rewards = []
+    model_failures = []
     for index, info in enumerate(shopping_infos):
         if not isinstance(info, Mapping) or not isinstance(info.get("reward"), Mapping):
             raise ValueError(f"shopping extra field at index {index} is missing reward diagnostics")
         reward = info["reward"]
+        training_rewards.append(float(reward["training_reward"]))
+        model_failures.append(float(bool(reward["model_failure"])))
         for key in reward_keys:
             try:
                 value = float(reward[key])
@@ -147,6 +171,10 @@ def aggregate_shopping_metrics(shopping_infos: Sequence[object]) -> dict[str, fl
         "reward/shaped_min": min(rewards["total"]),
         "reward/shaped_mean": mean(rewards["total"]),
         "reward/shaped_max": max(rewards["total"]),
+        "reward/training_reward_min": min(training_rewards),
+        "reward/training_reward_mean": mean(training_rewards),
+        "reward/training_reward_max": max(training_rewards),
+        "trajectory/model_failure_rate": mean(model_failures),
         "reward/terminal_utility_min": min(terminal_utilities),
         "reward/terminal_utility_mean": mean(terminal_utilities),
         "reward/terminal_utility_max": max(terminal_utilities),
@@ -209,8 +237,6 @@ def extract_shopping_group_signals(
             reasons.append("infrastructure_invalid")
         if bool(info.get("reward_unverifiable")):
             reasons.append("reward_unverifiable")
-        if bool(info.get("overlong")):
-            reasons.append("overlong")
         reward_sampling_invalid = bool(
             info["reward"].get("sampling_invalid", False)
         )
@@ -238,7 +264,7 @@ def select_reward_varying_groups(
     sampling_invalid_reasons: Sequence[Sequence[str]] | None = None,
     tolerance: float = 1.0e-8,
 ) -> tuple[list[int], dict[str, Any]]:
-    """Return trajectory indices belonging to groups with non-constant reward.
+    """Select variance using the actual policy reward, not environment utility.
 
     Group order follows the first occurrence of each uid. Returned trajectory
     indices preserve their original order, so callers can safely apply the same
@@ -334,12 +360,12 @@ def select_reward_varying_groups(
         utilities = group["terminal_utilities"]
         utility_min = min(utilities)
         utility_max = max(utilities)
-        utility_varying = utility_max - utility_min > tolerance
+        reward_varying = max(group["rewards"]) - min(group["rewards"]) > tolerance
         has_sampling_invalid = any(group["sampling_invalid"])
         reasons = tuple(sorted(set(group["sampling_invalid_reasons"])))
         if has_sampling_invalid:
             drop_reason = "sampling_invalid"
-        elif not utility_varying:
+        elif not reward_varying:
             drop_reason = "constant_reward"
         else:
             drop_reason = None
@@ -357,7 +383,7 @@ def select_reward_varying_groups(
                 "purchase_success": tuple(group["purchase_success"]),
                 "utility_min": utility_min,
                 "utility_max": utility_max,
-                "reward_varying": utility_varying,
+                "reward_varying": reward_varying,
                 "sampling_invalid": has_sampling_invalid,
                 "sampling_invalid_reasons": reasons,
                 "drop_reason": drop_reason,
@@ -403,7 +429,6 @@ def select_reward_varying_groups(
                 }
             )
         },
-        # Compatibility aliases for existing monitoring code.
         "infrastructure_invalid_group_count": sum(
             group["sampling_invalid"] for group in groups
         ),

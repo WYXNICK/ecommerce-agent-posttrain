@@ -74,8 +74,8 @@ actor_rollout_ref:
     multi_turn:
       enable: true
       format: qwen3_coder
-      max_user_turns: 40
-      max_assistant_turns: 40
+      max_user_turns: null
+      max_assistant_turns: null
       max_parallel_calls: 1
       max_tool_response_length: 16384
       tool_response_truncate_side: middle

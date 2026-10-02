@@ -7,10 +7,12 @@
 from __future__ import annotations
 
 import json
+import math
 
 from verl.experimental.agent_loop.tool_agent_loop import AgentState, ToolAgentLoop
 
 from shopping_grpo.environment.context import ContextBudgetError, compact_token_trajectory
+from shopping_grpo.environment.actions import serial_tool_calls
 from shopping_grpo.environment.projection import (
     ObservationProjectionError,
     project_observation,
@@ -19,11 +21,13 @@ from shopping_grpo.training.grpo.adapter.runtime import (
     apply_reward_length_shaping,
     current_runtime_state,
     record_observation_projection,
+    record_action_attempt,
     reward_breakdown,
     task_id_from_kwargs,
     terminal_reward,
 )
 from shopping_grpo.training.grpo.adapter.session import ShopSimulatorSession
+from shopping_grpo.training.grpo.adapter.tools import reject_tool_call
 
 
 class ShoppingToolAgentLoop(ToolAgentLoop):
@@ -51,6 +55,7 @@ class ShoppingToolAgentLoop(ToolAgentLoop):
         reward_length_soft_threshold=20,
         reward_length_penalty_per_step=0.01,
         reward_length_max_penalty=0.15,
+        model_failure_reward=-0.65,
         env_factory=None,
         **kwargs,
     ):
@@ -60,6 +65,9 @@ class ShoppingToolAgentLoop(ToolAgentLoop):
         self.max_steps = int(max_steps)
         self.required_environment_version = required_environment_version
         self.reward_mode = str(reward_mode)
+        self.model_failure_reward = float(model_failure_reward)
+        if not math.isfinite(self.model_failure_reward) or self.model_failure_reward >= 0:
+            raise ValueError("model_failure_reward must be finite and negative")
         self.context_window_tokens = int(context_window_tokens)
         self.context_generation_reserve_tokens = int(context_generation_reserve_tokens)
         self.context_safety_margin_tokens = int(context_safety_margin_tokens)
@@ -136,7 +144,6 @@ class ShoppingToolAgentLoop(ToolAgentLoop):
                     runtime_state["terminate"] = True
                     runtime_state["termination_reason"] = "context_budget_exhausted"
                     runtime_state["error"] = f"context_budget_exhausted:{exc}"
-                    runtime_state["infrastructure_invalid"] = True
                 return AgentState.TERMINATED
         else:
             prompt_ids = agent_data.prompt_ids
@@ -154,7 +161,6 @@ class ShoppingToolAgentLoop(ToolAgentLoop):
                 runtime_state["terminate"] = True
                 runtime_state["termination_reason"] = "context_hard_limit_exceeded"
                 runtime_state["error"] = runtime_state["termination_reason"]
-                runtime_state["infrastructure_invalid"] = True
             return AgentState.TERMINATED
         if stats is not None and stats.removed_tokens:
             # routed-experts 的额外状态无法随 token 一起安全裁剪，因此直接判为无效。
@@ -177,14 +183,37 @@ class ShoppingToolAgentLoop(ToolAgentLoop):
                 int(bounded_sampling_params["max_tokens"]),
                 self.context_generation_reserve_tokens,
             )
-        return await super()._handle_generating_state(
+        next_state = await super()._handle_generating_state(
             agent_data,
             bounded_sampling_params,
             ignore_termination=ignore_termination,
         )
+        if next_state == AgentState.TERMINATED and runtime_state is not None:
+            if len(agent_data.response_mask) >= self.response_length:
+                reason = "response_budget_exhausted"
+            elif self.max_assistant_turns and agent_data.assistant_turns >= self.max_assistant_turns:
+                reason = "assistant_turn_limit"
+            else:
+                reason = "assistant_final"
+            runtime_state.update(terminate=True, termination_reason=reason, error=reason)
+        return next_state
 
     async def _call_tool(self, tool_call, tools_kwargs, agent_data):
         """把工具适配器拿到的原始 observation 压缩成模型真正可见的版本。"""
+        state = current_runtime_state.get()
+        if state is not None:
+            try:
+                json.loads(tool_call.arguments)
+            except (json.JSONDecodeError, TypeError) as exc:
+                reason = f"invalid_tool_call:{exc.__class__.__name__}"
+            else:
+                reason = "unknown_or_invalid_tool" if tool_call.name not in self.tools else None
+            if reason:
+                record_action_attempt(state, tool_call.name, {}, state.get("latest_observation", ""))
+                state["action_attempt_after_truncation_count"] += int(
+                    bool(state.get("latest_observation_truncated"))
+                )
+                return reject_tool_call(state, tool_call.name, reason)
         response, reward, step = await super()._call_tool(
             tool_call,
             tools_kwargs,
@@ -237,15 +266,16 @@ class ShoppingToolAgentLoop(ToolAgentLoop):
     async def _handle_processing_tools_state(self, agent_data):
         """强制每个 assistant 回合最多执行一个工具调用。"""
         runtime_state = current_runtime_state.get()
-        if runtime_state is not None and len(agent_data.tool_calls) > 1:
-            runtime_state["terminate"] = True
-            runtime_state["termination_reason"] = "parallel_tool_calls"
-            runtime_state["error"] = "parallel_tool_calls"
-            return AgentState.TERMINATED
+        agent_data.tool_calls, dropped = serial_tool_calls(agent_data.tool_calls)
+        if runtime_state is not None:
+            runtime_state["dropped_tool_calls"] += len(dropped)
         next_state = await super()._handle_processing_tools_state(agent_data)
         runtime_state = current_runtime_state.get()
         if runtime_state is not None and runtime_state.get("terminate"):
             return AgentState.TERMINATED
+        if next_state == AgentState.TERMINATED and runtime_state is not None:
+            runtime_state.update(terminate=True, termination_reason="response_budget_exhausted",
+                                 error="response_budget_exhausted")
         return next_state
 
     async def run(self, sampling_params, **kwargs):
@@ -262,12 +292,12 @@ class ShoppingToolAgentLoop(ToolAgentLoop):
         try:
             output = await super().run(sampling_params, **kwargs)
             if not state["done"] and not state["error"]:
-                state["error"] = "assistant_finished_without_environment_done"
+                state["error"] = "assistant_final"
                 state["termination_reason"] = state["error"]
                 state["terminate"] = True
             # 父类结束后统一从环境状态结算，避免把中途异常当作正常终局奖励。
             breakdown = apply_reward_length_shaping(
-                reward_breakdown(state),
+                reward_breakdown(state, getattr(self, "model_failure_reward", -0.65)),
                 state,
                 enabled=getattr(self, "reward_length_shaping_enable", False),
                 soft_threshold=getattr(self, "reward_length_soft_threshold", 20),
@@ -275,10 +305,12 @@ class ShoppingToolAgentLoop(ToolAgentLoop):
                 max_penalty=getattr(self, "reward_length_max_penalty", 0.15),
             )
             output.reward_score = (
-                float(breakdown["total"])
+                float(breakdown["training_reward"])
                 if self.reward_mode == "constraint_aware"
                 else terminal_reward(state, mode=self.reward_mode)
             )
+            if kwargs.get("shopping_validate", False):
+                output.reward_score = float(breakdown["terminal_utility"])
             output.extra_fields["shopping"] = {
                 "task_id": task_id,
                 "steps": len(state["steps"]),
@@ -289,7 +321,11 @@ class ShoppingToolAgentLoop(ToolAgentLoop):
                 "done": bool(state["done"]),
                 "termination_reason": state["termination_reason"],
                 "error": state["error"],
-                "infrastructure_invalid": bool(state["infrastructure_invalid"]),
+                "infrastructure_invalid": bool(breakdown["infrastructure_invalid"]),
+                "model_failure": bool(breakdown["model_failure"]),
+                "failure_kind": breakdown["failure_kind"],
+                "training_reward": breakdown["training_reward"],
+                "dropped_tool_calls": state["dropped_tool_calls"],
                 "action_attempts": int(state["action_attempt_count"]),
                 "repeat_actions": int(state["repeat_action_count"]),
                 "overlong": bool(breakdown.get("overlong", False)),

@@ -46,6 +46,19 @@ class RewardGroupSelectionTest(unittest.TestCase):
         self.assertEqual(record["global_step"], 3)
         self.assertEqual(record["rollouts"][1]["termination_reason"], "max_steps")
 
+    def test_filter_uses_training_reward_even_when_environment_utilities_are_equal(self):
+        rewards = [-0.65, 0.0, 0.0, 0.0]
+        indices, stats = select_reward_varying_groups(
+            ['a'] * 4, rewards, terminal_utilities=[0.0] * 4,
+            sampling_invalid=[False] * 4,
+        )
+        self.assertEqual(indices, [0, 1, 2, 3])
+        self.assertTrue(stats['groups'][0]['reward_varying'])
+        indices, _ = select_reward_varying_groups(
+            ['a'] * 4, [0.5] * 4, terminal_utilities=[0, 1, 0, 0],
+        )
+        self.assertEqual(indices, [])
+
     def test_all_zero_group_is_dropped(self):
         indices, stats = select_reward_varying_groups(["a"] * 4, [0, 0, 0, 0])
         self.assertEqual(indices, [])
@@ -241,6 +254,9 @@ class RewardGroupSelectionTest(unittest.TestCase):
             },
         ]
 
+        for info in infos:
+            info["reward"].update(training_reward=info["reward"]["total"],
+                                  model_failure=info["termination_reason"] == "max_steps")
         metrics = aggregate_shopping_metrics(infos)
 
         self.assertEqual(metrics["reward/full_mean"], 0.5)

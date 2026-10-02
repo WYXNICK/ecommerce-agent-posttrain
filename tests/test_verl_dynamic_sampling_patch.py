@@ -124,6 +124,10 @@ class VerlPatchScriptTest(unittest.TestCase):
                 fit_source,
             )
             self.assertIn("extract_shopping_group_signals", fit_source)
+            self.assertIn("declared_rewards", fit_source)
+            self.assertIn("sampling_batch_diagnostics", fit_source)
+            self.assertIn("training_reward differs from advantage input", fit_source)
+            self.assertIn('non_tensor_batch["shopping_validate"]', target.read_text())
             self.assertIn("aggregate_shopping_metrics", fit_source)
             self.assertIn("terminal_utilities=terminal_utilities", fit_source)
             self.assertIn("sampling_invalid=sampling_invalid", fit_source)

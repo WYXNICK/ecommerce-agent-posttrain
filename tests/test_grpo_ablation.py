@@ -38,10 +38,11 @@ class GrpoAblationTest(unittest.TestCase):
 
         self.assertAlmostEqual(shaped["penalty_overlong"], 0.1)
         self.assertAlmostEqual(shaped["total"], 0.7)
-        self.assertAlmostEqual(shaped["terminal_utility"], 0.7)
+        self.assertAlmostEqual(shaped["terminal_utility"], 0.8)
+        self.assertAlmostEqual(shaped["training_reward"], 0.7)
         self.assertFalse(shaped["sampling_invalid"])
 
-    def test_max_step_trajectory_is_invalid_for_dynamic_resampling(self):
+    def test_max_step_trajectory_remains_valid_for_dynamic_resampling(self):
         reward = {"total": 0.0, "terminal_utility": 0.0, "penalty_overlong": 0.0, "sampling_invalid": False}
         state = {"steps": [{}] * 35, "max_steps": 35, "termination_reason": "max_steps"}
         shaped = apply_reward_length_shaping(
@@ -61,8 +62,8 @@ class GrpoAblationTest(unittest.TestCase):
 
         _, _, invalid, reasons = extract_shopping_group_signals([info])
 
-        self.assertEqual(invalid, [True])
-        self.assertEqual(reasons, [("overlong",)])
+        self.assertEqual(invalid, [False])
+        self.assertEqual(reasons, [()])
 
     def test_metrics_keep_overlong_repeat_loop_and_max_step_rates(self):
         base_reward = {
@@ -72,6 +73,7 @@ class GrpoAblationTest(unittest.TestCase):
             "repeat_action_rate": 1.0, "purchase_success": False, "sampling_invalid": True,
             "r_type": 0.0, "r_att": 0.0, "r_option": 0.0, "r_price": 0.0,
         }
+        base_reward.update(training_reward=base_reward["total"], model_failure=True)
         metrics = aggregate_shopping_metrics([
             {
                 "steps": 35,

@@ -7,7 +7,9 @@ import math
 from typing import Any
 from uuid import uuid4
 
-from shopping_grpo.environment.actions import action_reject_reason
+from shopping_grpo.environment.actions import (
+    MAX_BLOCKED_TOOL_CALLS, action_guard_tool_message, action_reject_reason,
+)
 from shopping_grpo.environment.tools import tool_call_to_action
 from shopping_grpo.environment.observation import render_structured_observation
 from shopping_grpo.training.grpo.adapter.runtime import (
@@ -56,14 +58,6 @@ class ShopSimulatorTool(BaseTool):
         if len(state["steps"]) >= state["max_steps"]:
             _terminate(state, "max_steps")
             return ToolResponse(text="Error: maximum executed tool steps reached."), 0.0, {"reason": "max_steps"}
-        parameters = parameters if isinstance(parameters, dict) else {}
-        # think 不触碰环境，只记录一次模型决策；其余工具必须经过动作守卫。
-        if self.name == "think":
-            step = _append_step(state, self.name, parameters)
-            if len(state["steps"]) >= state["max_steps"]:
-                _terminate(state, "max_steps")
-                return ToolResponse(text="Error: maximum executed tool steps reached."), 0.0, step
-            return ToolResponse(text="Reasoning recorded. Continue with one environment tool call."), 0.0, step
         observation = state.get("latest_observation", "")
         record_action_attempt(state, self.name, parameters, observation)
         state["action_attempt_after_truncation_count"] += int(
@@ -71,19 +65,15 @@ class ShopSimulatorTool(BaseTool):
         )
         reason = action_reject_reason(self.name, parameters, observation)
         if reason:
-            state["guard_rejection_count"] += 1
-            reason_counts = state["guard_rejection_reason_counts"]
-            reason_counts[reason] = reason_counts.get(reason, 0) + 1
-            state["guard_rejection_after_truncation_count"] += int(
-                bool(state.get("latest_observation_truncated"))
-            )
-            state["consecutive_guard_rejections"] += 1
-            if state["consecutive_guard_rejections"] >= 3:
-                _terminate(state, "too_many_guard_rejections")
-                return ToolResponse(text="Error: maximum consecutive action guard rejections reached."), 0.0, {
-                    "reason": reason
-                }
-            return ToolResponse(text=f"Error: action guard rejected this call ({reason}); read the latest observation."), 0.0, {"reason": reason}
+            return reject_tool_call(state, self.name, reason)
+        if self.name == "think":
+            state["consecutive_guard_rejections"] = 0
+            step = _append_step(state, self.name, parameters)
+            state["latest_observation"] = parameters["note"]
+            state["_pending_raw_observation"] = parameters["note"]
+            if len(state["steps"]) >= state["max_steps"]:
+                _terminate(state, "max_steps")
+            return ToolResponse(text=parameters["note"]), 0.0, step
         try:
             # 先转换成环境动作，再在线程中调用同步客户端；终局 reward 只信任
             # 环境返回的 Reward v3 结构，避免训练侧自行猜测分数。
@@ -200,3 +190,20 @@ def _terminate(state, reason, *, infrastructure_invalid=False):
     state["error"] = reason
     if infrastructure_invalid:
         state["infrastructure_invalid"] = True
+
+
+def reject_tool_call(state, name, reason):
+    """Reject without stepping the environment; feedback is shared with evaluation."""
+    state["guard_rejection_count"] += 1
+    counts = state["guard_rejection_reason_counts"]
+    counts[reason] = counts.get(reason, 0) + 1
+    state["guard_rejection_after_truncation_count"] += int(
+        bool(state.get("latest_observation_truncated"))
+    )
+    state["consecutive_guard_rejections"] += 1
+    if state["consecutive_guard_rejections"] >= MAX_BLOCKED_TOOL_CALLS:
+        _terminate(state, "invalid_action_limit")
+    message = action_guard_tool_message(
+        {"function": {"name": name}}, reason, state.get("latest_observation", "")
+    )
+    return ToolResponse(text=message["content"]), 0.0, {"reason": reason}

@@ -32,6 +32,22 @@ def terminal_state(*, steps=8, reward_type="gold_purchase", native_reward=1.0):
 
 
 class ShoppingRewardTest(unittest.TestCase):
+    def test_model_nonterminals_remain_trainable_and_environment_score_unchanged(self):
+        for reason in ('invalid_action_limit', 'assistant_final', 'context_hard_limit_exceeded',
+                       'response_budget_exhausted', 'max_steps'):
+            state = make_runtime_state(1, 35)
+            state.update(termination_reason=reason, error=reason, terminate=True)
+            reward = reward_breakdown(state)
+            self.assertEqual(reward['training_reward'], -0.65)
+            self.assertEqual(reward['terminal_utility'], 0.0)
+            self.assertEqual(reward['native'], 0.0)
+            self.assertFalse(reward['sampling_invalid'])
+            self.assertFalse(reward['reward_unverifiable'])
+            state['infrastructure_invalid'] = True
+            invalid = reward_breakdown(state)
+            self.assertTrue(invalid['sampling_invalid'])
+            self.assertEqual(invalid['training_reward'], 0.0)
+
     def test_gold_purchase_preserves_terminal_reward_without_efficiency_bonus(self):
         for steps in (8, 35):
             with self.subTest(steps=steps):

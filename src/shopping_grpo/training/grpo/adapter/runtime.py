@@ -22,6 +22,10 @@ REWARD_V3_TYPES = {
     "max_steps",
     "reward_unverifiable",
 }
+MODEL_FAILURE_REASONS = {
+    "invalid_action_limit", "assistant_final", "max_steps", "response_budget_exhausted",
+    "assistant_turn_limit", "context_budget_exhausted", "context_hard_limit_exceeded",
+}
 
 
 def make_runtime_state(task_id: int, max_steps: int) -> dict:
@@ -64,6 +68,7 @@ def make_runtime_state(task_id: int, max_steps: int) -> dict:
         "guard_rejection_reason_counts": {},
         "guard_rejection_after_truncation_count": 0,
         "action_attempt_after_truncation_count": 0,
+        "dropped_tool_calls": 0,
     }
 
 
@@ -215,7 +220,7 @@ def _normal_terminal(state: dict) -> bool:
     )
 
 
-def reward_breakdown(state: dict) -> dict[str, float | bool]:
+def _environment_reward_breakdown(state: dict) -> dict[str, float | bool]:
     """计算约束感知终局奖励；基础设施无效轨迹只返回诊断，不制造学习信号。"""
     invalid = bool(state.get("infrastructure_invalid"))
     normal_terminal = _normal_terminal(state)
@@ -307,6 +312,28 @@ def reward_breakdown(state: dict) -> dict[str, float | bool]:
     }
 
 
+def reward_breakdown(state: dict, model_failure_reward: float = -0.65) -> dict:
+    """Keep Reward v3 intact; only model-caused nonterminals receive a synthetic cost."""
+    reward = _environment_reward_breakdown(state)
+    model_nonterminal = (
+        not _normal_terminal(state)
+        and not state.get("infrastructure_invalid")
+        and state.get("termination_reason") in MODEL_FAILURE_REASONS
+    )
+    if model_nonterminal:
+        reward.update(total=float(model_failure_reward), sampling_invalid=False,
+                      infrastructure_invalid=False, reward_unverifiable=False)
+    reward["model_failure"] = bool(model_nonterminal or state.get("reward_type") in {
+        "wrong_purchase", "early_abstain", "repeat_loop", "max_steps",
+    })
+    reward["training_reward"] = float(reward["total"])
+    reward["failure_kind"] = (
+        "infrastructure" if reward["sampling_invalid"] else
+        "model" if reward["model_failure"] else "none"
+    )
+    return reward
+
+
 def apply_reward_length_shaping(
     reward: Mapping,
     state: Mapping,
@@ -316,7 +343,7 @@ def apply_reward_length_shaping(
     penalty_per_step: float = 0.01,
     max_penalty: float = 0.15,
 ) -> dict:
-    """Apply optional soft length cost and invalidate hard max-step trajectories."""
+    """Apply optional training-only length cost; model length failures stay trainable."""
     shaped = dict(reward)
     if not enabled:
         return shaped
@@ -330,13 +357,11 @@ def apply_reward_length_shaping(
     penalty = min(max(steps - threshold, 0) * per_step, cap)
     shaped["penalty_overlong"] = float(shaped.get("penalty_overlong", 0.0)) + penalty
     shaped["total"] = float(shaped["total"]) - penalty
-    shaped["terminal_utility"] = float(shaped["terminal_utility"]) - penalty
+    shaped["training_reward"] = float(shaped["total"])
     shaped["overlong"] = bool(
         state.get("termination_reason") == "max_steps"
         or steps >= int(state.get("max_steps", steps + 1))
     )
-    if shaped["overlong"]:
-        shaped["sampling_invalid"] = True
     return shaped
 
 

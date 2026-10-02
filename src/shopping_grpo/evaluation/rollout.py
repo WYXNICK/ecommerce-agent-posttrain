@@ -15,7 +15,9 @@ from pathlib import Path
 from urllib.request import Request, urlopen
 from uuid import uuid4
 
-from shopping_grpo.environment.actions import action_guard_tool_message, action_reject_reason
+from shopping_grpo.environment.actions import (
+    MAX_BLOCKED_TOOL_CALLS, action_guard_tool_message, action_reject_reason, serial_tool_calls,
+)
 from shopping_grpo.environment.context import (
     ContextBudgetError,
     VllmChatTokenCounter,
@@ -46,7 +48,6 @@ SYSTEM_PROMPT = """你是一个购物 Agent，负责在 ShopSimulator 中替用�
 """
 
 
-MAX_BLOCKED_TOOL_CALLS = 3
 MODEL_COMPLETION_RETRIES = 2
 MODEL_RETRY_DELAY_SECONDS = 1
 
@@ -553,8 +554,8 @@ def _enforce_serial_tool_call(assistant):
     if len(tool_calls) <= 1:
         return assistant, []
     serial_assistant = dict(assistant)
-    serial_assistant["tool_calls"] = [tool_calls[0]]
-    return serial_assistant, list(tool_calls[1:])
+    serial_assistant["tool_calls"], dropped = serial_tool_calls(tool_calls)
+    return serial_assistant, dropped
 
 
 def _initial_messages(task, initial):
