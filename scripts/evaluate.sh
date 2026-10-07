@@ -8,6 +8,10 @@ SHOPSIM_BASE_URL="${SHOPSIM_BASE_URL:-http://127.0.0.1:5700}"
 LLM_BASE_URL="${LLM_BASE_URL:-http://127.0.0.1:8000/v1}"
 LLM_API_KEY="${LLM_API_KEY:-EMPTY}"
 SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-shopping-agent}"
+TOKEN_OPTIONS=()
+if [[ -n "${EVAL_TOKENIZER_PATH:-}" ]]; then
+  TOKEN_OPTIONS=(--tokenizer "$EVAL_TOKENIZER_PATH" --response-length 20480)
+fi
 
 mkdir -p "$OUTPUT_DIR"
 cd "$ROOT"
@@ -18,6 +22,6 @@ cd "$ROOT"
   --base-url "$SHOPSIM_BASE_URL" \
   --model "$SERVED_MODEL_NAME" \
   --llm-base-url "$LLM_BASE_URL" \
-  --api-key "$LLM_API_KEY"
+  --api-key "$LLM_API_KEY" "${TOKEN_OPTIONS[@]}"
 
 "$ROOT/.venv/bin/python" scripts/build_eval_report.py --run-dir "$OUTPUT_DIR"

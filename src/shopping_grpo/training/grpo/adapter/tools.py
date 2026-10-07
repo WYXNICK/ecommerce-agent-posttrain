@@ -10,7 +10,7 @@ from uuid import uuid4
 from shopping_grpo.environment.actions import (
     MAX_BLOCKED_TOOL_CALLS, action_guard_tool_message, action_reject_reason,
 )
-from shopping_grpo.environment.tools import tool_call_to_action
+from shopping_grpo.environment.tools import SHOP_TOOL_SCHEMAS, tool_call_to_action
 from shopping_grpo.environment.observation import render_structured_observation
 from shopping_grpo.training.grpo.adapter.runtime import (
     current_environment,
@@ -40,6 +40,13 @@ except ImportError:  # pragma: no cover - 仅轻量开发环境使用
 
 class ShopSimulatorTool(BaseTool):
     """执行共享工具定义；当前 coroutine 的 env/state 由 AgentLoop 绑定。"""
+
+    def __init__(self, config, tool_schema):
+        name = (tool_schema["function"]["name"] if isinstance(tool_schema, dict)
+                else tool_schema.function.name)
+        canonical = next(s for s in SHOP_TOOL_SCHEMAS if s["function"]["name"] == name)
+        schema = canonical if isinstance(tool_schema, dict) else type(tool_schema).model_validate(canonical)
+        super().__init__(config, schema)
 
     async def create(self, instance_id=None, **kwargs):
         del kwargs

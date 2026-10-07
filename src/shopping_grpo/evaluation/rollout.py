@@ -185,13 +185,15 @@ class OpenAIChatClient:
             # family without sending a provider-specific field to local vLLM.
             if self.model.casefold().startswith("deepseek-v4"):
                 payload["thinking"] = {"type": "disabled"}
+        url = self.base_url if self.responses_api else f"{self.base_url}/chat/completions"
+        return _response_message(self._request(url, payload), responses_api=self.responses_api)
+
+    def _request(self, url, payload):
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}",
-            # 避免 Cloudflare 将 Python urllib 默认客户端识别为自动化流量。
             "User-Agent": "shopping-grpo-longhorizon/0.1",
         }
-        url = self.base_url if self.responses_api else f"{self.base_url}/chat/completions"
         for attempt in range(MODEL_COMPLETION_RETRIES + 1):
             try:
                 if self.transport is not None:
@@ -205,7 +207,7 @@ class OpenAIChatClient:
                     )
                     with urlopen(request, timeout=self.timeout) as raw:
                         response = json.loads(raw.read().decode("utf-8"))
-                return _response_message(response, responses_api=self.responses_api)
+                return response
             except (RemoteDisconnected, TimeoutError, URLError):
                 if attempt >= MODEL_COMPLETION_RETRIES:
                     raise
@@ -431,6 +433,8 @@ def collect_for_task(
             "traceback": traceback.format_exc(),
         }
     finally:
+        if hasattr(client, "generation_turns"):
+            trajectory["generation_turns"] = list(client.generation_turns)
         try:
             env.release()
         except Exception as exc:

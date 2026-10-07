@@ -17,6 +17,8 @@ data:
   return_raw_chat: true
   filter_overlong_prompts: true
   truncation: error
+  apply_chat_template_kwargs:
+    enable_thinking: false
 
 actor_rollout_ref:
   model:

@@ -11,7 +11,10 @@ import math
 
 from verl.experimental.agent_loop.tool_agent_loop import AgentState, ToolAgentLoop
 
-from shopping_grpo.environment.context import ContextBudgetError, compact_token_trajectory
+from shopping_grpo.environment.context import (
+    ContextBudgetError, ResponseBudgetError, compact_token_trajectory, generation_token_limit,
+)
+from shopping_grpo.environment.tokenization import token_fingerprint, tool_response_tokens
 from shopping_grpo.environment.actions import serial_tool_calls
 from shopping_grpo.environment.projection import (
     ObservationProjectionError,
@@ -116,6 +119,19 @@ class ShoppingToolAgentLoop(ToolAgentLoop):
             raise ValueError("reward length penalties must be non-negative")
         self.env_factory = env_factory
 
+    async def apply_chat_template(self, messages, *, remove_system_prompt=False, **kwargs):
+        if not remove_system_prompt:
+            return await super().apply_chat_template(messages, **kwargs)
+        # Observation projection already applies the tool-specific content cap.
+        # Preserve the wrapper instead of slicing a tool chunk to prompt_length.
+        tokens = tool_response_tokens(
+            self.tokenizer, messages, template_kwargs=self.apply_chat_template_kwargs,
+        )
+        state = current_runtime_state.get()
+        if state is not None and state["generation_turns"]:
+            state["generation_turns"][-1]["tool_tokens_attempted"] = len(tokens)
+        return tokens
+
     async def _handle_generating_state(
         self,
         agent_data,
@@ -150,18 +166,6 @@ class ShoppingToolAgentLoop(ToolAgentLoop):
             response_mask = agent_data.response_mask
             response_logprobs = agent_data.response_logprobs
             stats = None
-        if (
-            not self.context_compaction_enable
-            and current_input_tokens
-            > self.context_window_tokens
-            - self.context_generation_reserve_tokens
-            - self.context_safety_margin_tokens
-        ):
-            if runtime_state is not None:
-                runtime_state["terminate"] = True
-                runtime_state["termination_reason"] = "context_hard_limit_exceeded"
-                runtime_state["error"] = runtime_state["termination_reason"]
-            return AgentState.TERMINATED
         if stats is not None and stats.removed_tokens:
             # routed-experts 的额外状态无法随 token 一起安全裁剪，因此直接判为无效。
             if agent_data.routed_experts is not None:
@@ -178,16 +182,40 @@ class ShoppingToolAgentLoop(ToolAgentLoop):
                 runtime_state["context_compactions"] += 1
                 runtime_state["context_tokens_removed"] += stats.removed_tokens
         bounded_sampling_params = dict(sampling_params)
-        if "max_tokens" in bounded_sampling_params:
-            bounded_sampling_params["max_tokens"] = min(
-                int(bounded_sampling_params["max_tokens"]),
-                self.context_generation_reserve_tokens,
+        try:
+            bounded_sampling_params["max_tokens"] = generation_token_limit(
+                input_tokens=len(agent_data.prompt_ids),
+                response_tokens=len(agent_data.response_mask),
+                context_window=self.context_window_tokens,
+                response_length=self.response_length,
+                max_tokens=self.context_generation_reserve_tokens,
+                safety_margin=self.context_safety_margin_tokens,
+                requested_max_tokens=sampling_params.get("max_tokens"),
             )
+        except ContextBudgetError as exc:
+            if runtime_state is not None:
+                reason = ("response_budget_exhausted" if isinstance(exc, ResponseBudgetError)
+                          else "context_hard_limit_exceeded")
+                runtime_state.update(terminate=True, termination_reason=reason, error=str(exc))
+            return AgentState.TERMINATED
+        turn = {
+            "input_tokens": len(agent_data.prompt_ids),
+            "input_token_sha256": token_fingerprint(agent_data.prompt_ids),
+            "response_tokens_before": len(agent_data.response_mask),
+            "effective_max_tokens": bounded_sampling_params["max_tokens"],
+            "remaining_response_tokens": self.response_length - len(agent_data.response_mask),
+            "remaining_context_tokens": self.context_window_tokens - len(agent_data.prompt_ids)
+                                        - self.context_safety_margin_tokens,
+        }
         next_state = await super()._handle_generating_state(
             agent_data,
             bounded_sampling_params,
             ignore_termination=ignore_termination,
         )
+        turn.update(assistant_tokens=len(agent_data.response_ids), tool_tokens=0,
+                    response_tokens_after=len(agent_data.response_mask))
+        if runtime_state is not None:
+            runtime_state["generation_turns"].append(turn)
         if next_state == AgentState.TERMINATED and runtime_state is not None:
             if len(agent_data.response_mask) >= self.response_length:
                 reason = "response_budget_exhausted"
@@ -269,8 +297,14 @@ class ShoppingToolAgentLoop(ToolAgentLoop):
         agent_data.tool_calls, dropped = serial_tool_calls(agent_data.tool_calls)
         if runtime_state is not None:
             runtime_state["dropped_tool_calls"] += len(dropped)
+        previous_tokens = len(agent_data.response_mask)
         next_state = await super()._handle_processing_tools_state(agent_data)
         runtime_state = current_runtime_state.get()
+        if runtime_state is not None and runtime_state["generation_turns"]:
+            runtime_state["generation_turns"][-1].update(
+                tool_tokens=len(agent_data.response_mask) - previous_tokens,
+                response_tokens_after=len(agent_data.response_mask),
+            )
         if runtime_state is not None and runtime_state.get("terminate"):
             return AgentState.TERMINATED
         if next_state == AgentState.TERMINATED and runtime_state is not None:
@@ -338,6 +372,10 @@ class ShoppingToolAgentLoop(ToolAgentLoop):
                 "context_compactions": int(state["context_compactions"]),
                 "context_tokens_removed": int(state["context_tokens_removed"]),
                 "context_max_input_tokens": int(state["context_max_input_tokens"]),
+                "generation_turns": state["generation_turns"],
+                "assistant_tokens": sum(t["assistant_tokens"] for t in state["generation_turns"]),
+                "tool_tokens": sum(t["tool_tokens"] for t in state["generation_turns"]),
+                "response_tokens": len(output.response_mask),
                 "observation_projection_count": int(state["observation_projection_count"]),
                 "observation_truncated_count": int(state["observation_truncated_count"]),
                 "observation_raw_tokens": int(state["observation_raw_tokens"]),

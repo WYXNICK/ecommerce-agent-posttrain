@@ -15,6 +15,27 @@ class ContextBudgetError(RuntimeError):
     """The required prompt and latest environment state do not fit the configured budget."""
 
 
+class ResponseBudgetError(ContextBudgetError):
+    """The cumulative assistant/tool response region has reached its limit."""
+
+
+def generation_token_limit(*, input_tokens, response_tokens, context_window,
+                           response_length, max_tokens, safety_margin,
+                           requested_max_tokens=None):
+    """Apply the same per-turn, response-region and context limits in both executors."""
+    if response_tokens >= response_length:
+        raise ResponseBudgetError("response_budget_exhausted")
+    input_budget = context_window - max_tokens - safety_margin
+    if input_tokens > input_budget:
+        raise ContextBudgetError(
+            f"prompt uses {input_tokens} tokens, above input budget {input_budget}"
+        )
+    requested = max_tokens if requested_max_tokens is None else int(requested_max_tokens)
+    if requested < 1:
+        raise ValueError("requested max_tokens must be positive")
+    return min(requested, max_tokens, response_length - response_tokens)
+
+
 @dataclass(frozen=True)
 class ContextWindowStats:
     original_tokens: int

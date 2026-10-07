@@ -163,7 +163,7 @@ def aggregate_shopping_metrics(shopping_infos: Sequence[object]) -> dict[str, fl
     def mean(values):
         return sum(values) / len(values)
 
-    return {
+    result = {
         "reward/full_mean": mean(rewards["full"]),
         "reward/strict_mean": mean(rewards["strict"]),
         "reward/native_mean": mean(rewards["native"]),
@@ -200,6 +200,20 @@ def aggregate_shopping_metrics(shopping_infos: Sequence[object]) -> dict[str, fl
         "trajectory/reward_unverifiable_rate": mean(reward_unverifiable),
         "trajectory/sampling_invalid_rate": mean(sampling_invalid),
     }
+    turns = [turn for info in shopping_infos for turn in info.get("generation_turns", [])]
+    if turns:
+        result.update({
+            "tokens/assistant_mean": mean([info["assistant_tokens"] for info in shopping_infos]),
+            "tokens/tool_mean": mean([info["tool_tokens"] for info in shopping_infos]),
+            "tokens/response_max": max(info["response_tokens"] for info in shopping_infos),
+            "tokens/assistant_turn_max": max(t["assistant_tokens"] for t in turns),
+            "tokens/effective_max_tokens_max": max(t["effective_max_tokens"] for t in turns),
+            "trajectory/response_budget_failure_rate": mean([
+                float(info.get("termination_reason") == "response_budget_exhausted")
+                for info in shopping_infos
+            ]),
+        })
+    return result
 
 
 def extract_shopping_group_signals(

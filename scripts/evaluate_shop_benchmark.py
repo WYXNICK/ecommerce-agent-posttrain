@@ -49,6 +49,10 @@ def parse_args():
     parser.add_argument("--observation-detail-token-budget", type=int, default=4096)
     parser.add_argument("--observation-generic-token-budget", type=int, default=768)
     parser.add_argument("--observation-search-top-k", type=int, default=20)
+    parser.add_argument("--tokenizer", type=Path,
+                        help="Local model tokenizer: preserve veRL's exact raw-token prefixes")
+    parser.add_argument("--response-length", type=int, default=20480,
+                        help="Cumulative assistant/tool token limit for local token evaluation")
     return parser.parse_args()
 
 
@@ -73,7 +77,16 @@ def main():
     if args.observation_token_budget < 0:
         raise SystemExit("--observation-token-budget 不能为负数")
     tasks = load_tasks(args.benchmark)
-    client = OpenAIChatClient(
+    client_type = OpenAIChatClient
+    token_options = {}
+    if args.tokenizer is not None:
+        from transformers import AutoTokenizer
+        from shopping_grpo.evaluation.token_client import VllmTokenClient
+        client_type = VllmTokenClient
+        token_options = {"tokenizer": AutoTokenizer.from_pretrained(args.tokenizer),
+                         "response_length": args.response_length}
+    client = client_type(
+        **token_options,
         model=args.model,
         base_url=args.llm_base_url,
         api_key=args.api_key,
@@ -114,6 +127,9 @@ def main():
         "observation_detail_token_budget": args.observation_detail_token_budget,
         "observation_generic_token_budget": args.observation_generic_token_budget,
         "observation_search_top_k": args.observation_search_top_k,
+        "tokenizer": str(args.tokenizer) if args.tokenizer else None,
+        "response_length": args.response_length if args.tokenizer else None,
+        "prefix_mode": "raw_tokens" if args.tokenizer else "chat_messages",
     }
     args.summary.parent.mkdir(parents=True, exist_ok=True)
     args.summary.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

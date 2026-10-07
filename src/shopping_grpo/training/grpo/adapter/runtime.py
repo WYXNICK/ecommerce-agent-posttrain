@@ -53,6 +53,7 @@ def make_runtime_state(task_id: int, max_steps: int) -> dict:
         "context_compactions": 0,
         "context_tokens_removed": 0,
         "context_max_input_tokens": 0,
+        "generation_turns": [],
         "observation_projection_count": 0,
         "observation_truncated_count": 0,
         "observation_raw_tokens": 0,
