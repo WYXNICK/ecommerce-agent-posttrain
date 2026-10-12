@@ -1,0 +1,16 @@
+{
+  "seed": 20261012,
+  "source": "environments/ShopSimulator/shop_env/data/items_eval_train.json",
+  "search_index": "environments/ShopSimulator/shop_env/search_engine/products.sqlite3",
+  "instruction_similarity": 0.85,
+  "title_similarity": 0.95,
+  "split_sizes": {
+    "test": 1000,
+    "dev": 300,
+    "sft_validation_candidates": 800,
+    "teacher_candidates": 4000,
+    "grpo_train": 2000
+  },
+  "subset_sizes": {"teacher_pilot": 100, "dev_smoke": 50},
+  "trajectory_targets": {"sft_train": 2000, "sft_validation": 200, "repair_rounds": [300, 200]}
+}

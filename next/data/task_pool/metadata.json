@@ -1,0 +1,694 @@
+{
+  "schema_version": "shopping-task-pool-v1",
+  "config": {
+    "seed": 20261012,
+    "source": "environments/ShopSimulator/shop_env/data/items_eval_train.json",
+    "search_index": "environments/ShopSimulator/shop_env/search_engine/products.sqlite3",
+    "instruction_similarity": 0.85,
+    "title_similarity": 0.95,
+    "split_sizes": {
+      "test": 1000,
+      "dev": 300,
+      "sft_validation_candidates": 800,
+      "teacher_candidates": 4000,
+      "grpo_train": 2000
+    },
+    "subset_sizes": {
+      "teacher_pilot": 100,
+      "dev_smoke": 50
+    },
+    "trajectory_targets": {
+      "sft_train": 2000,
+      "sft_validation": 200,
+      "repair_rounds": [
+        300,
+        200
+      ]
+    }
+  },
+  "source_sha256": "57b10950a0064d16c81535a1d764a75879a508d250dde8a2a1787c5e6045559f",
+  "search_index_sha256": "755589649a2bebe48d2bab5cc794fed64fec1af3df2eebfa8577b129f823e8b8",
+  "contract": {
+    "environment_version": "shopsimulator-environment-v2.1",
+    "observation_version": "shopping-observation-v2",
+    "tool_version": "shopping-tools-v2"
+  },
+  "reward_version": "shopsimulator-reward-v3",
+  "source_task_count": 23421,
+  "history_task_count": 2517,
+  "non_runtime_history_ids": [
+    900001,
+    900002,
+    900003
+  ],
+  "history_sources": {
+    "data/evaluation/metadata.json": {
+      "sha256": "fc62d0d9cb16bf9bcc68a689a6bf17236adc923acaa56ff136cf5fa7ecff4442",
+      "task_count": 162
+    },
+    "data/evaluation/tasks.jsonl": {
+      "sha256": "d99112a20ef47534c27a32e4b38229bf048dcc6b06fef2e3e919aac3093662f5",
+      "task_count": 200
+    },
+    "data/grpo/train.jsonl": {
+      "sha256": "4e6d441e1a432223741b2968d1622d1e77ab855a7d8fe9275cd7df2bbf5565bf",
+      "task_count": 1000
+    },
+    "data/grpo/validation.jsonl": {
+      "sha256": "11e0e15ec9fe6911c7c5b8e8525ad06a0b020367e58461e6ab1baa3cdbe73d61",
+      "task_count": 50
+    },
+    "data/sft/train.jsonl": {
+      "sha256": "8c3a6ff0033f6ea672af609891e747d60652ddc17e8d3c8eacb19e9d96dd9477",
+      "task_count": 800
+    },
+    "data/sft/validation.jsonl": {
+      "sha256": "9525cc2fb04a1d8d38ae2db959397da908dde3fea766f580fdcf77d1239533cc",
+      "task_count": 200
+    },
+    "data/sft_curriculum/manifest.json": {
+      "sha256": "d17d2a6f66eb314d59d8e63edef208b6018ce348718f24d85d1a566c96695f7a",
+      "task_count": 1192
+    },
+    "data/sft_pure_v4/all.jsonl": {
+      "sha256": "7b70db7174daf7660209800441c06b2502d602969881b524ff0d2a3be5fb981e",
+      "task_count": 1192
+    },
+    "data/sft_pure_v4/difficulty_labels.jsonl": {
+      "sha256": "50da1b9014e876848d5b5b8dcbf221ef8e981f1d32de28ded6b9492fcc70b894",
+      "task_count": 1192
+    },
+    "data/sft_pure_v4/duplicate_report.json": {
+      "sha256": "f4947f659708b03291939dc8a0f67d086cfca2753a6e8461a3fd1de23d4727ca",
+      "task_count": 1192
+    },
+    "data/sft_pure_v4/metadata.json": {
+      "sha256": "9d3bad2c53d3725d0f11143af49a0ce0ee7f43b600f78905573d340e6ce2207c",
+      "task_count": 6
+    },
+    "docs/reproduction/grpo-e1-results.json": {
+      "sha256": "3f9ebfe465105a8de64d211ecd5c9e24a7a8653dbbb8595c2ee8683e574a651f",
+      "task_count": 156
+    },
+    "docs/reproduction/grpo-e2-results.json": {
+      "sha256": "fab36cbf83d8d32025df9af92731362c3ddf8c4267003a5f276c8bb3da6e0d00",
+      "task_count": 146
+    },
+    "docs/reproduction/grpo-e3-results.json": {
+      "sha256": "d9b59ba3affddbdb69f7b2bf7011d6891264a4b118441a85223b7633dce48495",
+      "task_count": 142
+    },
+    "docs/reproduction/sft-results.json": {
+      "sha256": "4a727cb69d85ef628f0a673a3f23edff96dd6503fa8b0852ef49d13fe24aa53c",
+      "task_count": 131
+    },
+    "examples/trajectories.jsonl": {
+      "sha256": "674af2a766f85c9936d8e59a62be3f43c84321725347e452e26ba6f965ca79cd",
+      "task_count": 3
+    },
+    "outputs/evaluation/baseline/summary.json": {
+      "sha256": "1c858c10527eac0c7954a9c0fb0f890f6186cf3e273701a863cd091ac195a3c3",
+      "task_count": 2
+    },
+    "outputs/evaluation/baseline/trajectories.jsonl": {
+      "sha256": "061e829abb78b0d8f83d3b7136594f0ca2b934537478a27aa851d421b6d19c6d",
+      "task_count": 200
+    },
+    "outputs/evaluation/sft/summary.json": {
+      "sha256": "92ed3ea7843cd461beee34ae098051fe1bc0d8a520a67a92e5a3dc4936c3fe60",
+      "task_count": 131
+    },
+    "outputs/evaluation/sft/trajectories.jsonl": {
+      "sha256": "eef08298f53dc21b1a08f26b320825a9ae27895e120328036e073688de220cf4",
+      "task_count": 200
+    },
+    "outputs/reproduction/grpo-2026-09-28/attempt2/training_diagnostics.jsonl": {
+      "sha256": "6b1bdbfff33dd9a7805e0091686a3df9e978c4ce77a1c150db9f459c60e3e028",
+      "task_count": 46
+    },
+    "outputs/reproduction/grpo-2026-09-28/attempt3/training_diagnostics.jsonl": {
+      "sha256": "3007018eb7353f6bdda5df9a8a7f849646546f647de528b2f82cfe04ca5af16e",
+      "task_count": 50
+    },
+    "outputs/reproduction/grpo-2026-09-28/attempt4/training_diagnostics.jsonl": {
+      "sha256": "e7415d652fd0a51b2f88f7f54f61fcda038d4f076621746680abd5c1d2855515",
+      "task_count": 136
+    },
+    "outputs/reproduction/grpo-2026-09-28/training_diagnostics.jsonl": {
+      "sha256": "564ad6674c562ded7a0f44cee2041b5dae68deebd575db2d02a92d809e745a35",
+      "task_count": 6
+    },
+    "outputs/reproduction/grpo-dual-h100/environment-smoke/task_1535_20260928_070110.json": {
+      "sha256": "d2b8c3ec00a21827920ccd1480df3154eb625be0d218842303c9f639be39fc14",
+      "task_count": 1
+    },
+    "outputs/reproduction/grpo-dual-h100/evaluation/summary.json": {
+      "sha256": "fab2000b1d60d354f2edf2f6f1b9595181c05bcf36d00b3125fe97dc4a016841",
+      "task_count": 132
+    },
+    "outputs/reproduction/grpo-dual-h100/evaluation/trajectories.jsonl": {
+      "sha256": "837ffa40bdbae37aa6a3cf040d956881484bf9281a3a5e73c558943d16864e78",
+      "task_count": 200
+    },
+    "outputs/reproduction/grpo-dual-h100/training_diagnostics-before-resume.jsonl": {
+      "sha256": "fc04d90ee0a3925d7ee096fa5eaed79f0d96e286b16718bb660308a002e864d2",
+      "task_count": 646
+    },
+    "outputs/reproduction/grpo-dual-h100/training_diagnostics.jsonl": {
+      "sha256": "d8034b03b8d5a3c57f6ae3c41eaf184c1a2bc402e39a1d0a7e906bd26feab585",
+      "task_count": 1000
+    },
+    "outputs/reproduction/grpo-e1-20260930/evaluation/summary.json": {
+      "sha256": "29ad59aa43d70fe308565a9a397a470448d8b49ad3477f4bb3afc2890f25fd1c",
+      "task_count": 138
+    },
+    "outputs/reproduction/grpo-e1-20260930/evaluation/trajectories.jsonl": {
+      "sha256": "3b0f67afc214d78644d33395ba0ea8cf593e677c595691c92457ea5730192ce0",
+      "task_count": 200
+    },
+    "outputs/reproduction/grpo-e1-20260930/interrupted-after-step10.jsonl": {
+      "sha256": "c0ebf5ca956c0c2d3424a14ef0e912a14740290d882825a0973adce426454897",
+      "task_count": 14
+    },
+    "outputs/reproduction/grpo-e1-20260930/training_diagnostics.jsonl": {
+      "sha256": "eacac2f5af356a40a689daeaced718ebd3611dc09a66e7723255a719b08d2955",
+      "task_count": 1000
+    },
+    "outputs/reproduction/grpo-e2-20261004/api-smoke/summary.json": {
+      "sha256": "bccd5fcb62c338da5134c620f494a96b060603d3967ccf0bd63abe82b876b5d3",
+      "task_count": 3
+    },
+    "outputs/reproduction/grpo-e2-20261004/api-smoke/trajectories.jsonl": {
+      "sha256": "450c0db58f746791d44943d8a79d092e2d42e2b57ee8694f9d4c501b492e03a3",
+      "task_count": 5
+    },
+    "outputs/reproduction/grpo-e2-20261004/api-smoke-tasks.jsonl": {
+      "sha256": "e4a11c32c762337756c2ceec1a77f5458ddf01130d6fa6f336453f4a77787472",
+      "task_count": 5
+    },
+    "outputs/reproduction/grpo-e2-20261004/evaluation/e1/summary.json": {
+      "sha256": "aea6231f7f8c07efb5d1a865d97586c74b4aa593bfa414eef18b703b5387e1b8",
+      "task_count": 137
+    },
+    "outputs/reproduction/grpo-e2-20261004/evaluation/e1/trajectories.jsonl": {
+      "sha256": "0956f914442c2fbf6703e4e20ff170f9a5fb5579a13ffc1de193e9852978b280",
+      "task_count": 200
+    },
+    "outputs/reproduction/grpo-e2-20261004/evaluation/e2/summary.json": {
+      "sha256": "d16ceac8161c0c1215012304df9abf5c91e85e6dad212fddc07606c384903232",
+      "task_count": 135
+    },
+    "outputs/reproduction/grpo-e2-20261004/evaluation/e2/trajectories.jsonl": {
+      "sha256": "6620d79704912448bf490b9b64017dc39a9fbd994a5c90561dfb6b349280d463",
+      "task_count": 200
+    },
+    "outputs/reproduction/grpo-e2-20261004/evaluation/e2/verification.json": {
+      "sha256": "6732383390705f74e55dd853ec2efb10d93f308512b0241d9d99df7621e7bcaf",
+      "task_count": 2
+    },
+    "outputs/reproduction/grpo-e2-20261004/evaluation/results.json": {
+      "sha256": "071b855efb3946bf4d6742cf85813b0f1491c3e4a91b13ebf89db0b50a848d87",
+      "task_count": 144
+    },
+    "outputs/reproduction/grpo-e2-20261004/evaluation/sft/summary.json": {
+      "sha256": "257ecd94cc54682cf255dd7b8af965465fcc3f0c7a84c6cd6b1208a78cfd58bf",
+      "task_count": 133
+    },
+    "outputs/reproduction/grpo-e2-20261004/evaluation/sft/trajectories.jsonl": {
+      "sha256": "4e1c8d6c18dd3b06d2d7fb2509ea9015656bdbe70074628dd2591da33efe8b46",
+      "task_count": 200
+    },
+    "outputs/reproduction/grpo-e2-20261004/evaluation/vanilla/summary.json": {
+      "sha256": "fe158b5c1a7e711f08f204b8dba56dca763791958ef9512c3e2d09d5e96825c9",
+      "task_count": 136
+    },
+    "outputs/reproduction/grpo-e2-20261004/evaluation/vanilla/trajectories.jsonl": {
+      "sha256": "a205fecd56ae3c8c16a31e2dc034bf9b3d19459a3a4d99d8259f68daab1a5b4f",
+      "task_count": 200
+    },
+    "outputs/reproduction/grpo-e2-20261004/events.jsonl": {
+      "sha256": "572429e4960c85258f4af902d0000bdbf16f357af94188bdede3f6dcfee4d90e",
+      "task_count": 144
+    },
+    "outputs/reproduction/grpo-e2-20261004/reports/grpo-e1-results.json": {
+      "sha256": "3f9ebfe465105a8de64d211ecd5c9e24a7a8653dbbb8595c2ee8683e574a651f",
+      "task_count": 156
+    },
+    "outputs/reproduction/grpo-e2-20261004/reports/grpo-e2-results.json": {
+      "sha256": "fc005630f7a195bc62cbb45eba21ea2af6622ff75696d5e27a270e5981c94234",
+      "task_count": 146
+    },
+    "outputs/reproduction/grpo-e2-20261004/status.json": {
+      "sha256": "906a605a0230fba18f36b4272e7f0622885d7dd6c51d790c715c20a42038a1fb",
+      "task_count": 137
+    },
+    "outputs/reproduction/grpo-e2-20261004/training_diagnostics.jsonl": {
+      "sha256": "124107318b235c50e0b1571d92405f7a3a51928255c72f891891d64ea825be45",
+      "task_count": 1000
+    },
+    "outputs/reproduction/grpo-e3-20261008/e1-unverifiable-replay-input.json": {
+      "sha256": "606fdba1c23a0f3df29dc692b564a8a1b9811f2de618031117b9e10888753669",
+      "task_count": 105
+    },
+    "outputs/reproduction/grpo-e3-20261008/e1-unverifiable-replay-verification.json": {
+      "sha256": "8e4e1898be9ad393c5123f4f906c33bb2704074a2f0d724dc9396fc3deba3382",
+      "task_count": 105
+    },
+    "outputs/reproduction/grpo-e3-20261008/evaluation/e1/summary.json": {
+      "sha256": "29ad59aa43d70fe308565a9a397a470448d8b49ad3477f4bb3afc2890f25fd1c",
+      "task_count": 138
+    },
+    "outputs/reproduction/grpo-e3-20261008/evaluation/e1/trajectories.jsonl": {
+      "sha256": "c338335c28223571085ac4cbb5c43350861f17d4040b9dc4d6c35a5ed05fa517",
+      "task_count": 200
+    },
+    "outputs/reproduction/grpo-e3-20261008/evaluation/e3/summary.json": {
+      "sha256": "c32a6410d691cceb6f4723b48efeb66f382589d864666cb726fff7b4867a9a51",
+      "task_count": 131
+    },
+    "outputs/reproduction/grpo-e3-20261008/evaluation/e3/trajectories.jsonl": {
+      "sha256": "460286c807e97789d28978eb8d46e571e746037c109ce22c20a250af20302c5d",
+      "task_count": 200
+    },
+    "outputs/reproduction/grpo-e3-20261008/evaluation/paired-success.json": {
+      "sha256": "b3e4af411536e44bc867888a5055d6fcc40c45cebddb0bb15f954821c183032e",
+      "task_count": 15
+    },
+    "outputs/reproduction/grpo-e3-20261008/evaluation/results.json": {
+      "sha256": "ee21e5c2d5df3cbdfb98296b729cd1849e1c081aeabac0522a69f17a309c1b9e",
+      "task_count": 142
+    },
+    "outputs/reproduction/grpo-e3-20261008/reports/grpo-e1-results.json": {
+      "sha256": "3f9ebfe465105a8de64d211ecd5c9e24a7a8653dbbb8595c2ee8683e574a651f",
+      "task_count": 156
+    },
+    "outputs/reproduction/grpo-e3-20261008/reports/grpo-e3-results.json": {
+      "sha256": "74eb0e3c89b002c9c0b82a7ea42c2521ee8609d5f46b2dc63f204eda34839cd5",
+      "task_count": 142
+    },
+    "outputs/reproduction/grpo-e3-20261008/training_diagnostics.jsonl": {
+      "sha256": "52cf75e05b59b927863de1cb4e6e255cd300895beef04ad515f9625e60b0cf1b",
+      "task_count": 1000
+    },
+    "outputs/reproduction/model_smoke.jsonl": {
+      "sha256": "933a5d398ebc6aa2dbda032ded54edb5ccf278672adba69376580f53ef42d41e",
+      "task_count": 1
+    },
+    "outputs/reproduction/run_manifest.json": {
+      "sha256": "cdf180b741c4dc453228cfdd4e11f4e607823215d86b9589be239529231c6b64",
+      "task_count": 1
+    },
+    "outputs/reproduction/sft_memory_probe.jsonl": {
+      "sha256": "02819d24434f124121185555f96661e9c24f788ecc68b473fbea37b51d2714b3",
+      "task_count": 1
+    },
+    "outputs/reproduction/sft_replay.jsonl": {
+      "sha256": "2782c0a3d9fc0239086f0a54c78a9101b58950daa76a28ae7cddc73b9dc4fefc",
+      "task_count": 1000
+    },
+    "outputs/reproduction/smoke_tasks.jsonl": {
+      "sha256": "4d7e11029f351ff52671ab484a40fb3e16c214dd689d2da4795f4bac412e4c11",
+      "task_count": 1
+    }
+  },
+  "quality_pass_count": 13846,
+  "quality_rejection_reasons": {
+    "unparsed_price_hint": 7513,
+    "price_unverifiable": 695,
+    "target_not_valid_gold": 1986,
+    "unresolved_options": 319,
+    "non_product_variant": 233,
+    "query_option_color_conflict": 32,
+    "placeholder_capacity_variant": 24,
+    "corrupted_instruction_text": 74
+  },
+  "historically_contaminated_groups": 2514,
+  "fresh_quality_pass_count": 12189,
+  "fresh_representative_count": 12077,
+  "duplicate_grouping": {
+    "groups": 23092,
+    "title": 324,
+    "instruction_template": 12,
+    "near_instruction_pairs": 13,
+    "near_title_pairs": 419
+  },
+  "splits": {
+    "test": {
+      "tasks": 1000,
+      "distribution": {
+        "domain": {
+          "Appliances": 125,
+          "Beauty": 135,
+          "Clothing": 138,
+          "Food": 62,
+          "Home": 182,
+          "Kids": 49,
+          "Leisure": 130,
+          "Sports": 70,
+          "Supplies": 109
+        },
+        "constraint_band": {
+          "high": 226,
+          "low": 145,
+          "medium": 629
+        },
+        "budget_required": {
+          "False": 60,
+          "True": 940
+        },
+        "required_option_axes": {
+          "1": 783,
+          "2": 209,
+          "3": 8
+        }
+      }
+    },
+    "dev": {
+      "tasks": 300,
+      "distribution": {
+        "domain": {
+          "Appliances": 38,
+          "Beauty": 40,
+          "Clothing": 41,
+          "Food": 18,
+          "Home": 54,
+          "Kids": 15,
+          "Leisure": 39,
+          "Sports": 22,
+          "Supplies": 33
+        },
+        "constraint_band": {
+          "high": 68,
+          "low": 42,
+          "medium": 190
+        },
+        "budget_required": {
+          "False": 17,
+          "True": 283
+        },
+        "required_option_axes": {
+          "1": 226,
+          "2": 72,
+          "3": 2
+        }
+      }
+    },
+    "sft_validation_candidates": {
+      "tasks": 800,
+      "distribution": {
+        "domain": {
+          "Appliances": 101,
+          "Beauty": 109,
+          "Clothing": 110,
+          "Food": 49,
+          "Home": 145,
+          "Kids": 39,
+          "Leisure": 104,
+          "Sports": 56,
+          "Supplies": 87
+        },
+        "constraint_band": {
+          "high": 182,
+          "low": 116,
+          "medium": 502
+        },
+        "budget_required": {
+          "False": 48,
+          "True": 752
+        },
+        "required_option_axes": {
+          "1": 596,
+          "2": 198,
+          "3": 6
+        }
+      }
+    },
+    "teacher_candidates": {
+      "tasks": 4000,
+      "distribution": {
+        "domain": {
+          "Appliances": 501,
+          "Beauty": 544,
+          "Clothing": 549,
+          "Food": 245,
+          "Home": 727,
+          "Kids": 195,
+          "Leisure": 518,
+          "Sports": 286,
+          "Supplies": 435
+        },
+        "constraint_band": {
+          "high": 908,
+          "low": 587,
+          "medium": 2505
+        },
+        "budget_required": {
+          "False": 250,
+          "True": 3750
+        },
+        "required_option_axes": {
+          "1": 3055,
+          "2": 889,
+          "3": 55,
+          "4": 1
+        }
+      }
+    },
+    "grpo_train": {
+      "tasks": 2000,
+      "distribution": {
+        "domain": {
+          "Appliances": 251,
+          "Beauty": 272,
+          "Clothing": 275,
+          "Food": 122,
+          "Home": 363,
+          "Kids": 98,
+          "Leisure": 259,
+          "Sports": 142,
+          "Supplies": 218
+        },
+        "constraint_band": {
+          "high": 454,
+          "low": 293,
+          "medium": 1253
+        },
+        "budget_required": {
+          "False": 125,
+          "True": 1875
+        },
+        "required_option_axes": {
+          "1": 1533,
+          "2": 449,
+          "3": 18
+        }
+      }
+    },
+    "train_reserve": {
+      "tasks": 3977,
+      "distribution": {
+        "domain": {
+          "Appliances": 501,
+          "Beauty": 540,
+          "Clothing": 548,
+          "Food": 243,
+          "Home": 722,
+          "Kids": 195,
+          "Leisure": 514,
+          "Sports": 283,
+          "Supplies": 431
+        },
+        "constraint_band": {
+          "high": 904,
+          "low": 583,
+          "medium": 2490
+        },
+        "budget_required": {
+          "False": 246,
+          "True": 3731
+        },
+        "required_option_axes": {
+          "0": 2,
+          "1": 3040,
+          "2": 892,
+          "3": 43
+        }
+      }
+    },
+    "teacher_pilot": {
+      "tasks": 100,
+      "distribution": {
+        "domain": {
+          "Appliances": 12,
+          "Beauty": 14,
+          "Clothing": 13,
+          "Food": 6,
+          "Home": 19,
+          "Kids": 4,
+          "Leisure": 13,
+          "Sports": 8,
+          "Supplies": 11
+        },
+        "constraint_band": {
+          "high": 23,
+          "low": 14,
+          "medium": 63
+        },
+        "budget_required": {
+          "False": 5,
+          "True": 95
+        },
+        "required_option_axes": {
+          "1": 77,
+          "2": 21,
+          "3": 2
+        }
+      }
+    },
+    "dev_smoke": {
+      "tasks": 50,
+      "distribution": {
+        "domain": {
+          "Appliances": 6,
+          "Beauty": 7,
+          "Clothing": 7,
+          "Food": 4,
+          "Home": 9,
+          "Kids": 3,
+          "Leisure": 6,
+          "Sports": 3,
+          "Supplies": 5
+        },
+        "constraint_band": {
+          "high": 12,
+          "low": 7,
+          "medium": 31
+        },
+        "budget_required": {
+          "True": 50
+        },
+        "required_option_axes": {
+          "1": 41,
+          "2": 9
+        }
+      }
+    }
+  },
+  "quality_pass_distribution": {
+    "domain": {
+      "Appliances": 1722,
+      "Beauty": 1918,
+      "Clothing": 1913,
+      "Food": 844,
+      "Home": 2474,
+      "Kids": 673,
+      "Leisure": 1815,
+      "Sports": 987,
+      "Supplies": 1500
+    },
+    "constraint_band": {
+      "high": 3182,
+      "low": 2008,
+      "medium": 8656
+    },
+    "budget_required": {
+      "False": 856,
+      "True": 12990
+    },
+    "required_option_axes": {
+      "0": 2,
+      "1": 10595,
+      "2": 3096,
+      "3": 151,
+      "4": 2
+    }
+  },
+  "stratification_reference": {
+    "domain": {
+      "Appliances": 1517,
+      "Beauty": 1640,
+      "Clothing": 1661,
+      "Food": 739,
+      "Home": 2193,
+      "Kids": 591,
+      "Leisure": 1564,
+      "Sports": 859,
+      "Supplies": 1313
+    },
+    "constraint_band": {
+      "high": 2742,
+      "low": 1766,
+      "medium": 7569
+    },
+    "budget_required": {
+      "False": 746,
+      "True": 11331
+    },
+    "required_option_axes": {
+      "0": 2,
+      "1": 9233,
+      "2": 2709,
+      "3": 132,
+      "4": 1
+    }
+  },
+  "subsets": {
+    "teacher_pilot": "teacher_candidates",
+    "dev_smoke": "dev"
+  },
+  "selection": "Proportional domain/constraint-band/budget/required-option strata; one seeded representative per duplicate group; test first.",
+  "validation_scope": "Offline target variant and reward checks plus index membership; no model rollout, API judge or semantic certification.",
+  "runtime_sha256": {
+    "environments/ShopSimulator/shop_env/web_agent_site/engine/engine.py": "130e0261c5c589ac133f1562f6d718736cda44abe54e2151867f5b17f136a086",
+    "environments/ShopSimulator/shop_env/web_agent_site/engine/goal.py": "e691221ca54d500d08eb663295751e511cc0ba6abea416dca680db41e4d80352",
+    "environments/ShopSimulator/shop_env/web_agent_site/engine/constraints.py": "b4155708dd7006ae4afe42c535ee4d2abe138585fa79ce4631faa03370dc0ae5",
+    "environments/ShopSimulator/shop_env/web_agent_site/engine/reward.py": "ea692a5bd91c95dc086925372667e74328c0f86b3d6f1c67df3c59883df8990e",
+    "environments/ShopSimulator/shop_env/web_agent_site/engine/reward_features.py": "3f416bf5d32ce2cd57dd10b0ab0939a5869c96ca67dab17ad3ba243584373c30",
+    "environments/ShopSimulator/shop_env/web_agent_site/engine/variant_price.py": "077e5707f0a5f212923af562e212258a4a598891b7648aec236082338913a364",
+    "environments/ShopSimulator/shop_env/web_agent_site/engine/comparators.py": "e80e4c40ab95244ac19822de967f14aa9fa06fe054269cc788b5486b56c1fdfc",
+    "environments/ShopSimulator/shop_env/web_agent_site/engine/normalize.py": "629127a57aa978707f34006b6f242fff156d8537e489bf89b06b7c7a47395db3",
+    "environments/ShopSimulator/shop_env/web_agent_site/engine/search.py": "05ed68cb09e2f3640a6504d2b0265408149c02f7b9c191c1d138635a2e7e1f6e",
+    "environments/ShopSimulator/shop_env/configs/brand_aliases.json": "a53d201aaa8d24e1624b24d5ced4e86d54fd57fe2f69ffcf945a165cff86549b",
+    "data/environment.json": "433a0575b5d5855b76003af86dd0d693a417e22c21557dd6bdd8b5cc216d15f6",
+    "next/scripts/prepare_task_pool.py": "d8737461a6a29415b28c29d923c1b3bae62204c2540f664be0988bf170ded7ee",
+    "next/configs/task_pool.json": "bdd456f7ea4fcaa4eb0eced548bb6c0aa9a6ecbe3d9c776347802052832f84a7"
+  },
+  "files": {
+    "dev.jsonl": {
+      "sha256": "b5baa40ac6f10c7061e9d65eef5f8c30be0d923a783ab0c60f35cae520829f10"
+    },
+    "dev_smoke.jsonl": {
+      "sha256": "9e1495b4df59fa0e3aa304e721ac0636ad95d8ff8ffc6eee5f2d08169fd84b75"
+    },
+    "evaluation_holdout.jsonl": {
+      "sha256": "daad04b23a30f7045557e61afb154c6ebe4e9d8bfa86f60ca7da947f0e02cc1c"
+    },
+    "grpo_train.jsonl": {
+      "sha256": "612c8bfd4532c5e94e1b32085f6e93928c45e9cf4c889b377150345e31f5fbc4"
+    },
+    "held_out.jsonl": {
+      "sha256": "e650d37d7217da9b4ba4c1d3f35ca7f239296a9a1dfea5fd2f89e23190611de0"
+    },
+    "history.jsonl": {
+      "sha256": "4f4f2eff235f8712443e2a74fd60b375fb5bcc2c7d79f4478cb83eed055269e8"
+    },
+    "sft_validation_candidates.jsonl": {
+      "sha256": "abb8571b8905041f22ffcf98e3797555c971ff9a788a2c2600f3147ccc4f3dd8"
+    },
+    "teacher_candidates.jsonl": {
+      "sha256": "02b7872e87d599ac79c1f0dffd4877f498019be22e748e2ac09d7bb4849ec983"
+    },
+    "teacher_pilot.jsonl": {
+      "sha256": "aded25fc664bd859f7be314d091e7682b1c3f994c786c30459ba4563a9e4520b"
+    },
+    "test.jsonl": {
+      "sha256": "69de95cd224cb9d1146620354018baedfa6d038da0a8f9a571771291b45a0d34"
+    },
+    "train_reserve.jsonl": {
+      "sha256": "54e6f3f944e95f2cdf1d34dd36d17cf5bf744cbbedcca95ff847c182c63d3ed4"
+    },
+    "private/audit.jsonl.gz": {
+      "sha256": "7ab7bc2cca177dd82af8295aadbc105421a09fbcefd934e4f7fd5112c0d08772"
+    }
+  }
+}
