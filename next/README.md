@@ -6,14 +6,24 @@
 
 | 路径 | 用途 |
 |---|---|
-| [docs/project-completion-plan.md](docs/project-completion-plan.md) | 整体目标、实施阶段与对照设计 |
-| [docs/data-preparation.md](docs/data-preparation.md) | 已完成的数据筛选、数量、隔离与使用说明 |
+| [docs/project-completion-plan.md](docs/project-completion-plan.md) | **先读此页**：整体步骤、每步作用、当前进度与实验对照 |
+| [docs/stages/01-data-preparation.md](docs/stages/01-data-preparation.md) | 数据准备阶段：方案、结果与隔离边界 |
+| [docs/stages/02-baseline.md](docs/stages/02-baseline.md) | Baseline 阶段：固定协议、完整成绩与后续比较方式 |
+| [docs/stages/03-teacher-collection.md](docs/stages/03-teacher-collection.md) | 教师阶段：Sol 2,000＋200 条成品、成功率口径与验收 |
+| [docs/data-preparation.md](docs/data-preparation.md) | 数据筛选规则、分布、复现与详细使用说明 |
+| [docs/execution.md](docs/execution.md) | 统一入口、冻结协议、教师 API 与运行命令 |
+| [results/baseline.json](results/baseline.json)、[results/teacher-sol.json](results/teacher-sol.json) | 可核验的阶段指标与验收记录 |
+| [data/teacher/sol/manifest.json](data/teacher/sol/manifest.json) | 已冻结的压缩 SFT 成品及 SHA-256 |
+| [configs/execution.json](configs/execution.json) | 学生、教师和执行预算的权威配置 |
+| [scripts/agent.py](scripts/agent.py) | 校验、采集、重建和学生评测入口 |
 | [configs/task_pool.json](configs/task_pool.json) | 冻结的任务准备配置 |
 | [scripts/prepare_task_pool.py](scripts/prepare_task_pool.py) | 离线质量筛选、分组去重与分层划分 |
 | [data/task_pool/metadata.json](data/task_pool/metadata.json) | 数据分布、来源和 SHA-256 校验清单 |
 | [tests/test_prepare_task_pool.py](tests/test_prepare_task_pool.py) | 划分、哈希、奖励与去重验收 |
 
-本轮迁移保持全部 12 个数据及审计文件内容不变，仅更新代码定位和清单中的实现路径/哈希。已冻结教师候选 4,000、GRPO 2,000、SFT 验证候选 800、开发 300、测试 1,000，另有训练备用 3,977；仍处于任务准备阶段，未生成新版教师轨迹。
+已冻结教师候选 4,000、GRPO 2,000、SFT 验证候选 800、开发 300、测试 1,000，另有训练备用 3,977。Baseline 和 Sol 的 2,000＋200 条教师数据已完成并通过全量离线复核；Astra 独立续采中。新版 SFT/GRPO 训练尚未启动，下一步适配新版 SFT。
+
+完成阶段的总结集中在 `docs/stages/`，指标在 `results/`、数据成品在 `data/`。自动更新的运行报告与完整日志保留本地；Astra 当前报告为 `next/docs/teacher-astra-parallel.md`，不作为 GitHub 阶段总结提交。每个阶段完成后整理并推送当前分支，规则见 [AGENTS.md](AGENTS.md)。
 
 ## 只读复用与路径约定
 
@@ -32,4 +42,4 @@ environments/ShopSimulator/.venv-shopsim/bin/python next/scripts/prepare_task_po
 environments/ShopSimulator/.venv-shopsim/bin/python -m unittest discover -s next/tests -p test_prepare_task_pool.py -v
 ```
 
-默认复用已冻结的历史用题快照。原有采集、训练和评测入口尚未复制或适配到本目录，后续按完善方案逐项实施。
+默认复用已冻结的历史用题快照。完整采集与学生初始评测的命令见[执行说明](docs/execution.md)；不要为了复盘重复启动已完成阶段。

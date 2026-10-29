@@ -1,0 +1,44 @@
+{
+  "version": "shopping-agent-execution-v1.3",
+  "environment": "shopsimulator-environment-v2.1",
+  "reward": "shopsimulator-reward-v3",
+  "observation_version": "shopping-observation-v2",
+  "tool_version": "shopping-tools-v2",
+  "student": {
+    "model": "Qwen/Qwen3.5-2B",
+    "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+    "enable_thinking": false
+  },
+  "budgets": {
+    "max_steps": 35,
+    "context_tokens": 24576,
+    "response_tokens": 20480,
+    "assistant_tokens_per_turn": 512,
+    "context_safety_margin": 512
+  },
+  "observation": {
+    "token_budget": 1536,
+    "detail_token_budget": 4096,
+    "generic_token_budget": 768,
+    "search_top_k": 20
+  },
+  "teacher": {
+    "model": "gpt-6-astra",
+    "expected_response_model": "gpt-6-astra-2026-09-03",
+    "endpoint": "https://aidp-i18ntt-sg.byteintl.net/api/modelhub/online/v2/crawl",
+    "wire_format": "structured_action",
+    "reasoning_effort": "high",
+    "max_completion_tokens": 8192,
+    "timeout_seconds": 180,
+    "rate_limit_attempts": 12,
+    "rate_limit_initial_delay_seconds": 2,
+    "rate_limit_max_delay_seconds": 20
+  },
+  "collection": {
+    "workers": 6,
+    "attempts_per_task": 2,
+    "quota": "domain_proportional",
+    "training_target": 2000,
+    "validation_target": 200
+  }
+}

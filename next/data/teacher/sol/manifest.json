@@ -1,0 +1,26 @@
+{
+  "schema": "shopping-teacher-dataset-v1",
+  "teacher": "gpt-6.1-sol-2026-09-29",
+  "status": "complete",
+  "strict_success": "complete gold_purchase terminal, reward_valid=true, purchase_success=true",
+  "student": {
+    "model": "Qwen/Qwen3.5-2B",
+    "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+    "enable_thinking": false
+  },
+  "train_validation_overlap": 0,
+  "files": {
+    "train.jsonl.gz": {
+      "rows": 2000,
+      "sha256": "183edec20e5e829c5dc7a7091ec3fa0561a3e0097fbcfb2d8a40f4818792e3dc",
+      "uncompressed_sha256": "a1419261ce032eae039abcf0ebf8eb6d7397d9de1ba05105c54092620ab16aba",
+      "compressed_bytes": 6475855
+    },
+    "validation.jsonl.gz": {
+      "rows": 200,
+      "sha256": "b0597dbcc2a8e91b0f6b48bfcbbb6e8ae28c889dc929154fe282131416e988bd",
+      "uncompressed_sha256": "dea96075c68476fc1b006b7716a51d80aa1115c1b535e26e9c8940773fb44632",
+      "compressed_bytes": 639112
+    }
+  }
+}

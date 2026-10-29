@@ -1,0 +1,104 @@
+{
+  "status": "complete",
+  "teacher": "gpt-6.1-sol-2026-09-29",
+  "scope": "collection quality on attempted candidate tasks; not a fixed benchmark score",
+  "sampling": {
+    "train": {
+      "candidate_tasks": 4000,
+      "attempted_unique_tasks": 2449,
+      "raw_episode_attempts": 2452,
+      "infrastructure_failures": 3,
+      "first_valid_behavior_attempts_per_task": 1,
+      "strict_successes": 2000,
+      "first_valid_behavior_strict_success_rate": 0.8166598611678236,
+      "accepted_unique_tasks": 2000,
+      "collection_yield_including_infrastructure": 0.8156606851549756,
+      "failure_reasons": {
+        "repeat_loop": 38,
+        "partial_alternative_purchase": 192,
+        "response_budget_exhausted": 136,
+        "early_abstain": 74,
+        "graceful_stop": 3,
+        "valid_alternative_purchase": 5,
+        "wrong_purchase": 1
+      }
+    },
+    "validation": {
+      "candidate_tasks": 800,
+      "attempted_unique_tasks": 240,
+      "raw_episode_attempts": 240,
+      "infrastructure_failures": 0,
+      "first_valid_behavior_attempts_per_task": 1,
+      "strict_successes": 200,
+      "first_valid_behavior_strict_success_rate": 0.8333333333333334,
+      "accepted_unique_tasks": 200,
+      "collection_yield_including_infrastructure": 0.8333333333333334,
+      "failure_reasons": {
+        "response_budget_exhausted": 14,
+        "partial_alternative_purchase": 13,
+        "early_abstain": 6,
+        "repeat_loop": 5,
+        "valid_alternative_purchase": 1,
+        "graceful_stop": 1
+      }
+    }
+  },
+  "verification": {
+    "stage_status": "complete",
+    "ended_at": "2026-10-28T22:01:15.565327+08:00",
+    "train_validation_overlap": 0,
+    "roles": {
+      "train": {
+        "status": "complete",
+        "accepted_unique_tasks": 2000,
+        "target": 2000,
+        "attempts": 2452,
+        "acceptance_rate": 0.8156606851549756,
+        "failure_counts": {
+          "strict_success": 2000,
+          "model": 449,
+          "infrastructure": 3
+        },
+        "new_infrastructure_failures": 0,
+        "accepted_raw_and_sft_match": true,
+        "strict_success_all_passed": true,
+        "held_out_overlap": 0,
+        "model_identity_all_passed": true,
+        "full_template_length_and_supervision_checked_during_collection": true,
+        "mean_steps": 9.6555,
+        "mean_sequence_tokens": 7383.0855,
+        "max_sequence_tokens": 22290,
+        "total_supervised_tokens": 481032,
+        "dataset_sha256": "a1419261ce032eae039abcf0ebf8eb6d7397d9de1ba05105c54092620ab16aba",
+        "inherited_evidence_hashes_match": true,
+        "largest_recovered_attempt_count": 4
+      },
+      "validation": {
+        "status": "complete",
+        "accepted_unique_tasks": 200,
+        "target": 200,
+        "attempts": 240,
+        "acceptance_rate": 0.8333333333333334,
+        "failure_counts": {
+          "strict_success": 200,
+          "model": 40
+        },
+        "new_infrastructure_failures": 0,
+        "accepted_raw_and_sft_match": true,
+        "strict_success_all_passed": true,
+        "held_out_overlap": 0,
+        "model_identity_all_passed": true,
+        "full_template_length_and_supervision_checked_during_collection": true,
+        "mean_steps": 9.495,
+        "mean_sequence_tokens": 7262.15,
+        "max_sequence_tokens": 21311,
+        "total_supervised_tokens": 47297,
+        "dataset_sha256": "dea96075c68476fc1b006b7716a51d80aa1115c1b535e26e9c8940773fb44632",
+        "inherited_evidence_hashes_match": true,
+        "largest_recovered_attempt_count": 2
+      }
+    }
+  },
+  "dataset_manifest": "next/data/teacher/sol/manifest.json",
+  "formal_teacher_test_status": "not_run"
+}

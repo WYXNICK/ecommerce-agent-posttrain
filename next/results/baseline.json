@@ -1,0 +1,74 @@
+{
+  "status": "complete",
+  "student": {
+    "model": "Qwen/Qwen3.5-2B",
+    "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+    "enable_thinking": false
+  },
+  "protocol": {
+    "environment": "ShopSimulator v2.1",
+    "reward": "Reward v3",
+    "observation": "v2",
+    "tools": "v2",
+    "thinking": false,
+    "temperature": 0,
+    "max_steps": 35,
+    "context_tokens": 24576,
+    "response_tokens": 20480,
+    "assistant_tokens_per_turn": 512
+  },
+  "splits": {
+    "dev": {
+      "expected_tasks": 300,
+      "completed_tasks": 300,
+      "strict_successes": 3,
+      "strict_success_rate": 0.01,
+      "mean_final_reward": -0.1498437499999998,
+      "average_steps": 5.876666666666667,
+      "status_counts": {
+        "done": 79,
+        "invalid_action_limit": 213,
+        "model_output_invalid": 6,
+        "response_budget_exhausted": 2
+      },
+      "unresolved_infrastructure_tasks": [],
+      "strict_success_task_ids": [
+        10709,
+        12672,
+        13347
+      ]
+    },
+    "test": {
+      "expected_tasks": 1000,
+      "completed_tasks": 1000,
+      "strict_successes": 15,
+      "strict_success_rate": 0.015,
+      "mean_final_reward": -0.10394879807692334,
+      "average_steps": 5.748,
+      "status_counts": {
+        "done": 214,
+        "invalid_action_limit": 719,
+        "model_output_invalid": 54,
+        "response_budget_exhausted": 13
+      },
+      "unresolved_infrastructure_tasks": [],
+      "strict_success_task_ids": [
+        1034,
+        1966,
+        4255,
+        5186,
+        5711,
+        6460,
+        9915,
+        10725,
+        10814,
+        12891,
+        14147,
+        15662,
+        17595,
+        17604,
+        20311
+      ]
+    }
+  }
+}
