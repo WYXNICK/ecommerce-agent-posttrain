@@ -1,10 +1,10 @@
 # 新主线：任务准备
 
-本页记录 2026-10-12 完成的离线任务筛选和冻结划分。数据保持不变；新版入口及教师接通情况见[执行说明](execution.md)。
+本页记录 2026-10-12 完成的离线任务筛选和冻结划分。数据保持不变；新版入口及教师接通情况见[执行说明](../execution.md)。
 
 ## 准备结果
 
-权威配置：[task_pool.json](../configs/task_pool.json)。数据与校验信息：[metadata.json](../data/task_pool/metadata.json)。本说明中的命令从仓库根目录执行，数据文件位于 `next/`。
+权威配置：[task_pool.json](../../configs/task_pool.json)。数据与校验信息：[metadata.json](../../data/task_pool/metadata.json)。本说明中的命令从仓库根目录执行，数据文件位于 `next/`。
 
 | 用途 | 文件（`next/data/task_pool/` 下） | 独立任务数 |
 |---|---|---:|
@@ -67,6 +67,6 @@ environments/ShopSimulator/.venv-shopsim/bin/python next/scripts/prepare_task_po
 
 默认复用已冻结的历史快照，不依赖旧 `outputs/` 文件仍在本地。`--refresh-history` 会重新盘点并重划分，不能在看过测试成绩后用它更换测试集。
 
-验收包括成品数量/哈希、历史与跨集合隔离、严格 gold 条件、子集关系、精确近重复匹配与暴力枚举对照，以及独立目录完整重建。相关测试：[test_prepare_task_pool.py](../tests/test_prepare_task_pool.py)。
+验收包括成品数量/哈希、历史与跨集合隔离、严格 gold 条件、子集关系、精确近重复匹配与暴力枚举对照，以及独立目录完整重建。相关测试：[test_prepare_task_pool.py](../../tests/test_prepare_task_pool.py)。
 
 **边界：** 本轮证明的是目标规格的静态可评分性及已定义重复规则下的隔离；未验证搜索策略成功率、全量语言标注一致性或真实模型难度。新测试按同来源分组留出，不能称为跨类别或跨环境泛化。后续采集记录真实验收率并审计训练题语义；测试不按教师或学生成功率筛选。

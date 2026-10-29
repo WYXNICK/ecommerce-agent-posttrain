@@ -1,6 +1,2 @@
-# Supervisor-generated local reports; published summaries live in stages/.
-/baseline-evaluation.md
-/teacher-collection.md
-/teacher-astra-collection.md
-/teacher-astra-parallel.md
-/teacher-sol-collection.md
+# Local reports are grouped with their phase and never published as summaries.
+/*/runtime/

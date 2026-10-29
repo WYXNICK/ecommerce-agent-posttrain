@@ -20,6 +20,6 @@
 - 开发集用于诊断和选模；测试成绩用于最终同集比较，不能用于选择修复题或调参。
 - Baseline 指领域训练前的后训练模型，不是纯预训练 `-Base` 权重。
 - 外层历史 SFT/E1 使用不同数据与部分执行设置，不能与本表直接构成单变量消融。
-- 汇总、终止分类和成功任务 ID 见 [baseline.json](../../results/baseline.json)；完整原始轨迹在本地 `next/outputs/baseline-v2/`，不混入 GitHub 文档。
+- 汇总、终止分类和成功任务 ID 见 [Baseline 指标](../../results/baseline/summary.json)；完整原始轨迹在本地 `next/outputs/baseline-v2/`，不混入 GitHub 文档。
 
 源码入口、运行方法和冻结清单见[执行说明](../execution.md)。后续模型使用同一冻结测试集、执行协议和完整分母。

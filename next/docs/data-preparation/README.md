@@ -26,4 +26,4 @@
 - 测试不用于选模、调参、修复回流；SFT 验证候选即使采集失败也不能转为训练。
 - 通过静态质量规则不等于全量语义认证；这是同来源的分组留出，不能称为跨环境泛化。
 
-后续直接复用冻结划分。筛选规则、分布、命令和局限见[数据准备说明](../data-preparation.md)；数量与哈希的权威记录见 [metadata.json](../../data/task_pool/metadata.json)。
+后续直接复用冻结划分。筛选规则、分布、命令和局限见[数据准备说明](methodology.md)；数量与哈希的权威记录见 [metadata.json](../../data/task_pool/metadata.json)。

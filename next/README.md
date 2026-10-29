@@ -7,12 +7,13 @@
 | 路径 | 用途 |
 |---|---|
 | [docs/project-completion-plan.md](docs/project-completion-plan.md) | **先读此页**：整体步骤、每步作用、当前进度与实验对照 |
-| [docs/stages/01-data-preparation.md](docs/stages/01-data-preparation.md) | 数据准备阶段：方案、结果与隔离边界 |
-| [docs/stages/02-baseline.md](docs/stages/02-baseline.md) | Baseline 阶段：固定协议、完整成绩与后续比较方式 |
-| [docs/stages/03-teacher-collection.md](docs/stages/03-teacher-collection.md) | 教师阶段：Sol 2,000＋200 条成品、成功率口径与验收 |
-| [docs/data-preparation.md](docs/data-preparation.md) | 数据筛选规则、分布、复现与详细使用说明 |
+| [docs/data-preparation/](docs/data-preparation/README.md) | 数据准备阶段：方案、结果与隔离边界 |
+| [docs/baseline/](docs/baseline/README.md) | Baseline 阶段：固定协议、完整成绩与后续比较方式 |
+| [docs/teacher-collection/](docs/teacher-collection/README.md) | 教师采集阶段：Sol 2,000＋200 条成品、成功率口径与验收 |
+| [docs/teacher-evaluation/](docs/teacher-evaluation/README.md) | 教师正式评测阶段：Sol 立即执行，Astra 采集完成后自动执行 |
+| [docs/data-preparation/methodology.md](docs/data-preparation/methodology.md) | 数据筛选规则、分布、复现与详细使用说明 |
 | [docs/execution.md](docs/execution.md) | 统一入口、冻结协议、教师 API 与运行命令 |
-| [results/baseline.json](results/baseline.json)、[results/teacher-sol.json](results/teacher-sol.json) | 可核验的阶段指标与验收记录 |
+| [results/baseline/](results/baseline/summary.json)、[results/teacher-collection/sol/](results/teacher-collection/sol/summary.json) | 可核验的阶段指标与验收记录 |
 | [data/teacher/sol/manifest.json](data/teacher/sol/manifest.json) | 已冻结的压缩 SFT 成品及 SHA-256 |
 | [configs/execution.json](configs/execution.json) | 学生、教师和执行预算的权威配置 |
 | [scripts/agent.py](scripts/agent.py) | 校验、采集、重建和学生评测入口 |
@@ -23,7 +24,7 @@
 
 已冻结教师候选 4,000、GRPO 2,000、SFT 验证候选 800、开发 300、测试 1,000，另有训练备用 3,977。Baseline 和 Sol 的 2,000＋200 条教师数据已完成并通过全量离线复核；Astra 独立续采中。新版 SFT/GRPO 训练尚未启动，下一步适配新版 SFT。
 
-完成阶段的总结集中在 `docs/stages/`，指标在 `results/`、数据成品在 `data/`。自动更新的运行报告与完整日志保留本地；Astra 当前报告为 `next/docs/teacher-astra-parallel.md`，不作为 GitHub 阶段总结提交。每个阶段完成后整理并推送当前分支，规则见 [AGENTS.md](AGENTS.md)。
+每阶段文档在 `docs/<阶段>/`，指标在 `results/<阶段>/`，数据成品在 `data/`。自动更新的运行报告与完整日志保留本地，采集与评测分开：Astra 采集报告在 `next/docs/teacher-collection/runtime/astra-current.md`，教师评测在 `next/outputs/teacher-evaluation/<教师>/progress.md`。每个阶段完成后整理并推送当前分支，规则见 [AGENTS.md](AGENTS.md)。
 
 ## 只读复用与路径约定
 

@@ -1,6 +1,6 @@
 # 新版执行入口
 
-本页是采集、评测与共享执行循环的操作参考。整体顺序见[项目计划](project-completion-plan.md)，已完成结果见 [Baseline 总结](stages/02-baseline.md)与[教师采集总结](stages/03-teacher-collection.md)。新版训练尚未启动；以下命令用于复现或续跑，不代表需要重复执行已完成阶段。
+本页是采集、评测与共享执行循环的操作参考。整体顺序见[项目计划](project-completion-plan.md)，已完成结果见 [Baseline 总结](baseline/README.md)与[教师采集总结](teacher-collection/README.md)。新版训练尚未启动；以下命令用于复现或续跑，不代表需要重复执行已完成阶段。
 
 ## 1. 冻结协议
 
@@ -104,6 +104,6 @@ python next/scripts/agent.py evaluate --split test --checkpoint "$CHECKPOINT" \
 
 `python -m unittest discover -s next/tests -v` 覆盖守卫、预算、失败分类、配额去重、模板、留出保护、脱敏、固定评测分母、短间隔有界重试和继承证据的隔离。
 
-完整结果归纳到 `docs/stages/`，指标及成品哈希发布到 `results/` 和 `data/`。本地 `next/outputs/teacher-parallel/` 保留原始采集、继承清单与全量验收证据；`next/outputs/baseline-v2/` 保留 Baseline 逐题证据。自动运行报告在本地更新，不替代阶段总结；不要在活动进程写报告时移动文件。
+完整结果归纳到 `docs/<阶段>/`，指标及成品哈希按阶段发布到 `results/` 和 `data/`。现有 `next/outputs/teacher-parallel/` 保留原始采集、继承清单与全量验收证据；`next/outputs/baseline-v2/` 保留 Baseline 逐题证据，不因整理目录改动原始证据。新教师评测统一放 `next/outputs/teacher-evaluation/<教师>/`，方法见[教师评测说明](teacher-evaluation/README.md)。自动运行报告在本地更新，不替代阶段总结。
 
 仅在确实修改协议并审阅后使用 `python next/scripts/agent.py freeze`；它不会验证修改合理性，也不能用来绕过已开始实验的冻结约束。
