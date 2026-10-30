@@ -1,0 +1,6 @@
+{
+  "primary_dataset_manifest": "data/teacher/astra/manifest.json",
+  "reference_dataset_manifests": [
+    "data/teacher/sol/manifest.json"
+  ]
+}

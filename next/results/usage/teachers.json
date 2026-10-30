@@ -1,0 +1,172 @@
+{
+  "scope": "Formal teacher train/validation collection plus fixed 1000-task teacher tests, including inherited evidence once. Excludes separate pilots, historical experiments and unreported retry usage.",
+  "checked_at": "2026-10-30T09:46:31.143568+08:00",
+  "token_semantics": {
+    "total": "prompt_tokens + completion_tokens",
+    "reasoning": "included in completion_tokens, do not add again",
+    "cache": "API-reported prompt details; do not add to prompt_tokens. Billing treatment depends on ModelHub rates."
+  },
+  "teachers": {
+    "astra": {
+      "phases": {
+        "train": {
+          "reported_tokens": {
+            "prompt_tokens": 172127491,
+            "completion_tokens": 1821359,
+            "total_tokens": 173948850,
+            "reasoning_tokens": 1055659
+          },
+          "reported_cache_tokens": {
+            "cached_prompt_tokens": 82366908,
+            "cache_write_prompt_tokens": 89683861
+          },
+          "recorded_model_calls": 25575,
+          "calls_without_usage": 1,
+          "calls_with_prompt_cache_details": 25574,
+          "transport_retries_without_separate_usage": 575,
+          "evidence_sha256": {
+            "next/outputs/teacher-astra/train/raw.jsonl": "ecd2365443ea0f189434312d839133c897995c710afe2ba1e4576bc08f23ff4b",
+            "next/outputs/teacher-parallel/astra/train/raw.jsonl": "797185fa40117252165ffee5cd982882e7f8c61bfec14f46f3b495de8e677a99"
+          }
+        },
+        "validation": {
+          "reported_tokens": {
+            "prompt_tokens": 16588968,
+            "completion_tokens": 173421,
+            "total_tokens": 16762389,
+            "reasoning_tokens": 99082
+          },
+          "reported_cache_tokens": {
+            "cached_prompt_tokens": 7853842,
+            "cache_write_prompt_tokens": 8727641
+          },
+          "recorded_model_calls": 2495,
+          "calls_without_usage": 0,
+          "calls_with_prompt_cache_details": 2495,
+          "transport_retries_without_separate_usage": 53,
+          "evidence_sha256": {
+            "next/outputs/teacher-astra/validation/raw.jsonl": "750ade8aee485f10112abf0881f2fcdf93865bf2205795d47534b13f8c0fac5f"
+          }
+        },
+        "test": {
+          "reported_tokens": {
+            "prompt_tokens": 70206781,
+            "completion_tokens": 738546,
+            "total_tokens": 70945327,
+            "reasoning_tokens": 427927
+          },
+          "reported_cache_tokens": {
+            "cached_prompt_tokens": 33584219,
+            "cache_write_prompt_tokens": 36591338
+          },
+          "recorded_model_calls": 10408,
+          "calls_without_usage": 0,
+          "calls_with_prompt_cache_details": 10408,
+          "transport_retries_without_separate_usage": 16,
+          "evidence_sha256": {
+            "next/outputs/teacher-evaluation/astra/test/raw.jsonl": "ffd2967dc2aab1ee9b72b8886872143219bede9ec87314d7fb92dd5f374983e4"
+          }
+        }
+      },
+      "total_reported_tokens": {
+        "prompt_tokens": 258923240,
+        "completion_tokens": 2733326,
+        "total_tokens": 261656566,
+        "reasoning_tokens": 1582668
+      },
+      "total_reported_cache_tokens": {
+        "cached_prompt_tokens": 123804969,
+        "cache_write_prompt_tokens": 135002840
+      },
+      "total_calls_without_usage": 1,
+      "total_transport_retries_without_separate_usage": 644
+    },
+    "sol": {
+      "phases": {
+        "train": {
+          "reported_tokens": {
+            "prompt_tokens": 191373043,
+            "completion_tokens": 1987777,
+            "total_tokens": 193360820,
+            "reasoning_tokens": 1151205
+          },
+          "reported_cache_tokens": {
+            "cached_prompt_tokens": 78611282,
+            "cache_write_prompt_tokens": 112679213
+          },
+          "recorded_model_calls": 27519,
+          "calls_without_usage": 3,
+          "calls_with_prompt_cache_details": 27516,
+          "transport_retries_without_separate_usage": 2237,
+          "evidence_sha256": {
+            "next/outputs/teacher-v2/train/raw.jsonl": "29983c69c3eeb1fb5b06eb0bfcccc22368b7823e4aad18d8dd57c713faeeb4b7",
+            "next/outputs/teacher-parallel/sol/train/raw.jsonl": "98d87fb6a1d18ee93c6732d471fe221b4f4bbc4fe75aa97493bdc954f862b7c1"
+          }
+        },
+        "validation": {
+          "reported_tokens": {
+            "prompt_tokens": 17998035,
+            "completion_tokens": 191977,
+            "total_tokens": 18190012,
+            "reasoning_tokens": 112604
+          },
+          "reported_cache_tokens": {
+            "cached_prompt_tokens": 7670333,
+            "cache_write_prompt_tokens": 10319857
+          },
+          "recorded_model_calls": 2615,
+          "calls_without_usage": 0,
+          "calls_with_prompt_cache_details": 2615,
+          "transport_retries_without_separate_usage": 4,
+          "evidence_sha256": {
+            "next/outputs/teacher-v2/validation/raw.jsonl": "aacbe43b56382202c4866b2cf618e35d44ba86f9edd4ba0544d4a57c32a4e46a"
+          }
+        },
+        "test": {
+          "reported_tokens": {
+            "prompt_tokens": 78268372,
+            "completion_tokens": 801958,
+            "total_tokens": 79070330,
+            "reasoning_tokens": 463384
+          },
+          "reported_cache_tokens": {
+            "cached_prompt_tokens": 64639525,
+            "cache_write_prompt_tokens": 13595394
+          },
+          "recorded_model_calls": 11151,
+          "calls_without_usage": 0,
+          "calls_with_prompt_cache_details": 11151,
+          "transport_retries_without_separate_usage": 187,
+          "evidence_sha256": {
+            "next/outputs/teacher-evaluation/sol/test/raw.jsonl": "b1c598ad338dd35a92e81220dd283dc31249f50481f7dc385441ba9df467f2de"
+          }
+        }
+      },
+      "total_reported_tokens": {
+        "prompt_tokens": 287639450,
+        "completion_tokens": 2981712,
+        "total_tokens": 290621162,
+        "reasoning_tokens": 1727193
+      },
+      "total_reported_cache_tokens": {
+        "cached_prompt_tokens": 150921140,
+        "cache_write_prompt_tokens": 136594464
+      },
+      "total_calls_without_usage": 3,
+      "total_transport_retries_without_separate_usage": 2428
+    }
+  },
+  "billing": {
+    "status": "not_reconciled",
+    "currency": null,
+    "actual_cost": null,
+    "estimated_cost": null,
+    "reason": "Actual ModelHub pricing, cache charging rules and billing records were not supplied. Transport retries may have unreported usage or cost; public model prices are not assumed."
+  },
+  "combined_reported_tokens": {
+    "prompt_tokens": 546562690,
+    "completion_tokens": 5715038,
+    "total_tokens": 552277728,
+    "reasoning_tokens": 3309861
+  }
+}
