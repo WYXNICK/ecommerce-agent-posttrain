@@ -1,0 +1,26 @@
+{
+  "schema": "shopping-teacher-dataset-v1",
+  "teacher": "gpt-6-astra-2026-09-03",
+  "status": "complete",
+  "strict_success": "complete gold_purchase terminal, reward_valid=true, purchase_success=true",
+  "student": {
+    "model": "Qwen/Qwen3.5-2B",
+    "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+    "enable_thinking": false
+  },
+  "train_validation_overlap": 0,
+  "files": {
+    "train.jsonl.gz": {
+      "rows": 2000,
+      "sha256": "13f47d1dbe67c7c4c5fdf485d5a84b4a3f7f99c571711860c88159a56d15c6dd",
+      "uncompressed_sha256": "c06da18b13aae925f2960ecec77410ff77d892984180250aceb123fc627a7953",
+      "compressed_bytes": 5975516
+    },
+    "validation.jsonl.gz": {
+      "rows": 200,
+      "sha256": "58741102462235ad7a3c58106f2b2237f7e96152439459fc7db891c936dbb04c",
+      "uncompressed_sha256": "b863c802a7211fb6be7b5105294739997a2c4d9113e035be9e73841a2ab19f73",
+      "compressed_bytes": 600213
+    }
+  }
+}

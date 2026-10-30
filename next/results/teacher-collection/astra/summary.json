@@ -1,0 +1,103 @@
+{
+  "status": "complete",
+  "teacher": "gpt-6-astra-2026-09-03",
+  "checked_at": "2026-10-30T09:07:19.010546+08:00",
+  "sampling": {
+    "train": {
+      "candidate_tasks": 4000,
+      "attempted_unique_tasks": 2435,
+      "raw_episode_attempts": 2436,
+      "infrastructure_failures": 1,
+      "unverifiable_episodes_in_non_success_denominator": 1,
+      "first_valid_behavior_attempts_per_task": 1,
+      "strict_successes": 2000,
+      "first_valid_behavior_strict_success_rate": 0.8213552361396304,
+      "accepted_unique_tasks": 2000,
+      "collection_yield_including_infrastructure": 0.8210180623973727,
+      "failure_reasons": {
+        "partial_alternative_purchase": 206,
+        "response_budget_exhausted": 111,
+        "repeat_loop": 33,
+        "early_abstain": 70,
+        "graceful_stop": 5,
+        "valid_alternative_purchase": 5,
+        "max_steps": 1,
+        "reward_unverifiable": 1,
+        "wrong_purchase": 3
+      }
+    },
+    "validation": {
+      "candidate_tasks": 800,
+      "attempted_unique_tasks": 241,
+      "raw_episode_attempts": 241,
+      "infrastructure_failures": 0,
+      "unverifiable_episodes_in_non_success_denominator": 0,
+      "first_valid_behavior_attempts_per_task": 1,
+      "strict_successes": 200,
+      "first_valid_behavior_strict_success_rate": 0.8298755186721992,
+      "accepted_unique_tasks": 200,
+      "collection_yield_including_infrastructure": 0.8298755186721992,
+      "failure_reasons": {
+        "response_budget_exhausted": 15,
+        "early_abstain": 7,
+        "partial_alternative_purchase": 14,
+        "repeat_loop": 3,
+        "valid_alternative_purchase": 2
+      }
+    }
+  },
+  "verification": {
+    "roles": {
+      "train": {
+        "status": "complete",
+        "accepted_unique_tasks": 2000,
+        "accepted_raw_and_sft_match": true,
+        "strict_success_all_passed": true,
+        "held_out_overlap": 0,
+        "model_identity_all_passed": true,
+        "full_template_length_and_supervision_checked_during_collection": true,
+        "tokenizer_repeated_during_final_audit": false,
+        "mean_steps": 8.946,
+        "mean_sequence_tokens": 6986.5355,
+        "max_sequence_tokens": 22441,
+        "total_supervised_tokens": 447456,
+        "dataset_sha256": "c06da18b13aae925f2960ecec77410ff77d892984180250aceb123fc627a7953",
+        "inherited_evidence_hashes_match": true
+      },
+      "validation": {
+        "status": "complete",
+        "accepted_unique_tasks": 200,
+        "accepted_raw_and_sft_match": true,
+        "strict_success_all_passed": true,
+        "held_out_overlap": 0,
+        "model_identity_all_passed": true,
+        "full_template_length_and_supervision_checked_during_collection": true,
+        "tokenizer_repeated_during_final_audit": false,
+        "mean_steps": 8.825,
+        "mean_sequence_tokens": 6837.39,
+        "max_sequence_tokens": 20063,
+        "total_supervised_tokens": 43954,
+        "dataset_sha256": "b863c802a7211fb6be7b5105294739997a2c4d9113e035be9e73841a2ab19f73",
+        "inherited_evidence_hashes_match": true
+      }
+    },
+    "stage_status": "complete",
+    "ended_at": "2026-10-30T03:54:22.585921+08:00",
+    "train_validation_overlap": 0
+  },
+  "evidence_sha256": {
+    "next/outputs/teacher-parallel/astra/train/run.json": "6c7f03305101bb0215cbaf936027432934938dc05936c6538b118dbbf0d23ef2",
+    "next/outputs/teacher-parallel/astra/train/raw.jsonl": "797185fa40117252165ffee5cd982882e7f8c61bfec14f46f3b495de8e677a99",
+    "next/outputs/teacher-parallel/astra/train/source.json": "cb43fd57e0ecf8cfbc0a0c0cb5e9a2d9c5d0f0c5bb4beadd5f2f42a6d40b2d9c",
+    "next/outputs/teacher-astra/train/run.json": "42d1090c308365a2a02e95bd64b6ffe92aafa82c7dbe9c7dd53453a9bd051a2d",
+    "next/outputs/teacher-astra/train/raw.jsonl": "ecd2365443ea0f189434312d839133c897995c710afe2ba1e4576bc08f23ff4b",
+    "next/outputs/teacher-parallel/astra/validation/run.json": "e0734e6f0ec1469519848e643c6a28a7f44bd17a8bb7df52a2cf4bcb9d59c95d",
+    "next/outputs/teacher-parallel/astra/validation/source.json": "d52a7377ab6afe274fa39d2c06e3bea06ad7590967a87786117f5a7d8d4448c0",
+    "next/outputs/teacher-astra/validation/run.json": "99bc885c3917253959e87a9f9e61cbb2a2c920b7760c394e3726cf309c900e79",
+    "next/outputs/teacher-astra/validation/raw.jsonl": "750ade8aee485f10112abf0881f2fcdf93865bf2205795d47534b13f8c0fac5f"
+  },
+  "scope": "Collection cohort with success/domain stopping, not a fixed benchmark score",
+  "dataset_manifest": "next/data/teacher/astra/manifest.json",
+  "formal_teacher_test_status": "complete",
+  "formal_teacher_test_result": "next/results/teacher-evaluation/astra/summary.json"
+}

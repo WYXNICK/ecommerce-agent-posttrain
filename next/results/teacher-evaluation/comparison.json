@@ -1,0 +1,90 @@
+{
+  "status": "complete",
+  "checked_at": "2026-10-30T09:07:19.010546+08:00",
+  "test_tasks": 1000,
+  "paired_success_counts": {
+    "both": 779,
+    "astra_only": 30,
+    "sol_only": 25,
+    "neither": 166
+  },
+  "astra_minus_sol_rate": 0.005,
+  "paired_task_bootstrap_95_interval": [
+    -0.01,
+    0.019
+  ],
+  "bootstrap": {
+    "seed": 20261030,
+    "replicates": 20000,
+    "unit": "test task",
+    "resamples_model_stochasticity": false
+  },
+  "mcnemar_exact_two_sided_p": 0.5900533317766357,
+  "verification": {
+    "sol": {
+      "status": "complete",
+      "unique_tasks": 1000,
+      "one_behavior_trial_per_task": true,
+      "all_raw_metrics_recomputed_match": true,
+      "model_identity_all_passed": true,
+      "evidence_hashes_match": true,
+      "first_episode_created_at": "2026-10-29T23:54:37.074019+08:00",
+      "final_summary_written_at": "2026-10-30T02:05:28.574997+08:00",
+      "summary": {
+        "strict_successes": 804,
+        "strict_success_rate": 0.804,
+        "mean_final_reward": 0.7786492883852267,
+        "average_steps": 11.129,
+        "status_counts": {
+          "done": 934,
+          "response_budget_exhausted": 66
+        },
+        "reward_type_counts": {
+          "early_abstain": 21,
+          "gold_purchase": 804,
+          "graceful_stop": 1,
+          "max_steps": 1,
+          "partial_alternative_purchase": 77,
+          "repeat_loop": 22,
+          "unknown": 66,
+          "wrong_purchase": 8
+        }
+      }
+    },
+    "astra": {
+      "status": "complete",
+      "unique_tasks": 1000,
+      "one_behavior_trial_per_task": true,
+      "all_raw_metrics_recomputed_match": true,
+      "model_identity_all_passed": true,
+      "evidence_hashes_match": true,
+      "first_episode_created_at": "2026-10-30T03:54:42.087491+08:00",
+      "final_summary_written_at": "2026-10-30T05:59:56.972073+08:00",
+      "summary": {
+        "strict_successes": 809,
+        "strict_success_rate": 0.809,
+        "mean_final_reward": 0.7837385281211855,
+        "average_steps": 10.39,
+        "status_counts": {
+          "done": 964,
+          "response_budget_exhausted": 36
+        },
+        "reward_type_counts": {
+          "early_abstain": 25,
+          "gold_purchase": 809,
+          "max_steps": 1,
+          "partial_alternative_purchase": 104,
+          "repeat_loop": 17,
+          "unknown": 36,
+          "wrong_purchase": 8
+        }
+      },
+      "started_only_after_full_collection": true
+    }
+  },
+  "training_dataset_overlap": {
+    "common_tasks": 1928,
+    "union_tasks": 2072
+  },
+  "interpretation": "One observed trial per teacher/task; no established teacher superiority. Do not use test cases for training or method selection."
+}

@@ -100,5 +100,6 @@
     }
   },
   "dataset_manifest": "next/data/teacher/sol/manifest.json",
-  "formal_teacher_test_status": "not_run"
+  "formal_teacher_test_status": "complete",
+  "formal_teacher_test_result": "next/results/teacher-evaluation/sol/summary.json"
 }
