@@ -12,7 +12,7 @@ from shopping_agent.runs import write_json
 def main():
     import torch
     from peft import PeftModel
-    from transformers import AutoModelForMultimodalLM, AutoTokenizer
+    from transformers import AutoModelForMultimodalLM, AutoProcessor
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base-model", type=Path, required=True)
@@ -24,7 +24,7 @@ def main():
     base = AutoModelForMultimodalLM.from_pretrained(args.base_model, dtype=torch.bfloat16, device_map="cpu")
     merged = PeftModel.from_pretrained(base, args.adapter).merge_and_unload()
     merged.save_pretrained(args.output, safe_serialization=True, max_shard_size="5GB")
-    AutoTokenizer.from_pretrained(args.base_model).save_pretrained(args.output)
+    AutoProcessor.from_pretrained(args.base_model).save_pretrained(args.output)
     write_json(args.output / "merge_manifest.json", {
         "operation": "peft_merge_and_unload", "dtype": "bfloat16", "device": "cpu",
         "base_model": str(args.base_model), "adapter": str(args.adapter),

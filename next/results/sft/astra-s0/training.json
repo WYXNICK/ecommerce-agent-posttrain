@@ -1,0 +1,90 @@
+{
+  "status": "complete",
+  "student": {
+    "model": "Qwen/Qwen3.5-2B",
+    "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+    "enable_thinking": false
+  },
+  "teacher": "gpt-6-astra-2026-09-03",
+  "train_examples": 2000,
+  "validation_examples": 200,
+  "global_step": 750,
+  "train_loss": 0.05852287775402268,
+  "metrics": {
+    "train_runtime": 17659.7662,
+    "train_samples_per_second": 0.34,
+    "train_steps_per_second": 0.042,
+    "total_flos": 4.323905300521288e+17,
+    "train_loss": 0.05852287775402268,
+    "epoch": 3.0
+  },
+  "peak_gpu_memory_gib_by_rank": [
+    16.364280700683594,
+    16.09064292907715
+  ],
+  "sparse_assistant_projection": true,
+  "linear_attention_kernels": [
+    "transformers.models.qwen3_5.modeling_qwen3_5"
+  ],
+  "runtime": {
+    "torch": "2.11.0",
+    "transformers": "5.15.0.dev0",
+    "peft": "0.20.0",
+    "accelerate": "1.14.0"
+  },
+  "scope": "Completed SFT optimization and validation; dev selection and final task success are reported separately.",
+  "epoch_checkpoints": [
+    {
+      "name": "checkpoint-250",
+      "adapter_sha256": "b9b7fb0a5d33c73b06c841173c12ef0eede2e7ac863cf32855ee01bc3e765e34"
+    },
+    {
+      "name": "checkpoint-500",
+      "adapter_sha256": "2ef5b9133c4482da8d3fb509b4e5329e6ad9589bae43c9d9cafbe63ca374a866"
+    },
+    {
+      "name": "checkpoint-750",
+      "adapter_sha256": "09329cf21e82afaa4f6f6028c10f231cc50b6bf60c5d2db272fc2b020d0765a2"
+    }
+  ],
+  "validation": [
+    {
+      "step": 250,
+      "epoch": 1.0,
+      "eval_loss": 0.07093948125839233,
+      "eval_runtime": 71.9223
+    },
+    {
+      "step": 500,
+      "epoch": 2.0,
+      "eval_loss": 0.06823698431253433,
+      "eval_runtime": 70.9322
+    },
+    {
+      "step": 750,
+      "epoch": 3.0,
+      "eval_loss": 0.07309836149215698,
+      "eval_runtime": 71.4257
+    }
+  ],
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227",
+  "entry_files": {
+    "configs/data_selection.json": "87c0a57cdfea8c7048c3b7c82760fbab682e690fa5813742046c453a7e105c2d",
+    "configs/sft.json": "7bbc3f5700eba05bfafdc82db2501570f3928f9719205d032538dbdfbbddae3e",
+    "scripts/sft/export_model.py": "5eb0748a6eb28ca14e57267634701bc56c5794ff411d46844401b18222ee4fe3",
+    "scripts/sft/monitor_gpu.py": "f4183ccacfd3f9ca0784d27cad0c69362f9f4462f65af841cb38ee32f02b1142",
+    "scripts/sft/sft_data.py": "73ce357c7d5938258bd5151cc97ea378fa934b2535df185f8a6cf4dcf0fa94d1",
+    "scripts/sft/supervise_sft.py": "d8e2163c8573e8765e232100a7d4aee8d08944fe5c9f80c434f929141ba00a95",
+    "scripts/sft/train_sft.py": "41265fc81cbe39094389c3d51289db9adbc777cc32a6398640f3be753e54254b"
+  },
+  "evidence_sha256": {
+    "run.json": "884d7432c30023914aa8fac50ab14c9811c09b96b2e123e24abbed37a8c1ae1e",
+    "train_summary.json": "34fb2365a6cdf3f538acc8a681c16bf05f416250f2f85cbeb7188b55b4e98f5e",
+    "metrics.jsonl": "a2b4210f3270f95519c7fa70cd993bd1a348fa8ffab8f9bbf57543b6e872c974",
+    "prepared.json": "8dd71ff7442fc87b19f041d8b9087aa8f3ef2d2d57851c54aa570d1d36d1a208",
+    "shutdown-rank0.txt": "c13ccdde1c65396aaa7da1087410347523e5ae82f36aea3a551f35893d59c52b",
+    "shutdown-rank1.txt": "fcef298f24ee64ff8433821fec6a24846857834a92fd249f23b45eb14be14809",
+    "shutdown-recovery.json": "c1f558c89ea524fb10ca494fda3cd0f4a24262ee6ec6e39cd50103a9776f38d4"
+  },
+  "shutdown_note": "Both ranks completed model save and metrics, then blocked in NCCL destroy_process_group. Saved adapters were verified before stopping the launcher. Dev selection resumed with unchanged training source and configuration."
+}

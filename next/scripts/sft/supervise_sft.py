@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import fcntl
 import importlib.metadata
 import json
+import math
 import os
 from pathlib import Path
 import signal
@@ -25,6 +26,45 @@ HERE = Path(__file__).resolve().parent
 def entry_files():
     files = [NEXT / "configs/sft.json", NEXT / "configs/data_selection.json", *HERE.glob("*.py")]
     return {str(p.relative_to(NEXT)): sha256(p) for p in sorted(files)}
+
+
+def completed_training(output, work, settings):
+    """A committed completion marker must be backed by resumable saved weights."""
+    path = output / "train_summary.json"
+    if not path.exists():
+        return None
+    summary = json.loads(path.read_text())
+    batch = settings["world_size"] * settings["micro_batch_size"] * settings["gradient_accumulation_steps"]
+    steps_per_epoch = math.ceil(summary["train_examples"] / batch)
+    if summary["status"] != "complete" or summary["global_step"] != steps_per_epoch * settings["epochs"]:
+        raise ValueError("training completion marker has an incomplete update count")
+    expected = [work / "checkpoints" / f"checkpoint-{steps_per_epoch*i}" for i in range(1, settings["epochs"]+1)]
+    if summary["epoch_checkpoints"] != list(map(str, expected)):
+        raise ValueError("training marker points to different checkpoint directories")
+    for checkpoint in expected:
+        state = json.loads((checkpoint / "trainer_state.json").read_text())
+        if state["global_step"] != int(checkpoint.name.split("-")[-1]):
+            raise ValueError("saved checkpoint has a different update count")
+        for name in ("adapter_model.safetensors", "optimizer.pt", "scheduler.pt"):
+            if not (checkpoint / name).is_file() or (checkpoint / name).stat().st_size == 0:
+                raise ValueError(f"completed checkpoint is missing {name}")
+    if not (work / "checkpoints/final-adapter/adapter_model.safetensors").is_file():
+        raise ValueError("final adapter has not been saved")
+    return summary
+
+
+def validate_post_training_update(original, current, training):
+    """Repair export/supervision after completion without changing the training identity."""
+    if training is None or training["status"] != "complete":
+        raise ValueError("source updates require a committed complete training run")
+    if {k:v for k,v in original.items() if k != "entry_files"} != {k:v for k,v in current.items() if k != "entry_files"}:
+        raise ValueError("post-training repair changed data, settings, weights or runtime")
+    changed = {k for k in original["entry_files"] | current["entry_files"]
+               if original["entry_files"].get(k) != current["entry_files"].get(k)}
+    allowed = {"scripts/sft/supervise_sft.py", "scripts/sft/export_model.py"}
+    if not changed <= allowed:
+        raise ValueError("post-training repair changed the frozen training implementation")
+    return sorted(changed)
 
 
 def selection_key(item):
@@ -117,9 +157,24 @@ def main():
             raise InterruptedError("stop requested")
         job = launch(command, name)
         publish(child_pid=job.pid)
+        completed_at = None
         while job.poll() is None:
+            if stopped:
+                raise InterruptedError("stop requested")
             if monitor is not None and monitor.poll() is not None:
                 raise RuntimeError("GPU monitor stopped; inspect gpu-monitor.log")
+            if name == "train.log":
+                if completed_at is None and completed_training(output, work, settings) is not None:
+                    completed_at = time.monotonic()
+                    publish(status="training_finalizing")
+                if completed_at is not None and time.monotonic() - completed_at > 90:
+                    terminate(job)
+                    write_json(output / "post_training_shutdown.json", {
+                        "reason": "NCCL shutdown exceeded grace period after complete artifacts were verified",
+                        "global_step": json.loads((output / "train_summary.json").read_text())["global_step"],
+                        "train_summary_sha256": sha256(output / "train_summary.json")})
+                    job = None
+                    return
             time.sleep(5)
         if stopped:
             raise InterruptedError("stop requested")
@@ -156,8 +211,9 @@ def main():
         publish()
         monitor = launch([sys.executable, HERE / "monitor_gpu.py", output], "gpu-monitor.log")
         _, manifest_path, manifest = selected_data()
+        settings = json.loads((NEXT / "configs/sft.json").read_text())
         spec = {"execution_fingerprint": validate_execution(), "entry_files": entry_files(),
-                "settings": json.loads((NEXT / "configs/sft.json").read_text()),
+                "settings": settings,
                 "student": load_config()["student"], "teacher": manifest["teacher"],
                 "runtime": {p: importlib.metadata.version(p) for p in ("torch", "transformers", "peft", "accelerate", "vllm")},
                 "dataset_manifest_sha256": sha256(manifest_path),
@@ -167,9 +223,14 @@ def main():
         if {k: v for k, v in spec["base_files"].items() if k.endswith(".safetensors")} != spec["settings"]["base_model_weights"]:
             raise ValueError("base weights differ from the frozen original Baseline model")
         spec_path = output / "run.json"
-        if spec_path.exists() and json.loads(spec_path.read_text()) != spec:
-            raise ValueError("run identity changed; use a new output directory")
-        write_json(spec_path, spec)
+        original_spec = json.loads(spec_path.read_text()) if spec_path.exists() else spec
+        if original_spec != spec:
+            changes = validate_post_training_update(original_spec, spec, completed_training(output, work, settings))
+            write_json(output / "post_training_run.json", {
+                "scope": "post-training supervision/export only; no additional optimization",
+                "training_run_sha256": sha256(spec_path), "changed_files": changes, "specification": spec})
+        elif not spec_path.exists():
+            write_json(spec_path, spec)
         if not (work / "prepared/prepared.json").exists():
             run([sys.executable, HERE / "sft_data.py", "--model", args.model,
                  "--output", work / "prepared"], "prepare.log")
@@ -177,7 +238,7 @@ def main():
         if prepared["dataset_manifest_sha256"] != spec["dataset_manifest_sha256"]:
             raise ValueError("prepared data has a different source")
         write_json(output / "prepared.json", prepared)
-        if not (output / "train_summary.json").exists():
+        if completed_training(output, work, settings) is None:
             if (work / "checkpoints").exists() and not args.resume:
                 raise ValueError("existing weights require an explicit --resume checkpoint")
             keep(False, 0, 1)
@@ -191,7 +252,7 @@ def main():
             keep(True, 0, 1)
         if entry_files() != spec["entry_files"] or validate_execution() != spec["execution_fingerprint"]:
             raise ValueError("SFT or execution source changed during training")
-        training = json.loads((output / "train_summary.json").read_text())
+        training = completed_training(output, work, settings)
         publish(status="selecting_on_dev")
         env_url, model_url = f"http://127.0.0.1:{args.environment_port}", f"http://127.0.0.1:{args.model_port}/v1"
         environment = launch(["bash", NEXT / "scripts/start_environment.sh"], "environment.log",
@@ -221,7 +282,7 @@ def main():
             selection_key(candidate)
             candidates.append(candidate)
         best = max(candidates, key=selection_key)
-        result = {"status": "complete", "run": spec, "training": training,
+        result = {"status": "complete", "run": original_spec, "post_training_execution": spec, "training": training,
                   "candidates": candidates, "selected": best,
                   "note": "Development-set selection only. Final test1000 not run."}
         write_json(output / "summary.json", result)
@@ -231,8 +292,10 @@ def main():
         report_result(result)
         publish(status="archiving", selected_step=best["step"])
         checkpoints = {Path(best["checkpoint"]), Path(training["epoch_checkpoints"][-1])}
-        archive([Path(best["model"]), *sorted(checkpoints), output / "run.json", output / "summary.json",
-                 output / "train_summary.json", output / "prepared.json", output / "metrics.jsonl", output / "dev"])
+        paths = [Path(best["model"]), *sorted(checkpoints), output / "run.json", output / "summary.json",
+                 output / "train_summary.json", output / "prepared.json", output / "metrics.jsonl", output / "dev"]
+        paths += [p for p in (output / "post_training_run.json", output / "shutdown-recovery.json") if p.exists()]
+        archive(paths)
         publish(status="complete")
     except Exception as exc:
         publish(status="interrupted" if stopped else "failed", error=f"{type(exc).__name__}: {exc}")

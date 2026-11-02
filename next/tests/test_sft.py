@@ -1,6 +1,7 @@
 """SFT objective equivalence, accumulation normalization and dev selection."""
 
 from copy import deepcopy
+import json
 from pathlib import Path
 import sys
 import unittest
@@ -10,7 +11,7 @@ import torch.nn.functional as F
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts/sft"))
 from train_sft import masked_loss, supervised_positions
-from supervise_sft import selection_key
+from supervise_sft import completed_training, selection_key, validate_post_training_update
 from sft_data import selected_data
 
 
@@ -90,6 +91,46 @@ class SFTTests(unittest.TestCase):
         later["summary"]["completed_tasks"] = 299
         with self.assertRaises(ValueError):
             selection_key(later)
+
+    def test_post_training_repairs_preserve_training_identity(self):
+        original = {"settings": {"epochs": 3}, "entry_files": {
+            "scripts/sft/train_sft.py": "train", "scripts/sft/sft_data.py": "data",
+            "scripts/sft/export_model.py": "old-export", "scripts/sft/supervise_sft.py": "old-supervisor"}}
+        current = deepcopy(original)
+        current["entry_files"]["scripts/sft/export_model.py"] = "fixed-export"
+        self.assertEqual(validate_post_training_update(original, current, {"status": "complete"}),
+                         ["scripts/sft/export_model.py"])
+        with self.assertRaises(ValueError):
+            validate_post_training_update(original, current, None)
+        current["entry_files"]["scripts/sft/train_sft.py"] = "changed-training"
+        with self.assertRaises(ValueError):
+            validate_post_training_update(original, current, {"status": "complete"})
+        current = deepcopy(original)
+        current["settings"]["epochs"] = 4
+        with self.assertRaises(ValueError):
+            validate_post_training_update(original, current, {"status": "complete"})
+
+    def test_completion_marker_requires_saved_optimizer_and_epoch_weights(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            settings = {"world_size": 2, "micro_batch_size": 1, "gradient_accumulation_steps": 4, "epochs": 1}
+            self.assertIsNone(completed_training(root, root, settings))
+            checkpoint = root / "checkpoints/checkpoint-1"
+            checkpoint.mkdir(parents=True)
+            (root / "train_summary.json").write_text(json.dumps({"status": "complete", "global_step": 1,
+                "train_examples": 8, "epoch_checkpoints": [str(checkpoint)]}))
+            (checkpoint / "trainer_state.json").write_text('{"global_step":1}')
+            for name in ("adapter_model.safetensors", "scheduler.pt"):
+                (checkpoint / name).write_bytes(b"saved")
+            with self.assertRaises(ValueError):
+                completed_training(root, root, settings)
+            (checkpoint / "optimizer.pt").write_bytes(b"saved")
+            final = root / "checkpoints/final-adapter"
+            final.mkdir()
+            (final / "adapter_model.safetensors").write_bytes(b"saved")
+            self.assertEqual(completed_training(root, root, settings)["global_step"], 1)
 
 
 if __name__ == "__main__":
