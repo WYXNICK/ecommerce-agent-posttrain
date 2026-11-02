@@ -10,6 +10,7 @@
 | [docs/data-preparation/](docs/data-preparation/README.md) | 数据准备阶段：方案、结果与隔离边界 |
 | [docs/baseline/](docs/baseline/README.md) | Baseline 阶段：固定协议、完整成绩与后续比较方式 |
 | [docs/teacher-collection/](docs/teacher-collection/README.md) | 教师采集阶段：Sol / Astra 各 2,000＋200 条成品、成功率口径与验收 |
+| [docs/sft/](docs/sft/README.md) | SFT 阶段：Astra 2,000＋200、双卡 LoRA、开发集选模与归档 |
 | [docs/teacher-evaluation/](docs/teacher-evaluation/README.md) | 教师正式评测：Sol 80.4%、Astra 80.9%，各完整 1,000 题 |
 | [docs/data-preparation/methodology.md](docs/data-preparation/methodology.md) | 数据筛选规则、分布、复现与详细使用说明 |
 | [docs/execution.md](docs/execution.md) | 统一入口、冻结协议、教师 API 与运行命令 |
@@ -24,7 +25,7 @@
 | [data/task_pool/metadata.json](data/task_pool/metadata.json) | 数据分布、来源和 SHA-256 校验清单 |
 | [tests/test_prepare_task_pool.py](tests/test_prepare_task_pool.py) | 划分、哈希、奖励与去重验收 |
 
-已冻结教师候选 4,000、GRPO 2,000、SFT 验证候选 800、开发 300、测试 1,000，另有训练备用 3,977。Baseline、Sol / Astra 各 2,000＋200 条教师数据及各完整 1,000 题教师评测均已完成，并通过全量离线复核。**正式教师及 SFT 数据采用 Astra；Sol 原样保留为独立参考。** 新版 SFT/GRPO 训练尚未启动，下一步适配新版 SFT。
+已冻结教师候选 4,000、GRPO 2,000、SFT 验证候选 800、开发 300、测试 1,000，另有训练备用 3,977。Baseline、Sol / Astra 各 2,000＋200 条教师数据及各完整 1,000 题教师评测均已完成，并通过全量离线复核。**正式教师及 SFT 数据采用 Astra；Sol 原样保留为独立参考。** 新版 SFT 已在双 H100 启动正式训练，详见 SFT 阶段说明；GRPO 尚未执行。
 
 每阶段文档在 `docs/<阶段>/`，指标在 `results/<阶段>/`，数据成品在 `data/`。自动更新的运行报告与完整日志保留本地，采集与评测分开：Astra 采集报告在 `next/docs/teacher-collection/runtime/astra-current.md`，教师评测在 `next/outputs/teacher-evaluation/<教师>/progress.md`。每个阶段完成后整理并推送当前分支，规则见 [AGENTS.md](AGENTS.md)。
 

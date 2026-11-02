@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "checked_at": "2026-11-02T03:33:41.398494+00:00",
+  "unit_tests": 44,
+  "scope": [
+    "frozen data boundaries",
+    "assistant-only loss and gradient equivalence",
+    "DDP token normalization",
+    "native Qwen3.5 logit selection and LoRA backward",
+    "complete dev selection and tie rules"
+  ],
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227"
+}

@@ -1,0 +1,119 @@
+{
+  "status": "running",
+  "checked_at": "2026-11-02T03:45:45.679195+00:00",
+  "worker_id": 1155080,
+  "teacher": "gpt-6-astra-2026-09-03",
+  "student": {
+    "model": "Qwen/Qwen3.5-2B",
+    "revision": "15852e8c16360a2fea060d615a32b45270f8a8fc",
+    "enable_thinking": false
+  },
+  "settings": {
+    "base_model_weights": {
+      "model.safetensors-00001-of-00001.safetensors": "aa33250c4fc64891ddfaba3a314fd9542ea371843c387178b425fbcc5ed680b1"
+    },
+    "epochs": 3,
+    "seed": 42,
+    "world_size": 2,
+    "micro_batch_size": 1,
+    "gradient_accumulation_steps": 4,
+    "learning_rate": 0.0001,
+    "warmup_ratio": 0.03,
+    "weight_decay": 0.0,
+    "max_grad_norm": 1.0,
+    "save_steps": 125,
+    "save_total_limit": 6,
+    "lora": {
+      "r": 16,
+      "alpha": 32,
+      "dropout": 0.05,
+      "target_modules": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj",
+        "in_proj_qkv",
+        "in_proj_z",
+        "in_proj_b",
+        "in_proj_a",
+        "out_proj"
+      ]
+    }
+  },
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227",
+  "entry_files": {
+    "configs/data_selection.json": "87c0a57cdfea8c7048c3b7c82760fbab682e690fa5813742046c453a7e105c2d",
+    "configs/sft.json": "7bbc3f5700eba05bfafdc82db2501570f3928f9719205d032538dbdfbbddae3e",
+    "scripts/sft/export_model.py": "5eb0748a6eb28ca14e57267634701bc56c5794ff411d46844401b18222ee4fe3",
+    "scripts/sft/monitor_gpu.py": "f4183ccacfd3f9ca0784d27cad0c69362f9f4462f65af841cb38ee32f02b1142",
+    "scripts/sft/sft_data.py": "73ce357c7d5938258bd5151cc97ea378fa934b2535df185f8a6cf4dcf0fa94d1",
+    "scripts/sft/supervise_sft.py": "d8e2163c8573e8765e232100a7d4aee8d08944fe5c9f80c434f929141ba00a95",
+    "scripts/sft/train_sft.py": "41265fc81cbe39094389c3d51289db9adbc777cc32a6398640f3be753e54254b"
+  },
+  "runtime": {
+    "torch": "2.11.0",
+    "transformers": "5.15.0.dev0",
+    "peft": "0.20.0",
+    "accelerate": "1.14.0",
+    "vllm": "0.25.1"
+  },
+  "data": {
+    "train_examples": 2000,
+    "validation_examples": 200,
+    "train_supervised_tokens": 447456,
+    "validation_supervised_tokens": 43954,
+    "max_train_sequence_tokens": 22441
+  },
+  "observed_progress": {
+    "step": 5,
+    "max_steps": 750,
+    "epoch": 0.02,
+    "elapsed_seconds": 196.49855274194852,
+    "gpu_peak_memory_gib": 16.234135627746582,
+    "loss": 0.22711126506328583,
+    "grad_norm": 1.9654347896575928,
+    "learning_rate": 1.739130434782609e-05,
+    "estimated_seconds_remaining": 29278.28435855033
+  },
+  "gpu_observations": [
+    {
+      "time": "2026-11-02T03:45:43.207975+00:00",
+      "gpu": 0,
+      "gpu_percent": 37,
+      "sm_percent": 37,
+      "memory_mib": 20045,
+      "samples": 12,
+      "mean_gpu_percent_60s": 44.25,
+      "mean_sm_percent_60s": 45.0,
+      "below_target_60s": false
+    },
+    {
+      "time": "2026-11-02T03:45:43.380010+00:00",
+      "gpu": 1,
+      "gpu_percent": 39,
+      "sm_percent": 11,
+      "memory_mib": 16343,
+      "samples": 12,
+      "mean_gpu_percent_60s": 60.75,
+      "mean_sm_percent_60s": 61.333333333333336,
+      "below_target_60s": false
+    }
+  ],
+  "monitor_source": {
+    "gpu_percent": "nvidia-smi --query-gpu=utilization.gpu",
+    "sm_percent": "nvidia-smi dmon -s u"
+  },
+  "native_tensorboard_tags": [
+    "train/loss",
+    "train/grad_norm",
+    "train/learning_rate",
+    "train/epoch"
+  ],
+  "automatic_cleanup_verified": "SIGTERM supervisor restored both GPU keepalive processes before formal restart",
+  "scheduled_followup": "epoch250/500/750 dev300 selection and HDFS archive; no test1000",
+  "final_performance": "not available; full training and development evaluation are still running",
+  "tensorboard_http": "HTTP 200 with actual train scalar tags at localhost:6016"
+}

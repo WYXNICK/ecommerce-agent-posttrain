@@ -1,0 +1,25 @@
+{
+  "base_model_weights": {
+    "model.safetensors-00001-of-00001.safetensors": "aa33250c4fc64891ddfaba3a314fd9542ea371843c387178b425fbcc5ed680b1"
+  },
+  "epochs": 3,
+  "seed": 42,
+  "world_size": 2,
+  "micro_batch_size": 1,
+  "gradient_accumulation_steps": 4,
+  "learning_rate": 0.0001,
+  "warmup_ratio": 0.03,
+  "weight_decay": 0.0,
+  "max_grad_norm": 1.0,
+  "save_steps": 125,
+  "save_total_limit": 6,
+  "lora": {
+    "r": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "target_modules": [
+      "q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj",
+      "in_proj_qkv", "in_proj_z", "in_proj_b", "in_proj_a", "out_proj"
+    ]
+  }
+}
