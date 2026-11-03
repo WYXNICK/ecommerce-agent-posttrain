@@ -1,0 +1,14 @@
+{
+  "version": "reflow-r1",
+  "seed": 42,
+  "repair_target": 300,
+  "minimum_pairs": 100,
+  "workers": 6,
+  "mining_split": "teacher_candidates",
+  "general_split": "train_reserve",
+  "epochs": 2,
+  "learning_rate": 0.00002,
+  "replay_ratio": 1,
+  "selection": "dev300 strict successes, reward, fewer actions; keep S0 on ties",
+  "comparison": "same S0, teacher, replay rows, new example count, updates, learning rate and dev rule; report actual token and GPU budgets"
+}

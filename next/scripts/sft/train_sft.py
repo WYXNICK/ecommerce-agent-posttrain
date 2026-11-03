@@ -46,9 +46,10 @@ def main():
     parser.add_argument("--weights", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--resume", type=Path)
+    parser.add_argument("--settings", type=Path, default=NEXT / "configs/sft.json")
     args = parser.parse_args()
     validate_execution()
-    settings = json.loads((NEXT / "configs/sft.json").read_text())
+    settings = json.loads(args.settings.read_text())
     config = load_config()
     if int(os.environ.get("WORLD_SIZE", "1")) != settings["world_size"]:
         raise ValueError("launch with the configured two torchrun ranks")

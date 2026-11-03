@@ -1,0 +1,18 @@
+{
+  "recorded_at": "2026-11-03T03:47:58.813924+00:00",
+  "status": "running",
+  "phase": "mine",
+  "worker_id": 1155080,
+  "supervisor_pid": 24031,
+  "mining": {
+    "completed_tasks": 99,
+    "expected_tasks": 2000,
+    "strict_successes": 69,
+    "unresolved_infrastructure_tasks": []
+  },
+  "teacher_repair": "queued",
+  "paired_sft": "queued",
+  "dev_selection": "queued",
+  "grpo": "not started; candidate selection follows this stage",
+  "note": "Startup evidence only, not a completed result."
+}

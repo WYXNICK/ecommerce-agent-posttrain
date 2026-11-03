@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "checked_at": "2026-11-03T03:46:10.607927+00:00",
+  "full_suite_tests": 51,
+  "targeted_reflow_tests": 5,
+  "test_log_sha256": "83dca6162c20b4df4099c31e31e7193a652c7848fd4a9256d10692a0877de14a",
+  "checks": [
+    "real student template masks student prefix; teacher suffix remains supervised",
+    "shared actor re-executes actions before teacher takeover",
+    "observation mismatch refuses teacher takeover",
+    "infrastructure and unverifiable failures excluded",
+    "S0 weight hash pinned",
+    "frozen execution fingerprint unchanged",
+    "2000 mining and 3977 general candidates; protected overlap zero"
+  ],
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227"
+}
