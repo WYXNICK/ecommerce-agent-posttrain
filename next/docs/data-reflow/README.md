@@ -33,7 +33,7 @@
 
 ## 状态与验收
 
-实现通过 51 项检查，正式任务在后台运行。2026-11-03 数据阶段已完成：
+实现通过 51 项检查，本轮训练和开发集选模已完成，修复组 step 72 为 232/300（77.33%），选作下一阶段起点；[完整结果与局限](results.md)。HDFS 归档待团队配额恢复。2026-11-03 数据阶段结果：
 
 | 阶段 | 结果 |
 |---|---|
@@ -44,6 +44,6 @@
 
 修复数量未达到 300 目标；候选耗尽后按预先设置的最低 100 条门槛继续实际 144 条对照，不扩大范围凑数。修复和普通采集面对不同任务及起始状态，两个接收率不能解释为教师能力变化。两组每 epoch 的监督 token 分别为 57,388 / 64,692，输入 token 为 2,762,898 / 2,006,303；不宣称等 token 或等计算成本。
 
-数据成品的压缩/内容哈希、144＋144 条唯一任务、留出隔离和严格成功原始证据已核验。普通增量组已完成训练及两轮 dev300 评测，最佳 218/300，与 S0 严格成功数持平；修复组训练中，完整回流收益待评测。数据阶段证据见 [collection.json](../../results/data-reflow/r1/collection.json)，成品见 [数据清单](../../data/reflow/r1/manifest.json)。
+数据成品的压缩/内容哈希、144＋144 条唯一任务、留出隔离和严格成功原始证据已核验。普通增量组最佳 218/300，与 S0 严格成功数持平；修复组最佳 232/300，增加 4.67 个百分点，但循环、预算耗尽和平均步骤增加。数据阶段证据见 [collection.json](../../results/data-reflow/r1/collection.json)，成品见 [数据清单](../../data/reflow/r1/manifest.json)。
 
 两组 SFT 均使用原生 TensorBoard logger，事件分别保存在 `outputs/data-reflow/r1/general/sft/tensorboard/` 和 `repair/sft/tensorboard/`；将 TensorBoard 的 logdir 指向 `next/outputs/data-reflow/r1/` 可统一查看。

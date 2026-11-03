@@ -1,0 +1,5 @@
+{
+  "status": "pending",
+  "destination": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/reflow-r1-20261103",
+  "error": "command exited 1; see archive.log"
+}

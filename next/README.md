@@ -26,7 +26,7 @@
 | [data/task_pool/metadata.json](data/task_pool/metadata.json) | 数据分布、来源和 SHA-256 校验清单 |
 | [tests/test_prepare_task_pool.py](tests/test_prepare_task_pool.py) | 划分、哈希、奖励与去重验收 |
 
-已冻结教师候选 4,000、GRPO 2,000、SFT 验证候选 800、开发 300、测试 1,000，另有训练备用 3,977。Baseline、Sol / Astra 各 2,000＋200 条教师数据及各完整 1,000 题教师评测均已完成，并通过全量离线复核。**正式教师及 SFT 数据采用 Astra；Sol 原样保留为独立参考。** 新版 SFT 训练与开发集选模已完成：step 750 为 218/300（72.67%）；HDFS 配额超限，归档待恢复，详见 SFT 阶段说明。新版一轮失败回流与普通增量 SFT 对照已实现并启动；GRPO 与学生最终测试尚未执行。
+已冻结教师候选 4,000、GRPO 2,000、SFT 验证候选 800、开发 300、测试 1,000，另有训练备用 3,977。Baseline、Sol / Astra 各 2,000＋200 条教师数据及各完整 1,000 题教师评测均已完成，并通过全量离线复核。**正式教师及 SFT 数据采用 Astra；Sol 原样保留为独立参考。** 新版 SFT 训练与开发集选模已完成：step 750 为 218/300（72.67%）；HDFS 配额超限，归档待恢复，详见 SFT 阶段说明。新版一轮失败回流与普通增量 SFT 对照已完成：普通组 218/300，修复组 232/300（77.33%），选中修复组进入下一阶段；GRPO 与学生最终测试尚未执行。
 
 每阶段文档在 `docs/<阶段>/`，指标在 `results/<阶段>/`，数据成品在 `data/`。自动更新的运行报告与完整日志保留本地，采集与评测分开：Astra 采集报告在 `next/docs/teacher-collection/runtime/astra-current.md`，教师评测在 `next/outputs/teacher-evaluation/<教师>/progress.md`。每个阶段完成后整理并推送当前分支，规则见 [AGENTS.md](AGENTS.md)。
 

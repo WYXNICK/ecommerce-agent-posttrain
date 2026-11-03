@@ -1,0 +1,84 @@
+{
+  "status": "passed",
+  "checked_at": "2026-11-03T13:04:12.926009+00:00",
+  "raw_evidence": "All four checkpoint evaluations have 300 unique tasks, matching raw/run/summary hashes and recomputed strict-success IDs.",
+  "comparison": {
+    "s0": {
+      "new_successes": [
+        1007,
+        2710,
+        4688,
+        4717,
+        7426,
+        9027,
+        9077,
+        9519,
+        9791,
+        10603,
+        10880,
+        11617,
+        13008,
+        15916,
+        17051,
+        19255,
+        20430,
+        23067
+      ],
+      "regressions": [
+        10672,
+        12311,
+        15037,
+        15395
+      ],
+      "net_success_gain": 14,
+      "percentage_point_gain": 4.666666666666667
+    },
+    "general": {
+      "new_successes": [
+        1007,
+        2540,
+        2710,
+        3712,
+        4688,
+        4717,
+        7222,
+        8538,
+        9027,
+        9077,
+        9791,
+        10169,
+        10603,
+        10880,
+        11617,
+        13008,
+        13759,
+        15916,
+        17051,
+        19255,
+        21700
+      ],
+      "regressions": [
+        1328,
+        6591,
+        10672,
+        13057,
+        15037,
+        19797,
+        22571
+      ],
+      "net_success_gain": 14,
+      "percentage_point_gain": 4.666666666666667
+    }
+  },
+  "scope": "one seed, development set used for selection; not confirmatory held-out evidence",
+  "runtime_summary_sha256": "13bad360ee61a0ac550d94fad0d79fbc08be51080750aab4a989ab7676559009",
+  "selected_model_verification": {
+    "all_merge_manifest_files_match": true,
+    "model_safetensors_sha256": "10ec8c7ac4023d601d74c4ed1282248fabf2140b3f2e61dcd92fcbfd5f0ed3d4",
+    "resumable_checkpoint_present": true,
+    "gpu_keepalive_verified": [
+      0,
+      1
+    ]
+  }
+}
