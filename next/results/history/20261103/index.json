@@ -1,0 +1,9 @@
+{
+  "status": "archived",
+  "published_commit": "004ea6f",
+  "outputs": {
+    "sft-astra-s0": "outputs/history/20261103/sft-astra-s0",
+    "reflow-r1": "outputs/history/20261103/reflow-r1"
+  },
+  "identity": "Metrics refer only to model hashes recorded in these manifests."
+}

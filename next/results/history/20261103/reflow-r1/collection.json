@@ -1,0 +1,153 @@
+{
+  "status": "collection_complete_training_in_progress",
+  "checked_at": "2026-11-03T09:10:01.012289+00:00",
+  "mining": {
+    "expected_tasks": 2000,
+    "completed_tasks": 2000,
+    "strict_successes": 1383,
+    "reward_type_counts": {
+      "gold_purchase": 1383,
+      "partial_alternative_purchase": 386,
+      "repeat_loop": 51,
+      "reward_unverifiable": 47,
+      "unknown": 87,
+      "valid_alternative_purchase": 2,
+      "wrong_purchase": 44
+    },
+    "status_counts": {
+      "done": 1913,
+      "invalid_action_limit": 2,
+      "model_output_invalid": 1,
+      "response_budget_exhausted": 84
+    },
+    "unresolved_infrastructure_tasks": []
+  },
+  "repair": {
+    "status": "complete",
+    "target": 300,
+    "accepted": 144,
+    "attempts": 491,
+    "minimum_pairs": 100,
+    "intervention_counts": {
+      "before_failed_purchase": 121,
+      "repeated_state_action": 22,
+      "guard_rejection": 1
+    },
+    "failure_counts": {
+      "strict_success": 144,
+      "model": 347
+    },
+    "rejection_counts": {
+      "reward_v3_not_gold_purchase": 347,
+      "purchase_not_successful": 344,
+      "termination_not_gold_purchase": 347,
+      "status_not_done": 99,
+      "trajectory_not_done": 99,
+      "environment_not_done": 99,
+      "missing_buy": 139,
+      "reward_v3_required": 99,
+      "reward_v3_invalid": 99
+    },
+    "usage": {
+      "reported_tokens": {
+        "prompt_tokens": 44842340,
+        "completion_tokens": 338429,
+        "total_tokens": 45180769,
+        "reasoning_tokens": 229674
+      },
+      "calls_without_usage": 0,
+      "transport_retries_without_usage": 1553,
+      "response_models": {
+        "gpt-6-astra-2026-09-03": 3650
+      },
+      "billing_note": "reported usage only; transport retries may incur unreported costs"
+    }
+  },
+  "general": {
+    "status": "complete",
+    "attempts": 179,
+    "accepted_unique_tasks": 144,
+    "target": 144,
+    "domain_quotas": {
+      "Leisure": 25,
+      "Appliances": 19,
+      "Supplies": 21,
+      "Kids": 7,
+      "Beauty": 24,
+      "Home": 19,
+      "Food": 5,
+      "Sports": 9,
+      "Clothing": 15
+    },
+    "accepted_by_domain": {
+      "Beauty": 24,
+      "Home": 19,
+      "Leisure": 25,
+      "Food": 5,
+      "Clothing": 15,
+      "Supplies": 21,
+      "Appliances": 19,
+      "Sports": 9,
+      "Kids": 7
+    },
+    "shortfall_by_domain": {
+      "Leisure": 0,
+      "Appliances": 0,
+      "Supplies": 0,
+      "Kids": 0,
+      "Beauty": 0,
+      "Home": 0,
+      "Food": 0,
+      "Sports": 0,
+      "Clothing": 0
+    },
+    "rejection_counts": {
+      "reward_v3_not_gold_purchase": 35,
+      "purchase_not_successful": 34,
+      "termination_not_gold_purchase": 35,
+      "missing_buy": 15,
+      "status_not_done": 6,
+      "trajectory_not_done": 6,
+      "environment_not_done": 6,
+      "reward_v3_required": 6,
+      "reward_v3_invalid": 6
+    },
+    "failure_counts": {
+      "strict_success": 144,
+      "model": 35
+    },
+    "usage": {
+      "reported_tokens": {
+        "prompt_tokens": 13812520,
+        "completion_tokens": 153377,
+        "total_tokens": 13965897,
+        "reasoning_tokens": 94138
+      },
+      "calls_without_usage": 0,
+      "transport_retries_without_usage": 744,
+      "response_models": {
+        "gpt-6-astra-2026-09-03": 1977
+      },
+      "billing_note": "reported usage only; transport retries may incur unreported costs"
+    }
+  },
+  "data_manifest_sha256": "e932b940981bbf8c95e40e9bffe25c6fc785ae683591f57d4ff64fc0f1906e9e",
+  "verification": "All 144+144 artifacts match compressed/content hashes, are task-unique and held-out-disjoint, and have strict-success raw evidence. Repair replay flags and supervision boundaries checked.",
+  "evidence_sha256": {
+    "mine": {
+      "run.json": "8ec4e63924b42330b709dece46bc6286e2576f0b46b2142e05c4dea1f7ee24fe",
+      "raw.jsonl": "ebd0c3171589410ec73637ecd7bc628a76977c27f8ccc707bc8c18d8f4ea07af",
+      "summary.json": "88448b9f05d96ff8de0335f6b433719814f9190ea9ca469ec0941e3c7e30c392"
+    },
+    "repair": {
+      "run.json": "a3636388a7c4743018eee25c7ab8012c27a4c53255a4fa2d856a2230450d5e8d",
+      "raw.jsonl": "d5533228408acc7768a04a48f836255048ba3ee8b4d702a70d8568f26db3e719",
+      "summary.json": "0efba6e260cfcd899f6a7a220c97d6475a079dbff29c1081cb74fa854f95008a"
+    },
+    "general": {
+      "run.json": "bac52936a640c6409b62d9e565a3e0944c785573853a807110d3eac72f5a9f7d",
+      "raw.jsonl": "c03797cdd436d5f88fdb35d0b37b48c10b578cba9041affd69b0455f86bdaa77",
+      "summary.json": "57273211d5a8aa1e60ebabe2aac1885cb326a3d1d154c1636b0ffd7b719c6376"
+    }
+  }
+}

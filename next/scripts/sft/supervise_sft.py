@@ -17,6 +17,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
 from sft_data import NEXT, selected_data
+from artifacts import persist
 from shopping_agent.protocol import load_config, sha256, validate_execution
 from shopping_agent.runs import write_json
 
@@ -266,6 +267,7 @@ def main():
             if not (model_dir / "merge_manifest.json").exists():
                 run([sys.executable, HERE / "export_model.py", "--base-model", args.model,
                      "--adapter", checkpoint, "--output", model_dir], f"export-{step}.log")
+            persist(model_dir)
             keep(False, 0)
             serving = launch(["bash", NEXT / "scripts/serve_model.sh", model_dir], f"serve-{step}.log",
                 {"CUDA_VISIBLE_DEVICES": "0", "LLM_PORT": str(args.model_port), "TENSOR_PARALLEL_SIZE": "1"})
@@ -290,6 +292,12 @@ def main():
         result_dir.mkdir(parents=True, exist_ok=True)
         write_json(result_dir / "summary.json", result)
         report_result(result)
+        if os.environ.get("SHOP_ARTIFACT_QUEUE"):
+            write_json(output / "archive.json", {"status": "queued", "destination": args.archive,
+                       "devbox_receipts": os.environ["SHOP_ARTIFACT_QUEUE"] + "/receipts",
+                       "hdfs_receipts": os.environ["SHOP_ARTIFACT_QUEUE"] + "/hdfs"})
+            publish(status="complete", selected_step=best["step"], archive_status="queued")
+            return 0
         publish(status="archiving", selected_step=best["step"])
         checkpoints = {Path(best["checkpoint"]), Path(training["epoch_checkpoints"][-1])}
         paths = [Path(best["model"]), *sorted(checkpoints), output / "run.json", output / "summary.json",

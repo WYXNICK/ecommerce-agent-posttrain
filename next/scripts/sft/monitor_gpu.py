@@ -4,6 +4,7 @@
 from collections import defaultdict, deque
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -23,6 +24,13 @@ def main():
                     continue
                 fields = line.split()
                 gpu, sm = int(fields[0]), int(fields[1])
+                if os.environ.get('SHOP_KEEP_STATE'):
+                    keeper = Path(os.environ['SHOP_KEEP_STATE']) / f'gpu-{gpu}.pid'
+                    if keeper.exists():
+                        pid = int(keeper.read_text())
+                        status = Path(f'/proc/{pid}/stat')
+                        if not status.exists() or status.read_text().split(') ',1)[1].startswith('Z'):
+                            raise RuntimeError(f'adaptive GPU keeper {gpu} exited; inspect its log')
                 utilization = subprocess.check_output(["nvidia-smi", "-i", str(gpu),
                     "--query-gpu=utilization.gpu,memory.used", "--format=csv,noheader,nounits"], text=True)
                 util, memory = map(int, utilization.strip().split(","))

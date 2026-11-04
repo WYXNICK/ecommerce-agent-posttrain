@@ -15,6 +15,7 @@ from urllib.error import HTTPError, URLError
 
 from data import NEXT
 from supervise_sft import terminate, completed_training, selection_key
+from artifacts import persist
 from shopping_agent.cli import checkpoint_manifest
 from shopping_agent.protocol import validate_execution, sha256
 from shopping_agent.runs import write_json
@@ -27,6 +28,8 @@ def main():
     p.add_argument('--archive',required=True)
     p.add_argument('--environment-port',type=int,default=5706)
     p.add_argument('--model-port',type=int,default=8016)
+    p.add_argument('--frozen-data',type=Path)
+    p.add_argument('--s0-summary',type=Path,default=NEXT/'outputs/sft/astra-s0/summary.json')
     args=p.parse_args();out=args.output.resolve();work=args.work.resolve()
     out.mkdir(parents=True,exist_ok=True);work.mkdir(parents=True,exist_ok=True)
     lock=(out/'.supervisor.lock').open('a');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
@@ -34,10 +37,13 @@ def main():
           'model_files':checkpoint_manifest(args.model),
           'entry_files':{str(q.relative_to(NEXT)):sha256(q) for q in [NEXT/'configs/reflow.json',NEXT/'configs/sft.json',
               *sorted((NEXT/'scripts/reflow').glob('*.py')),*sorted((NEXT/'scripts/sft').glob('*.py'))]},
-          's0_result_sha256':sha256(NEXT/'results/sft/astra-s0/summary.json')}
+          's0_result_sha256':sha256(args.s0_summary),
+          'frozen_data_manifest_sha256':sha256(args.frozen_data/'manifest.json') if args.frozen_data else None}
     if (out/'run.json').exists() and json.loads((out/'run.json').read_text())!=spec:
         raise ValueError('run identity changed; do not mix code/models in an active run')
-    expected=json.loads((NEXT/'results/sft/astra-s0/summary.json').read_text())['verification']['selected_model_weight_sha256']
+    s0_result=json.loads(args.s0_summary.read_text())
+    selected_model=Path(s0_result['selected']['model'])
+    expected=json.loads((selected_model/'merge_manifest.json').read_text())['files']['model.safetensors']
     if spec['model_files'].get('model.safetensors')!=expected:
         raise ValueError('model is not the selected S0 checkpoint')
     write_json(out/'run.json',spec)
@@ -103,6 +109,8 @@ def main():
         cmd=[sys.executable,NEXT/'scripts/reflow/collect.py',stage,'--model',args.model,'--work',work,'--output',out,
              '--environment-url',f'http://127.0.0.1:{args.environment_port}',
              '--model-url',f'http://127.0.0.1:{args.model_port}/v1']
+        if args.frozen_data:
+            cmd += ['--frozen-data',args.frozen_data]
         for attempt in range(3):
             try:
                 run(cmd,f'{stage}.log');return
@@ -117,9 +125,11 @@ def main():
             {'SHOPSIM_PORT':str(args.environment_port),'SHOP_RUNTIME_DIR':str(work/'environment')})
         ready(environment,f'http://127.0.0.1:{args.environment_port}/api/shop_agent')
         mine=out/'mine/summary.json'
-        if not mine.exists() or json.loads(mine.read_text())['status']!='complete':
+        if not args.frozen_data and (not mine.exists() or json.loads(mine.read_text())['status']!='complete'):
             start_serving(args.model,'s0');data_stage('mine');stop_serving()
-        data_stage('repair');data_stage('general');data_stage('prepare')
+        if not args.frozen_data:
+            data_stage('repair');data_stage('general')
+        data_stage('prepare')
         settings=json.loads((out/'training-settings.json').read_text())
         results={}
         for arm in ['general','repair']:
@@ -140,6 +150,7 @@ def main():
                 if not (model/'merge_manifest.json').exists():
                     run([sys.executable,NEXT/'scripts/sft/export_model.py','--base-model',args.model,
                          '--adapter',checkpoint,'--output',model],f'export-{arm}-{step}.log')
+                persist(model)
                 dev=out/arm/'dev'/f'step-{step}'
                 if not (dev/'summary.json').exists() or json.loads((dev/'summary.json').read_text())['status']!='complete':
                     publish(status='selecting_on_dev',arm=arm,step=step);start_serving(model,f'{arm}-{step}')
@@ -154,7 +165,7 @@ def main():
             best=max(candidates,key=selection_key)
             results[arm]={'selected':best,'candidates':candidates,'training':{k:v for k,v in training.items() if k!='log_history'}}
             write_json(out/'comparison.json',results)
-        s0=json.loads((NEXT/'outputs/sft/astra-s0/summary.json').read_text())['selected']
+        s0=s0_result['selected']
         contenders={'s0':s0,**{a:v['selected'] for a,v in results.items()}}
         selected=max(contenders,key=lambda a:selection_key(contenders[a])[:3])
         summary={'status':'complete','s0':s0,'arms':results,'selected_for_next_stage':selected,
@@ -171,6 +182,13 @@ def main():
                 '单轮、单种子结果；相同更新次数和样本数，不宣称监督 token 完全相同。',
                 '[方法与边界](README.md)；[完整指标](../../results/data-reflow/r1/summary.json)。']
         (NEXT/'docs/data-reflow/results.md').write_text('\n'.join(lines)+'\n')
+        if os.environ.get('SHOP_ARTIFACT_QUEUE'):
+            archive_state={'status':'queued','destination':args.archive,
+                           'devbox_receipts':os.environ['SHOP_ARTIFACT_QUEUE']+'/receipts',
+                           'hdfs_receipts':os.environ['SHOP_ARTIFACT_QUEUE']+'/hdfs'}
+            write_json(out/'archive.json',archive_state);write_json(dest/'archive.json',archive_state)
+            publish(status='complete',archive_status='queued',selected=selected)
+            return 0
         # Archive after useful computation; a team quota failure must not erase completed results.
         publish(status='archiving')
         archives=[args.model,Path(s0['checkpoint'])]

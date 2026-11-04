@@ -81,14 +81,30 @@ def repair(store, sources, *, teacher, config, tokenizer, url, fingerprint, sett
         return publish(status)
 
 
-def prepare(args, settings, config, tokenizer, base_rows, pool):
+def prepare(args, settings, config, tokenizer, base_rows, pool, frozen=None):
     import torch
-    repaired = read_jsonl(args.output/'repair/accepted.jsonl')
-    ordinary = read_jsonl(args.output/'general/train.jsonl')
+    if frozen:
+        manifest = json.loads((frozen/'manifest.json').read_text())
+        values = {}
+        for arm in ['repair', 'general']:
+            path = frozen/f'{arm}.jsonl.gz'
+            expected = manifest['files'][path.name]
+            raw = gzip.decompress(path.read_bytes())
+            if sha256(path) != expected['sha256'] or __import__('hashlib').sha256(raw).hexdigest() != expected['uncompressed_sha256']:
+                raise ValueError('frozen reflow data changed')
+            values[arm] = [json.loads(line) for line in raw.splitlines()]
+            if len(values[arm]) != expected['rows']:
+                raise ValueError('frozen reflow row count changed')
+        repaired, ordinary = values['repair'], values['general']
+    else:
+        repaired = read_jsonl(args.output/'repair/accepted.jsonl')
+        ordinary = read_jsonl(args.output/'general/train.jsonl')
     n=len(repaired)
     if n < settings['minimum_pairs'] or len(ordinary)!=n:
         raise ValueError('paired data is incomplete')
     replay = ordered(base_rows['train'],settings['seed'])[:n]
+    if frozen and [r['task_id'] for r in replay] != manifest['replay_task_ids']:
+        raise ValueError('frozen replay selection changed')
     groups = [repaired, ordinary, base_rows['train']]
     ids = [{r['task_id'] for r in values} for values in groups]
     if any(len(s)!=len(v) or s & pool.protected_ids('train') for s,v in zip(ids,groups)) or any(ids[i]&ids[j] for i in range(3) for j in range(i)):
@@ -99,7 +115,9 @@ def prepare(args, settings, config, tokenizer, base_rows, pool):
     destination.mkdir(parents=True,exist_ok=True)
     for arm,new in [('repair',repaired),('general',ordinary)]:
         raw=('\n'.join(json.dumps(r,ensure_ascii=False) for r in new)+'\n').encode()
-        path=destination/f'{arm}.jsonl.gz';path.write_bytes(gzip.compress(raw,mtime=0))
+        path=destination/f'{arm}.jsonl.gz'
+        if not frozen:
+            path.write_bytes(gzip.compress(raw,mtime=0))
         result['files'][path.name]={'sha256':sha256(path),'rows':len(new),'uncompressed_sha256':__import__('hashlib').sha256(raw).hexdigest()}
         prepared=args.work/arm/'prepared';prepared.mkdir(parents=True,exist_ok=True)
         report={'status':'complete','teacher':result['teacher'],'roles':{}}
@@ -123,7 +141,10 @@ def prepare(args, settings, config, tokenizer, base_rows, pool):
     write_json(args.output/'training-settings.json',training)
     result['training_settings']=training
     result['budget_note']='Equal new/replay example counts and optimizer updates. Suffix supervision has fewer supervised tokens; actual token and GPU budgets must be reported, not claimed equal.'
-    write_json(destination/'manifest.json',result)
+    if not frozen:
+        write_json(destination/'manifest.json',result)
+    else:
+        result['source_manifest_sha256'] = sha256(frozen/'manifest.json')
     write_json(args.output/'data-summary.json',result)
 
 
@@ -134,6 +155,7 @@ def main():
         p.add_argument('--'+name,type=Path,required=True)
     p.add_argument('--environment-url',required=True)
     p.add_argument('--model-url',default='http://127.0.0.1:8016/v1')
+    p.add_argument('--frozen-data',type=Path)
     args=p.parse_args();args.output.mkdir(parents=True,exist_ok=True)
     settings=json.loads((NEXT/'configs/reflow.json').read_text())
     config=load_config();fingerprint=validate_execution();pool=TaskPool();pool.validate_source()
@@ -143,7 +165,7 @@ def main():
     if {r['task_id'] for r in tasks}&pool.protected_ids('train'):
         raise ValueError('mining intersects protected tasks')
     if args.stage=='prepare':
-        prepare(args,settings,config,tokenizer,base_rows,pool);return
+        prepare(args,settings,config,tokenizer,base_rows,pool,args.frozen_data);return
     spec={'execution_fingerprint':fingerprint,'kind':'reflow_'+args.stage,'candidate_task_ids':[r['task_id'] for r in tasks],
           'settings':settings,'split':'training_failures','formal':False,'checkpoint_files':checkpoint_manifest(args.model)}
     if args.stage=='mine':

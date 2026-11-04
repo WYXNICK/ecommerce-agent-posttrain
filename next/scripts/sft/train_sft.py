@@ -10,6 +10,7 @@ from pathlib import Path
 import time
 
 from sft_data import NEXT
+from artifacts import persist
 from shopping_agent.protocol import StudentTokenizer, load_config, sha256, validate_execution
 from shopping_agent.runs import write_json
 
@@ -90,6 +91,13 @@ def main():
     started = time.monotonic()
 
     class Metrics(TrainerCallback):
+        def on_save(self, training_args, state, control, **kwargs):
+            # All ranks must finish writing RNG state before the snapshot is copied.
+            torch.distributed.barrier()
+            if state.is_world_process_zero:
+                persist(args.weights / f"checkpoint-{state.global_step}")
+            torch.distributed.barrier()
+
         def on_log(self, training_args, state, control, logs=None, **kwargs):
             if not state.is_world_process_zero or not logs:
                 return
@@ -137,6 +145,9 @@ def main():
     trainer.save_model(str(args.weights / "final-adapter"))
     if trainer.is_world_process_zero():
         tokenizer.tokenizer.save_pretrained(args.weights / "final-adapter")
+    torch.distributed.barrier()
+    if trainer.is_world_process_zero():
+        persist(args.weights / "final-adapter")
     torch.distributed.barrier()
     memory = torch.tensor([torch.cuda.max_memory_allocated() / 1024**3],device=f"cuda:{local_rank}")
     memories = [torch.zeros_like(memory) for _ in range(settings["world_size"])]
