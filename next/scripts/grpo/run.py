@@ -78,9 +78,13 @@ def main():
         TaskPool().validate_source()
         if sha256(args.model/'model.safetensors') != settings['base_weights_sha256']:
             raise ValueError('base weights do not match selected S-repair')
-        files = [ROOT/'configs/grpo.json', *HERE.glob('*.py'), *HERE.glob('*.sh'), ROOT/'scripts/sft/artifacts.py',
+        files = [ROOT/'configs/grpo.json', *HERE.glob('*.py'), *HERE.glob('*.sh'), *HERE.glob('*.txt'), ROOT/'scripts/sft/artifacts.py',
                  ROOT/'scripts/sft/export_model.py', HERE/'keep_gpu.py', ROOT/'scripts/sft/monitor_gpu.py']
-        spec = {'settings': settings, 'execution_fingerprint': fingerprint,
+        kernel_root = Path(os.environ['SHOP_GRPO_KERNELS'])
+        kernel_files = inventory(kernel_root/'wheels')
+        if not kernel_files or not (kernel_root/'site').is_dir():
+            raise ValueError('missing isolated FLA kernel installation')
+        spec = {'actor_kernel_wheels': kernel_files, 'settings': settings, 'execution_fingerprint': fingerprint,
                 'entry_files': {str(p.relative_to(ROOT)): sha256(p) for p in files},
                 'model': str(args.model), 'base_files': inventory(args.model),
                 'resume': str(args.resume) if args.resume else None,
@@ -96,6 +100,7 @@ def main():
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(path, target)
         shutil.copy2(args.output/'run.json', source/'run.json')
+        shutil.copytree(kernel_root/'wheels', source/'kernel-wheels')
         persist(source)
         keep('off')
         monitor = launch([sys.executable, ROOT/'scripts/sft/monitor_gpu.py', args.output], 'gpu-monitor.log')
@@ -116,7 +121,8 @@ def main():
         train = launch([sys.executable, '-m', 'torch.distributed.run', '--standalone', '--nproc-per-node=2',
             HERE/'train.py', '--model', args.model, '--work', args.work, '--output', args.output,
             '--model-url', model_url, '--environment-url', env_url,
-            *(['--resume', args.resume] if args.resume else [])], 'train.log', CUDA_VISIBLE_DEVICES='0,1')
+            *(['--resume', args.resume] if args.resume else [])], 'train.log', CUDA_VISIBLE_DEVICES='0,1',
+            PYTHONPATH=str(kernel_root/'site') + os.pathsep + os.environ['PYTHONPATH'])
         publish(child_pid=train.pid)
         while train.poll() is None:
             if any(p.poll() is not None for p in (env, serve, monitor)):

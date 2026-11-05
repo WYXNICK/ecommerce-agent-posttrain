@@ -45,6 +45,17 @@ class TaskStream:
         return {'order': self.order, 'cursor': self.cursor, 'rng': self.random.getstate()}
 
 
+def balance_turns(rows, world_size):
+    """Assign independent action histories by length; keep the global objective."""
+    turns = [(turn, row['advantage']) for row in rows for turn in row['rollout_turns']]
+    partitions, loads = [[] for _ in range(world_size)], [0] * world_size
+    for turn, advantage in sorted(turns, key=lambda item: len(item[0]['prompt_ids']) + len(item[0]['response_ids']), reverse=True):
+        rank = min(range(world_size), key=loads.__getitem__)
+        partitions[rank].append((turn, advantage))
+        loads[rank] += len(turn['prompt_ids']) + len(turn['response_ids'])
+    return partitions, loads
+
+
 def control(url, payload):
     request = Request(url, data=json.dumps(payload).encode(),
                       headers={'Content-Type': 'application/json'}, method='POST')
@@ -88,6 +99,8 @@ def main():
     import torch.nn.functional as F
     from peft import LoraConfig, PeftModel, get_peft_model
     from transformers import AutoModelForMultimodalLM, set_seed
+    from transformers.models.qwen3_5 import modeling_qwen3_5 as qwen
+    import importlib.metadata
     from torch.utils.tensorboard import SummaryWriter
     from omegaconf import OmegaConf
     from verl.trainer.ppo.core_algos import compute_policy_loss_vanilla
@@ -110,6 +123,12 @@ def main():
     dist.init_process_group('nccl', timeout=timedelta(hours=2))
     if dist.get_world_size() != settings['world_size']:
         raise ValueError('requires two GPU ranks')
+    if qwen.chunk_gated_delta_rule is None or qwen.FusedRMSNormGated is None:
+        raise RuntimeError('GRPO actor requires the validated FLA kernels')
+    if rank == 0:
+        print('ACTOR_KERNELS '+json.dumps({'fla_core': importlib.metadata.version('fla-core'),
+            'delta_rule': qwen.chunk_gated_delta_rule.__module__,
+            'normalization': qwen.FusedRMSNormGated.__module__, 'convolution': 'torch'}), flush=True)
     set_seed(settings['seed'])
     tokenizer = StudentTokenizer.load(config, args.model)
     model = AutoModelForMultimodalLM.from_pretrained(args.model, dtype=torch.bfloat16,
@@ -184,24 +203,24 @@ def main():
         for group in optimizer.param_groups:
             group['lr'] = lr
         metric = torch.zeros(5, device=rank, dtype=torch.float64)
-        for row in rows[rank::settings['world_size']]:
-            for turn in row['rollout_turns']:
-                prompt, response = turn['prompt_ids'], turn['response_ids']
-                ids = torch.tensor([prompt + response], device=rank)
-                positions = torch.arange(len(prompt)-1, len(prompt)+len(response)-1, device=rank)
-                output = model(input_ids=ids, attention_mask=torch.ones_like(ids),
-                               logits_to_keep=positions, use_cache=False)
-                targets = torch.tensor(response, device=rank)
-                logprob = -F.cross_entropy(output.logits[0].float(), targets, reduction='none')
-                old = torch.tensor(turn['old_logprobs'], device=rank)
-                advantage = torch.full_like(logprob, row['advantage'])
-                loss, stats = compute_policy_loss_vanilla(old[None], logprob[None], advantage[None],
-                    torch.ones_like(logprob)[None], config=policy_config)
-                (loss * len(response) / token_count).backward()
-                delta = (logprob.detach()-old)
-                metric += torch.tensor([loss.item()*len(response), stats['actor/pg_clipfrac']*len(response),
-                    delta.abs().sum().item(), ((delta.exp()-1)-delta).sum().item(), len(response)], device=rank)
-                del output, loss, logprob, ids
+        partitions, input_tokens_by_rank = balance_turns(rows, settings['world_size'])
+        for turn, episode_advantage in partitions[rank]:
+            prompt, response = turn['prompt_ids'], turn['response_ids']
+            ids = torch.tensor([prompt + response], device=rank)
+            positions = torch.arange(len(prompt)-1, len(prompt)+len(response)-1, device=rank)
+            output = model(input_ids=ids, attention_mask=torch.ones_like(ids),
+                           logits_to_keep=positions, use_cache=False)
+            targets = torch.tensor(response, device=rank)
+            logprob = -F.cross_entropy(output.logits[0].float(), targets, reduction='none')
+            old = torch.tensor(turn['old_logprobs'], device=rank)
+            advantage = torch.full_like(logprob, episode_advantage)
+            loss, stats = compute_policy_loss_vanilla(old[None], logprob[None], advantage[None],
+                torch.ones_like(logprob)[None], config=policy_config)
+            (loss * len(response) / token_count).backward()
+            delta = (logprob.detach()-old)
+            metric += torch.tensor([loss.item()*len(response), stats['actor/pg_clipfrac']*len(response),
+                delta.abs().sum().item(), ((delta.exp()-1)-delta).sum().item(), len(response)], device=rank)
+            del output, loss, logprob, ids
         # Each rank accumulated numerator/global_token_count; sum, do not average.
         gradients = [p.grad if p.grad is not None else torch.zeros_like(p) for p in parameters]
         flat = torch.cat([g.reshape(-1) for g in gradients])
@@ -226,7 +245,7 @@ def main():
                 'loss': metric[0].item()/token_count, 'clip_fraction': metric[1].item()/token_count,
                 'rollout_actor_logprob_abs_difference': metric[2].item()/token_count,
                 'rollout_actor_kl_estimate': metric[3].item()/token_count,
-                'grad_norm': norm.item(), 'trained_action_tokens': token_count,
+                'grad_norm': norm.item(), 'trained_action_tokens': token_count, 'input_tokens_by_rank': input_tokens_by_rank,
                 'mean_training_reward': sum(r['training_reward'] for r in rows)/len(rows),
                 'strict_success_rate': sum((r['terminal_result'].get('reward_detail') or {}).get('reward_type')=='gold_purchase' for r in rows)/len(rows),
                 'sampling': diagnostic, 'peak_memory_gib_rank0': torch.cuda.max_memory_allocated()/2**30}

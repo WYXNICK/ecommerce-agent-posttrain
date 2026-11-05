@@ -2,6 +2,7 @@
 import unittest
 from unittest.mock import patch
 
+from train import balance_turns
 from rollout import TrainingClient, group_advantages, training_signal
 from shopping_agent.clients import ModelOutputError
 
@@ -34,6 +35,18 @@ class ContractTests(unittest.TestCase):
         response['prompt_token_ids'] = [9]
         with patch('rollout.request_json', return_value=response), self.assertRaises(ValueError):
             client.complete([{'role': 'user', 'content': 'test'}], [], 2)
+
+    def test_balance_preserves_turns_advantages_and_global_token_count(self):
+        rows = [{'advantage': advantage, 'rollout_turns': [
+            {'prompt_ids': [1]*length, 'response_ids': [2, 3]} for length in lengths]}
+            for advantage, lengths in [(1., [800, 700, 600]), (-1., [100, 90, 80])]]
+        partitions, loads = balance_turns(rows, 2)
+        expected = {id(t): r['advantage'] for r in rows for t in r['rollout_turns']}
+        actual = [(id(t), a) for part in partitions for t, a in part]
+        self.assertEqual(len(actual), len(expected))
+        self.assertEqual(dict(actual), expected)
+        self.assertEqual(sum(len(t['response_ids']) for part in partitions for t, _ in part), 12)
+        self.assertLess(max(loads), 800+700+600+6)
 
     def test_rank_sum_matches_global_token_objective(self):
         import torch
