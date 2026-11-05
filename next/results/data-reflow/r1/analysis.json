@@ -1,0 +1,136 @@
+{
+  "scope": "single-seed development-set comparison after checkpoint selection; descriptive only",
+  "sources": {
+    "s0": {
+      "path": "next/outputs/pipeline/20261104/sft/dev/step-750/summary.json",
+      "sha256": "63c86506b4233e5a41ba9ab55aebbf47acd5f68698ee129d62aba8fa08997d80"
+    },
+    "general": {
+      "path": "next/outputs/pipeline/20261104/reflow/general/dev/step-72/summary.json",
+      "sha256": "c42c46634f2d0b7a8bc2324e4dd3afc5f582eb930f2ccfba920c9611d13c3926"
+    },
+    "repair": {
+      "path": "next/outputs/pipeline/20261104/reflow/repair/dev/step-72/summary.json",
+      "sha256": "4efb1e750cdba18ac8a2950a0d03567595d5439b2e8c051dc6e801143321d0da"
+    }
+  },
+  "comparisons": {
+    "repair_vs_s0": {
+      "improved_task_ids": [
+        1007,
+        2710,
+        2853,
+        4717,
+        7426,
+        7588,
+        7600,
+        10169,
+        10880,
+        11617,
+        14386,
+        16164,
+        17051,
+        19705,
+        21464,
+        22810,
+        23067
+      ],
+      "regressed_task_ids": [
+        1937,
+        9027,
+        10271,
+        10672,
+        12311,
+        15596,
+        15750,
+        18546,
+        18768,
+        19797,
+        22571
+      ],
+      "improved": 17,
+      "regressed": 11,
+      "net_successes": 6,
+      "percentage_point_difference": 2.0,
+      "mcnemar_exact_two_sided_p": 0.34492845088243484,
+      "inference_limit": "post-selection dev comparison, no multiplicity adjustment; not confirmatory test evidence"
+    },
+    "repair_vs_general": {
+      "improved_task_ids": [
+        1007,
+        2710,
+        2712,
+        2853,
+        4688,
+        4717,
+        7806,
+        9077,
+        10169,
+        10880,
+        11617,
+        13008,
+        14386,
+        15630,
+        15916,
+        16164,
+        17051,
+        19705,
+        22810,
+        23067
+      ],
+      "regressed_task_ids": [
+        1328,
+        9027,
+        10271,
+        10672,
+        12311,
+        15037,
+        15596,
+        15750,
+        18546,
+        19797,
+        21700,
+        22571
+      ],
+      "improved": 20,
+      "regressed": 12,
+      "net_successes": 8,
+      "percentage_point_difference": 2.6666666666666665,
+      "mcnemar_exact_two_sided_p": 0.21532714972272515,
+      "inference_limit": "post-selection dev comparison, no multiplicity adjustment; not confirmatory test evidence"
+    }
+  },
+  "failure_counts": {
+    "s0": {
+      "wrong_purchase": 8,
+      "repeat_loop": 4,
+      "status_counts": {
+        "done": 287,
+        "invalid_action_limit": 1,
+        "response_budget_exhausted": 12
+      },
+      "average_steps": 8.863333333333333
+    },
+    "general": {
+      "wrong_purchase": 10,
+      "repeat_loop": 9,
+      "status_counts": {
+        "done": 295,
+        "invalid_action_limit": 1,
+        "response_budget_exhausted": 4
+      },
+      "average_steps": 8.663333333333334
+    },
+    "repair": {
+      "wrong_purchase": 1,
+      "repeat_loop": 16,
+      "status_counts": {
+        "done": 285,
+        "invalid_action_limit": 2,
+        "model_output_invalid": 1,
+        "response_budget_exhausted": 12
+      },
+      "average_steps": 9.933333333333334
+    }
+  }
+}

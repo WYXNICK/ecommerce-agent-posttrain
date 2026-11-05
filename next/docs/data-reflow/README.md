@@ -27,7 +27,7 @@
 
 权威配方：[reflow.json](../../configs/reflow.json)；入口：[run.py](../../scripts/reflow/run.py)。已冻结修复与普通示范成品，可直接用 `--frozen-data` 进入配对训练，不重复调用教师；校验成品哈希、任务隔离、回放 ID、token 与监督范围。采集源模型保留在原始数据证据中，不能将复用数据称为当前模型新采集的在线失败。
 
-运行方式与备份见[运行与模型保存](../sft/runtime.md)，训练结果见[结果汇总](results.md)。结果写入 `results/data-reflow/r1/summary.json`。只在训练池构造纠错数据，开发集用于选模，最终测试仍锁定。
+本轮配对训练与开发集选模已完成：S0 220/300、普通组 218/300、修复组 226/300；选中修复组 step 72。收益与代价、单种子和开发集选模的限制见[结果汇总](results.md)。运行方式与备份见[运行与模型保存](../sft/runtime.md)。结果写入 `results/data-reflow/r1/summary.json`。只在训练池构造纠错数据，开发集用于选模，最终测试仍锁定。
 
 ## 已完成的数据准备
 

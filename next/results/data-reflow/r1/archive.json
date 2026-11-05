@@ -1,0 +1,170 @@
+{
+  "status": "evidence_uploading",
+  "model_backups_complete": true,
+  "hdfs_root": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104",
+  "artifacts": [
+    {
+      "relative": "s0/checkpoints/final-adapter",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/s0/checkpoints/final-adapter",
+      "manifest_sha256": "564d58bd876d35f5d7b675792de96e3cb6b490674db25a4b8b2cc72c7bd41900",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "s0/checkpoints/checkpoint-750",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/s0/checkpoints/checkpoint-750",
+      "manifest_sha256": "28dc66f89ed37f53cd9b66dd3cbabe509d24e348cdcb692c296b8c74ff740e85",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "evidence/sft",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/evidence/sft",
+      "manifest_sha256": "226d3d80b82360b03eb6e2a5ccd19307761c2ee1bee642d1a623e429030b5f90",
+      "hdfs_status": "queued"
+    },
+    {
+      "relative": "s0/epoch-250",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/s0/epoch-250",
+      "manifest_sha256": "f2ca9c4a8745f88b25ec39a9214c33a0a091d9a9896d204734021dadd573a648",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "reflow/general/checkpoints/final-adapter",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/reflow/general/checkpoints/final-adapter",
+      "manifest_sha256": "5c12ad3fe694c4ddb6e47adb7976661b0ca69fccf83829fb8933f284ccceff40",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "reflow/general/epoch-36",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/reflow/general/epoch-36",
+      "manifest_sha256": "006329d9b4120559078a036e6930ff495c5408aa1b03e2f1a98b09e21449809c",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "reflow/general/checkpoints/checkpoint-36",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/reflow/general/checkpoints/checkpoint-36",
+      "manifest_sha256": "457647ce51543abd5efef2bd8b18105624581c33c12450ea5e34bc5155c36017",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "reflow/repair/checkpoints/checkpoint-36",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/reflow/repair/checkpoints/checkpoint-36",
+      "manifest_sha256": "48586eb919b0bd715a6b394870f0d41a32f737f72a30b3bf30ba3aa5166d5742",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "s0/checkpoints/checkpoint-625",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/s0/checkpoints/checkpoint-625",
+      "manifest_sha256": "ac21a750fc2fa5ff2f3edee2e2e33c5afb972849805fa7838101c3f032b8e0d2",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "s0/checkpoints/checkpoint-500",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/s0/checkpoints/checkpoint-500",
+      "manifest_sha256": "290e130ca434f6a473383883ee64adc00ef7aa2da6c8b70e5b9ebd1788d61be7",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "s0/checkpoints/checkpoint-125",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/s0/checkpoints/checkpoint-125",
+      "manifest_sha256": "d9ae2044316cc3497d8dc55a12342ebd9c8850d3d9b2ec246c198f5a79152b01",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "s0/checkpoints/checkpoint-250",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/s0/checkpoints/checkpoint-250",
+      "manifest_sha256": "a12e9f85dd4645f6d30d4168428dd4121358bbcba14f933df48c41279a027da2",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "s0/epoch-500",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/s0/epoch-500",
+      "manifest_sha256": "f5c0b9425c08f7c53708f7b427a9078b4508f04f6752d5dc4b2e96b51ee709ed",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "reflow/repair/checkpoints/final-adapter",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/reflow/repair/checkpoints/final-adapter",
+      "manifest_sha256": "601b843ed58e4d91123f1545504f70cdd13a123280b67b8d26523917ee182365",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "s0/training-evidence",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/s0/training-evidence",
+      "manifest_sha256": "cbc11eea76811f7f3e0cf80779ff3c5b025ce3fafacdcb68889b642e784993a6",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "evidence/reflow",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/evidence/reflow",
+      "manifest_sha256": "b9502005fabf8a7cc198ef63c6f5e62f5ce0a3df5c46b52993c8700050e4c594",
+      "hdfs_status": "queued"
+    },
+    {
+      "relative": "s0/checkpoints/checkpoint-375",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/s0/checkpoints/checkpoint-375",
+      "manifest_sha256": "17038b2600ff634c982bbedd95fbead0b26ad82bb9e4a11bfe846635d7b268ca",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "reflow/general/checkpoints/checkpoint-72",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/reflow/general/checkpoints/checkpoint-72",
+      "manifest_sha256": "492c5c110a7274ec9fc22811ea76856486e0f4d61daa4a3ada6c6851f104690f",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "reflow/repair/checkpoints/checkpoint-72",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/reflow/repair/checkpoints/checkpoint-72",
+      "manifest_sha256": "cfa55b6a62ebf813b9301e4d9b4b599135384dabe969d75ea86d891c810c5904",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "reflow/general/epoch-72",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/reflow/general/epoch-72",
+      "manifest_sha256": "6a85c41e10ce472a69a6002966ce02b569637255832fffc7c856fd0b62509223",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "s0/epoch-750",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/s0/epoch-750",
+      "manifest_sha256": "b6fce45842d1298e28fe4de18c06b6dc8c632864cfa341609a6211a0c7c51e02",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "reflow/repair/epoch-36",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/reflow/repair/epoch-36",
+      "manifest_sha256": "7c4b27593bd933a8b72a42b35f799e5123838b098b36936e13cc2b51c6ff074e",
+      "hdfs_status": "complete"
+    },
+    {
+      "relative": "reflow/repair/epoch-72",
+      "devbox_status": "complete",
+      "devbox_path": "/tmp/shopping-next-models/20261104/reflow/repair/epoch-72",
+      "manifest_sha256": "c21ed931d2a5906598a477b29cfae319205665dba646a2ea121abb4f8463821c",
+      "hdfs_status": "complete"
+    }
+  ],
+  "integrity": "devbox: per-file SHA-256 verified against source inventory; HDFS: full inventory and byte sizes verified, manifests retained",
+  "note": "Raw logs, TensorBoard and per-task trajectories are included in evidence/sft and evidence/reflow; large artifacts are not stored in Git."
+}
