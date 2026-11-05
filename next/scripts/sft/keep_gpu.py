@@ -49,6 +49,8 @@ def main():
         path = directory/f'gpu-{gpu}.pid'
         if path.exists():
             pid = int(path.read_text())
+            # Withdraw the health-check registration before an intentional stop.
+            path.unlink()
             # Only signal our own previously recorded adaptive keeper.
             command = Path(f'/proc/{pid}/cmdline')
             if command.exists() and b'keep_gpu.py\x00adaptive' in command.read_bytes():
@@ -57,7 +59,6 @@ def main():
                     if not command.exists():
                         break
                     time.sleep(.1)
-            path.unlink()
     script = os.environ['SHOP_IDLE_KEEP_ON' if args.mode == 'on' else 'SHOP_IDLE_KEEP_OFF']
     subprocess.run(['bash', script, *map(str, args.gpus)], check=True)
     if args.mode == 'off':

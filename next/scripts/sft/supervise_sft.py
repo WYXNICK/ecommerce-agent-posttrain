@@ -62,7 +62,8 @@ def validate_post_training_update(original, current, training):
         raise ValueError("post-training repair changed data, settings, weights or runtime")
     changed = {k for k in original["entry_files"] | current["entry_files"]
                if original["entry_files"].get(k) != current["entry_files"].get(k)}
-    allowed = {"scripts/sft/supervise_sft.py", "scripts/sft/export_model.py"}
+    allowed = {"scripts/sft/supervise_sft.py", "scripts/sft/export_model.py",
+               "scripts/sft/keep_gpu.py", "scripts/sft/monitor_gpu.py"}
     if not changed <= allowed:
         raise ValueError("post-training repair changed the frozen training implementation")
     return sorted(changed)

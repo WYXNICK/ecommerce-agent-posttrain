@@ -13,6 +13,26 @@ from sft_data import NEXT
 from shopping_agent.runs import write_json
 
 
+def check_keeper(directory, gpu):
+    keeper = directory / f'gpu-{gpu}.pid'
+    try:
+        pid = keeper.read_text()
+    except FileNotFoundError:
+        return
+    try:
+        state = Path(f'/proc/{int(pid)}/stat').read_text().split(') ', 1)[1]
+        if not state.startswith('Z'):
+            return
+    except FileNotFoundError:
+        pass
+    # A phase transition can unregister the keeper after our first read.
+    try:
+        if keeper.read_text() == pid:
+            raise RuntimeError(f'adaptive GPU keeper {gpu} exited; inspect its log')
+    except FileNotFoundError:
+        return
+
+
 def main():
     output = Path(sys.argv[1])
     history = defaultdict(lambda: deque(maxlen=12))
@@ -25,12 +45,7 @@ def main():
                 fields = line.split()
                 gpu, sm = int(fields[0]), int(fields[1])
                 if os.environ.get('SHOP_KEEP_STATE'):
-                    keeper = Path(os.environ['SHOP_KEEP_STATE']) / f'gpu-{gpu}.pid'
-                    if keeper.exists():
-                        pid = int(keeper.read_text())
-                        status = Path(f'/proc/{pid}/stat')
-                        if not status.exists() or status.read_text().split(') ',1)[1].startswith('Z'):
-                            raise RuntimeError(f'adaptive GPU keeper {gpu} exited; inspect its log')
+                    check_keeper(Path(os.environ['SHOP_KEEP_STATE']), gpu)
                 utilization = subprocess.check_output(["nvidia-smi", "-i", str(gpu),
                     "--query-gpu=utilization.gpu,memory.used", "--format=csv,noheader,nounits"], text=True)
                 util, memory = map(int, utilization.strip().split(","))

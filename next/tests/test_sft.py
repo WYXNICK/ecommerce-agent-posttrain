@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import sys
 import unittest
+from unittest.mock import patch
 
 import torch
 import torch.nn.functional as F
@@ -13,9 +14,21 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts/sft"))
 from train_sft import masked_loss, supervised_positions
 from supervise_sft import completed_training, selection_key, validate_post_training_update
 from sft_data import selected_data
+from monitor_gpu import check_keeper
 
 
 class SFTTests(unittest.TestCase):
+    def test_keeper_health_distinguishes_phase_transition_from_crash(self):
+        for last_read in (FileNotFoundError(), "124"):
+            with patch.object(Path, "read_text", side_effect=["123", FileNotFoundError(), last_read]):
+                check_keeper(Path("/keep"), 0)
+        for status in (FileNotFoundError(), "123 (python) Z 1"):
+            with patch.object(Path, "read_text", side_effect=["123", status, "123"]):
+                with self.assertRaisesRegex(RuntimeError, "keeper 0 exited"):
+                    check_keeper(Path("/keep"), 0)
+        with patch.object(Path, "read_text", side_effect=["123", "123 (python) S 1"]):
+            check_keeper(Path("/keep"), 0)
+
     def test_sparse_projection_matches_dense_loss_and_gradients(self):
         torch.manual_seed(42)
         hidden = torch.randn(1, 11, 7, requires_grad=True)
@@ -100,6 +113,9 @@ class SFTTests(unittest.TestCase):
         current["entry_files"]["scripts/sft/export_model.py"] = "fixed-export"
         self.assertEqual(validate_post_training_update(original, current, {"status": "complete"}),
                          ["scripts/sft/export_model.py"])
+        current["entry_files"]["scripts/sft/monitor_gpu.py"] = "fixed-monitor"
+        self.assertIn("scripts/sft/monitor_gpu.py",
+                      validate_post_training_update(original, current, {"status": "complete"}))
         with self.assertRaises(ValueError):
             validate_post_training_update(original, current, None)
         current["entry_files"]["scripts/sft/train_sft.py"] = "changed-training"
