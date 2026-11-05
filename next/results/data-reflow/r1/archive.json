@@ -1,5 +1,5 @@
 {
-  "status": "evidence_uploading",
+  "status": "complete",
   "model_backups_complete": true,
   "hdfs_root": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104",
   "artifacts": [
@@ -22,7 +22,7 @@
       "devbox_status": "complete",
       "devbox_path": "/tmp/shopping-next-models/20261104/evidence/sft",
       "manifest_sha256": "226d3d80b82360b03eb6e2a5ccd19307761c2ee1bee642d1a623e429030b5f90",
-      "hdfs_status": "queued"
+      "hdfs_status": "complete"
     },
     {
       "relative": "s0/epoch-250",
@@ -113,7 +113,7 @@
       "devbox_status": "complete",
       "devbox_path": "/tmp/shopping-next-models/20261104/evidence/reflow",
       "manifest_sha256": "b9502005fabf8a7cc198ef63c6f5e62f5ce0a3df5c46b52993c8700050e4c594",
-      "hdfs_status": "queued"
+      "hdfs_status": "complete"
     },
     {
       "relative": "s0/checkpoints/checkpoint-375",
