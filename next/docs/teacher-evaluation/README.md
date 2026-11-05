@@ -1,4 +1,4 @@
-# 教师正式评测
+# 教师评测
 
 ## 目的与协议
 
@@ -17,7 +17,21 @@
 
 教师使用 API 私有推理，学生 Baseline 为关闭 thinking 的确定性本地推理；可见执行协议一致不等于计算成本一致。教师结果属于能力参考，不是训练方法的公平消融，也不是学生理论上限。usage 记录已报告 token，未返回 usage 的重试费用不当作已完整计费。
 
-## 完成结果
+## Astra 开发集评测
+
+**状态：执行中。** 在进入 GRPO 前补齐 Astra 的完整 dev300，与本轮已完成的 S0（220/300）、普通增量组（218/300）、修复组（226/300）做同题能力与失败对照。复用现有学生评测，不重复训练或运行学生测试集。
+
+沿用同一 Astra 快照、high 推理、6 路并发、共享环境与可见预算；每题一次有效行为，模型失败不重采。开发集结果用于诊断，不作为独立测试成绩或教师能力上限。逐题对照须核对任务 ID、执行指纹与完整分母，教师与学生推理成本不同。
+
+结果独立存放：`outputs/teacher-evaluation/astra-dev/dev/` 为原始证据，`results/teacher-evaluation/astra/dev/` 为正式汇总；不覆盖下方已完成的 test1000 成绩。 完成后使用 `scripts/analysis/teacher_dev.py` 校验完整分母与协议，生成与三个 SFT 候选的逐题配对分析；自动同步阶段报告与总计划，并备份证据、推送当前分支。完整结束后在[开发集报告](results/astra-dev.md)汇总结果与师生得失。
+
+```bash
+python next/scripts/teacher_evaluation/run.py --teacher astra --split dev \
+  --after-collection next/outputs/teacher-parallel/astra \
+  --output next/outputs/teacher-evaluation/astra-dev --environment-port 5707
+```
+
+## 已完成的 test1000 结果
 
 | 教师 | 完成 | 严格成功 | 成功率 | 平均 Reward v3 | 平均步骤 |
 |---|---:|---:|---:|---:|---:|
@@ -71,4 +85,4 @@ python next/scripts/teacher_evaluation/run.py --teacher astra \
   --output next/outputs/teacher-evaluation/astra --environment-port 5704
 ```
 
-本轮已完整完成，不需要重复运行。相同输出目录有锁；如处理其他尚未完成的运行，续跑要求原评测入口及共享执行清单不变。
+上述 test1000 已完整完成，不需要重复运行。相同输出目录有锁；如处理其他尚未完成的运行，续跑要求原评测入口及共享执行清单不变。

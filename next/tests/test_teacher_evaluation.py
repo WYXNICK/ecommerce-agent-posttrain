@@ -6,13 +6,45 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts/teacher_evaluation"))
 from evaluate import specification, teacher_config
-from run import collection_complete
+from run import collection_complete, export_result
+from shopping_agent.tasks import TaskPool
 
 
 class TeacherEvaluationTests(unittest.TestCase):
+    def test_dev_export_uses_full_split_and_preserves_test_result(self):
+        tasks = TaskPool().tasks("dev")
+        self.assertEqual(len(tasks), 300)
+        spec = specification(teacher_config("astra"), tasks, "frozen", "http://localhost:5704", 6, "dev")
+        self.assertFalse(spec["formal"])
+        self.assertEqual(spec["split"], "dev")
+        with tempfile.TemporaryDirectory() as name:
+            root = Path(name)
+            output = root / "output"
+            evidence = output / "dev"
+            evidence.mkdir(parents=True)
+            test_result = root / "results/teacher-evaluation/astra/summary.json"
+            test_result.parent.mkdir(parents=True)
+            test_result.write_text("existing test evidence")
+            (evidence / "run.json").write_text(json.dumps(spec))
+            (evidence / "raw.jsonl").write_text("")
+            summary = {"status": "complete", "completed_tasks": 300, "expected_tasks": 300,
+                       "unresolved_infrastructure_tasks": [], "strict_successes": 240,
+                       "strict_success_rate": .8, "mean_final_reward": .75, "average_steps": 10}
+            (evidence / "summary.json").write_text(json.dumps(summary))
+            with patch.dict(export_result.__globals__, NEXT=root):
+                export_result(output, "astra", "dev")
+                result = json.loads((test_result.parent / "dev/summary.json").read_text())
+                self.assertEqual(result["summary"]["expected_tasks"], 300)
+                self.assertEqual(test_result.read_text(), "existing test evidence")
+                spec["candidate_task_ids"].pop()
+                (evidence / "run.json").write_text(json.dumps(spec))
+                with self.assertRaisesRegex(ValueError, "complete frozen split"):
+                    export_result(output, "astra", "dev")
+
     def dependency(self, directory, config):
         (directory / "status.json").write_text(json.dumps({
             "status": "complete", "teacher": config["teacher"], "execution_fingerprint": "frozen"}))
