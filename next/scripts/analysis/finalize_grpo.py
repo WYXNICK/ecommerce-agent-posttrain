@@ -11,7 +11,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--queue', type=Path, required=True)
-    parser.add_argument('--artifact-prefix', required=True)
+    parser.add_argument('--artifact-prefix', nargs='+', required=True)
     args = parser.parse_args()
     repo = Path(__file__).resolve().parents[3]
     result = repo/'next/results/grpo/outcome'
@@ -31,7 +31,7 @@ def main():
     deadline = time.monotonic()+900
     while True:
         requests = {p.name: json.loads(p.read_text()) for p in (args.queue/'requests').glob('*.json')
-                    if json.loads(p.read_text())['relative'].startswith(args.artifact_prefix+'/')}
+                    if json.loads(p.read_text())['relative'].startswith(tuple(prefix+'/' for prefix in args.artifact_prefix))}
         receipts = [{'artifact': row['relative'], 'request': key,
                      'devbox_verified': (args.queue/'receipts'/key).exists() and
                          json.loads((args.queue/'receipts'/key).read_text())['status']=='complete',

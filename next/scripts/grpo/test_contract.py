@@ -2,7 +2,7 @@
 import unittest
 from unittest.mock import patch
 
-from train import balance_turns
+from train import balance_turns, validate_resume_settings
 from rollout import TrainingClient, group_advantages, training_signal
 from shopping_agent.clients import ModelOutputError
 
@@ -47,6 +47,12 @@ class ContractTests(unittest.TestCase):
         self.assertEqual(dict(actual), expected)
         self.assertEqual(sum(len(t['response_ids']) for part in partitions for t, _ in part), 12)
         self.assertLess(max(loads), 800+700+600+6)
+
+    def test_resume_allows_only_evaluation_interval_change(self):
+        saved = {'evaluate_every': 100, 'learning_rate': 1e-6, 'seed': 42}
+        validate_resume_settings(saved, {**saved, 'evaluate_every': 50})
+        with self.assertRaises(ValueError):
+            validate_resume_settings(saved, {**saved, 'learning_rate': 2e-6})
 
     def test_rank_sum_matches_global_token_objective(self):
         import torch

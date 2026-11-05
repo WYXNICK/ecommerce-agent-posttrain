@@ -56,6 +56,13 @@ def balance_turns(rows, world_size):
     return partitions, loads
 
 
+def validate_resume_settings(saved, current):
+    # Evaluation frequency affects selection, not the optimizer or rollout state.
+    if {k: v for k, v in saved.items() if k != 'evaluate_every'} != {
+            k: v for k, v in current.items() if k != 'evaluate_every'}:
+        raise ValueError('resume checkpoint belongs to another training contract')
+
+
 def control(url, payload):
     request = Request(url, data=json.dumps(payload).encode(),
                       headers={'Content-Type': 'application/json'}, method='POST')
@@ -144,7 +151,8 @@ def main():
     optimizer = torch.optim.AdamW(parameters, lr=settings['learning_rate'], weight_decay=0.0, fused=True)
     resume = torch.load(args.resume/'training_state.pt', map_location='cpu', weights_only=False) if args.resume else None
     if resume:
-        if resume['settings'] != settings or resume['execution_fingerprint'] != fingerprint:
+        validate_resume_settings(resume['settings'], settings)
+        if resume['execution_fingerprint'] != fingerprint:
             raise ValueError('resume checkpoint belongs to another training contract')
         optimizer.load_state_dict(resume['optimizer'])
         torch.set_rng_state(resume['torch_rng'])
@@ -171,6 +179,7 @@ def main():
                 'selected': max(candidates, key=selection_key), 'test_evaluation': 'not scheduled'})
     dist.barrier()
     start_step, skipped = step, 0
+    prior_elapsed = json.loads((args.resume/'training.json').read_text())['elapsed_seconds'] if resume else 0.0
     started = time.monotonic()
     while step < settings['updates']:
         generation += 1
@@ -238,9 +247,10 @@ def main():
         update_seconds = time.monotonic()-update_started
         if rank == 0:
             active_name = publish_adapter(model, args.work, args.model_url, step, active_name)
-            elapsed = time.monotonic()-started
+            session_elapsed = time.monotonic()-started
+            elapsed = prior_elapsed + session_elapsed
             result = {'step': step, 'max_steps': settings['updates'], 'generation': generation,
-                'elapsed_seconds': elapsed, 'estimated_training_seconds_remaining': elapsed/(step-start_step)*(settings['updates']-step),
+                'elapsed_seconds': elapsed, 'estimated_training_seconds_remaining': session_elapsed/(step-start_step)*(settings['updates']-step),
                 'rollout_seconds': rollout_seconds, 'update_seconds': update_seconds, 'learning_rate': lr,
                 'loss': metric[0].item()/token_count, 'clip_fraction': metric[1].item()/token_count,
                 'rollout_actor_logprob_abs_difference': metric[2].item()/token_count,
@@ -304,7 +314,7 @@ def main():
     if rank == 0:
         writer.close()
         write_json(args.output/'training-complete.json', {'status': 'complete', 'step': step,
-                  'elapsed_seconds': time.monotonic()-started})
+                  'elapsed_seconds': prior_elapsed + time.monotonic()-started})
     dist.destroy_process_group()
 
 

@@ -143,7 +143,7 @@ def main():
         for step in sorted({selected['step'], settings['updates']} - {0}):
             target = args.work/f'model-step-{step}'
             export = launch([sys.executable, ROOT/'scripts/sft/export_model.py', '--base-model', args.model,
-                '--adapter', args.work/'checkpoints'/f'step-{step}', '--output', target], f'export-{step}.log')
+                '--adapter', next(c['checkpoint'] for c in selection['candidates'] if c['step'] == step), '--output', target], f'export-{step}.log')
             if export.wait():
                 raise RuntimeError('model export failed')
             persist(target)

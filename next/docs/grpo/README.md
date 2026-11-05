@@ -4,7 +4,6 @@
 
 检验定向修复 SFT 后，在线强化学习是否仍能提高任务完成率。本阶段从 **S-repair step 72** 开始（dev300：226/300，75.33%），执行 **500 次有效更新**；尚无可报告的 GRPO 最终成绩。实时状态集中在 `next/outputs/grpo/outcome/status.json`、`progress.json`，不在本文重复更新步数。
 
-**执行状态：** 已安排在首个校验通过的 step 50 检查点应用每50步评测；切换状态见 `outputs/grpo/control/eval50-transition.json`。
 
 ## 固定方法
 
