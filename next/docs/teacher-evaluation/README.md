@@ -19,11 +19,11 @@
 
 ## Astra 开发集评测
 
-**状态：执行中。** 在进入 GRPO 前补齐 Astra 的完整 dev300，与本轮已完成的 S0（220/300）、普通增量组（218/300）、修复组（226/300）做同题能力与失败对照。复用现有学生评测，不重复训练或运行学生测试集。
+**状态：已完成。** Astra 完整 dev300 严格成功 **245/300（81.67%）**，与本轮已完成的 S0（220/300）、普通增量组（218/300）、修复组（226/300）做同题能力与失败对照。复用现有学生评测，不重复训练或运行学生测试集。
 
 沿用同一 Astra 快照、high 推理、6 路并发、共享环境与可见预算；每题一次有效行为，模型失败不重采。开发集结果用于诊断，不作为独立测试成绩或教师能力上限。逐题对照须核对任务 ID、执行指纹与完整分母，教师与学生推理成本不同。
 
-结果独立存放：`outputs/teacher-evaluation/astra-dev/dev/` 为原始证据，`results/teacher-evaluation/astra/dev/` 为正式汇总；不覆盖下方已完成的 test1000 成绩。 完成后使用 `scripts/analysis/teacher_dev.py` 校验完整分母与协议，生成与三个 SFT 候选的逐题配对分析；自动同步阶段报告与总计划，并备份证据、推送当前分支。完整结束后在[开发集报告](results/astra-dev.md)汇总结果与师生得失。
+结果独立存放：`outputs/teacher-evaluation/astra-dev/dev/` 为原始证据，`results/teacher-evaluation/astra/dev/` 为正式汇总；不覆盖下方已完成的 test1000 成绩。 完成后使用 `scripts/analysis/teacher_dev.py` 校验完整分母与协议，生成与三个 SFT 候选的逐题配对分析；自动同步阶段报告与总计划，并备份证据、推送当前分支。结果及局限见[开发集报告](results/astra-dev.md)汇总结果与师生得失。
 
 ```bash
 python next/scripts/teacher_evaluation/run.py --teacher astra --split dev \

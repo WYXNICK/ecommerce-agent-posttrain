@@ -1,0 +1,40 @@
+{
+  "devbox_status": "complete",
+  "devbox": "/tmp/shopping-next-models/20261104/evidence/teacher-astra-dev",
+  "hdfs_status": "complete",
+  "hdfs": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104/evidence/teacher-astra-dev",
+  "files": {
+    "dev/.lock": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "dev/raw.jsonl": {
+      "bytes": 40514898,
+      "sha256": "6f2370c918e9f6777f4353ad3c37c3e0a914a243f0d822fed1df0645a5a52498"
+    },
+    "dev/run.json": {
+      "bytes": 4334,
+      "sha256": "7234b54d4ab5688a567bf287683c1e87021c27e09d86c1706b72aa2d90439496"
+    },
+    "dev/summary.json": {
+      "bytes": 5297,
+      "sha256": "90f0d5242376e96bbd9391f417550b3425bd2ddfdefb43fb21a1ec15c020b096"
+    },
+    "dev.log": {
+      "bytes": 49637,
+      "sha256": "94f32a2ebfa28f79e0c201e227e8081ff2c890246a07986ff3d67ead545cf306"
+    },
+    "environment.log": {
+      "bytes": 864508,
+      "sha256": "59ed3e296569217b4e3dba6620d94ea81b2e1799eae61952a1c5cf24edad8f76"
+    },
+    "run.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "status.json": {
+      "bytes": 1095,
+      "sha256": "04a5067554113b04eb1989fe75ae225f4c152c0a91648e288f2f3ba2111d5773"
+    }
+  }
+}
