@@ -1,0 +1,8 @@
+{
+  "weight": 0.5,
+  "clip": 0.5,
+  "trajectory_fraction": 0.1,
+  "continuations": 4,
+  "workers": 8,
+  "validation_decisions": 64
+}

@@ -1,0 +1,25 @@
+{
+  "status": "complete",
+  "artifacts": [
+    {
+      "artifact": "grpo/local-validation-final-20261106/evidence/run-source",
+      "request": "527ce95006d8befffbf9342fc7c87fa9de6b07bb6a29ca7cd8daf9b23bcf74ed.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 20,
+      "bytes": 1585331
+    },
+    {
+      "artifact": "grpo/local-validation-final-20261106/evidence/final",
+      "request": "96fa367e867d7e786e138dc2a440b805f872c1fd40753c72e631a66916f25235.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 23,
+      "bytes": 63719884
+    }
+  ],
+  "hdfs_root": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104",
+  "verification": "devbox: full SHA256 inventory; HDFS: uploaded inventory and remote file sizes",
+  "contents": "frozen source/configuration and complete validation evidence, trajectories, inference/environment logs, GPU monitor, offline test log and audit script",
+  "new_training_checkpoints": 0
+}

@@ -19,6 +19,8 @@ from urllib.request import Request, urlopen
 
 from artifacts import persist, inventory
 from rollout import TrainingClient, collect_update
+from local_credit import apply_local_credit
+from settings import load_settings
 from shopping_agent.clients import LocalChatClient, request_json
 from shopping_agent.protocol import ROOT, StudentTokenizer, load_config, sha256, validate_execution
 from shopping_agent.runs import RunStore, evaluate, write_json
@@ -47,7 +49,8 @@ class TaskStream:
 
 def balance_turns(rows, world_size):
     """Assign independent action histories by length; keep the global objective."""
-    turns = [(turn, row['advantage']) for row in rows for turn in row['rollout_turns']]
+    turns = [(turn, row['advantage'] + turn.get('local_increment', 0.0))
+             for row in rows for turn in row['rollout_turns']]
     partitions, loads = [[] for _ in range(world_size)], [0] * world_size
     for turn, advantage in sorted(turns, key=lambda item: len(item[0]['prompt_ids']) + len(item[0]['response_ids']), reverse=True):
         rank = min(range(world_size), key=loads.__getitem__)
@@ -116,10 +119,11 @@ def main():
     for key in ('model', 'work', 'output'):
         parser.add_argument('--' + key, type=Path, required=True)
     parser.add_argument('--resume', type=Path)
+    parser.add_argument('--variant', choices=('outcome', 'local'), default='outcome')
     parser.add_argument('--model-url', required=True)
     parser.add_argument('--environment-url', required=True)
     args = parser.parse_args()
-    settings = json.loads((ROOT / 'configs/grpo.json').read_text())
+    settings = load_settings(args.variant)
     fingerprint, config = validate_execution(), load_config()
     pool = TaskPool()
     tasks = pool.tasks('grpo_train')
@@ -190,6 +194,10 @@ def main():
             rows, diagnostic = collect_update(stream, client_factory=factory, config=config,
                 tokenizer=tokenizer, env_url=args.environment_url, fingerprint=fingerprint,
                 settings=settings, generation=generation, evidence=args.output/'rollouts')
+            if rows:
+                diagnostic['local_credit'] = apply_local_credit(rows, client_factory=factory,
+                    config=config, tokenizer=tokenizer, env_url=args.environment_url, fingerprint=fingerprint,
+                    settings=settings, generation=generation, evidence=args.output/'rollouts')
             packet[0] = (rows, diagnostic)
         dist.broadcast_object_list(packet, src=0, device=torch.device('cuda', rank))
         rows, diagnostic = packet[0]
@@ -269,6 +277,8 @@ def main():
                     writer.add_scalar('train/'+key, value, step)
             for key, value in diagnostic['counts'].items():
                 writer.add_scalar('sampling/'+key, value, step)
+            for key, value in diagnostic.get('local_credit', {}).get('counts', {}).items():
+                writer.add_scalar('local_credit/'+key, value, step)
             writer.flush()
             print('GRPO_PROGRESS '+json.dumps({k:v for k,v in result.items() if k != 'sampling'}), flush=True)
             if step % settings['save_every'] == 0:
@@ -288,9 +298,8 @@ def main():
                     if source.exists():
                         shutil.copy2(source, evidence/name)
                 shutil.copytree(args.output/'tensorboard', evidence/'tensorboard')
-                for i in range(1, generation+1):
-                    source = args.output/'rollouts'/f'generation-{i:06d}.jsonl.gz'
-                    if source.exists() and not (args.work/'evidence'/'archived-rollouts'/source.name).exists():
+                for source in sorted((args.output/'rollouts').glob('*.jsonl.gz')):
+                    if not (args.work/'evidence'/'archived-rollouts'/source.name).exists():
                         (evidence/'rollouts').mkdir(exist_ok=True)
                         shutil.copy2(source, evidence/'rollouts'/source.name)
                 persist(evidence)

@@ -1,0 +1,124 @@
+{
+  "status": "complete",
+  "ready_for_training": true,
+  "optimizer_updates": 0,
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227",
+  "base_weights_sha256": "29a3a288a7b2002f1b0b7157369ebde67da28a94b97eb19057809efeb0428e72",
+  "settings": {
+    "version": "local-grpo-v1",
+    "seed": 42,
+    "world_size": 2,
+    "updates": 500,
+    "groups_per_update": 2,
+    "rollouts_per_group": 4,
+    "max_generation_batches": 8,
+    "max_consecutive_skipped_updates": 10,
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "learning_rate": 1e-06,
+    "warmup_updates": 15,
+    "clip_ratio": 0.2,
+    "max_grad_norm": 1.0,
+    "model_failure_reward": -0.65,
+    "advantage_std_normalization": false,
+    "kl_coefficient": 0.0,
+    "save_every": 50,
+    "evaluate_every": 50,
+    "lora_rank": 16,
+    "lora_alpha": 32,
+    "base_weights_sha256": "29a3a288a7b2002f1b0b7157369ebde67da28a94b97eb19057809efeb0428e72",
+    "selection": "dev300 strict successes, mean Reward v3, fewer steps, earlier checkpoint; include starting SFT",
+    "local_credit": {
+      "weight": 0.5,
+      "clip": 0.5,
+      "trajectory_fraction": 0.1,
+      "continuations": 4,
+      "workers": 8,
+      "validation_decisions": 64
+    }
+  },
+  "decisions": 64,
+  "statuses": {
+    "same_action": 33,
+    "valid": 30,
+    "invalid_pair": 1
+  },
+  "branches": 248,
+  "verified_branches": 248,
+  "nonzero_comparisons": 24,
+  "valid_pair_fraction": 0.46875,
+  "branch_cost": {
+    "requests": 2050,
+    "prompt_tokens": 24538996,
+    "completion_tokens": 50325
+  },
+  "main_sampling": {
+    "trajectories": 200,
+    "model_failures": 48,
+    "infrastructure_failures": 0,
+    "unverifiable": 1,
+    "main_requests": 2309,
+    "main_prompt_tokens": 17320089,
+    "main_completion_tokens": 56532,
+    "generated_groups": 50,
+    "filtered_equal": 31,
+    "accepted_groups": 16,
+    "filtered_surplus": 2,
+    "filtered_invalid": 1
+  },
+  "elapsed_seconds": 827.0135200140066,
+  "limits": "mechanical acceptance and signal existence only; no evidence of training gain or estimator convergence",
+  "validation_kind": "same-policy real-environment acceptance; not GRPO training or benchmark evaluation",
+  "unique_decision_tasks": 16,
+  "local_signal": {
+    "positive": 15,
+    "negative": 9,
+    "zero": 6,
+    "max_abs_increment": 0.25,
+    "mean_abs_increment": 0.08799796340811966,
+    "paired_standard_error_median": 0.19488567500519643,
+    "paired_standard_error_max": 0.36310750400095776,
+    "estimated_nonzero_trajectory_fraction_at_configured_sampling": 0.037500000000000006
+  },
+  "offline_tests": {
+    "passed": 47,
+    "failed": 0,
+    "evidence": "outputs/grpo/local-validation/unit-tests.log"
+  },
+  "evidence_audit": {
+    "branches_checked": 248,
+    "prefix_history_and_visible_budget": "all matched",
+    "returns_and_increments": "recomputed from full branch records",
+    "task_pool": "grpo_train only",
+    "run_source": "all hashes matched"
+  },
+  "evidence": {
+    "outputs/grpo/local-validation/run.json": {
+      "bytes": 4818,
+      "sha256": "ffbe6d2ec57305ffb49ea1cd9bdb5450016d454e99ee3a2db94785dd3062354b"
+    },
+    "outputs/grpo/local-validation/validation.json": {
+      "bytes": 104927,
+      "sha256": "57fae29e1e7c6fe82312a74b07a35fc98835da0b1687782937e46b213b4fb2cc"
+    },
+    "outputs/grpo/local-validation/branches.jsonl.gz": {
+      "bytes": 34154390,
+      "sha256": "3b2398ede1104e69d94b47ac751b90b029cf4c79c62da171229c3ccea91a5c61"
+    },
+    "outputs/grpo/local-validation/unit-tests.log": {
+      "bytes": 11484,
+      "sha256": "201dd0be0c4101ce00bcf46e8f9c3d37cc7a67b8c9e2277372661043668689cd"
+    },
+    "outputs/grpo/local-validation/audit_evidence.py": {
+      "bytes": 4304,
+      "sha256": "27d6c0e5419345209d93dbc4dc125dd7bfe10dfd9cd6b623f170578e7feb059c"
+    }
+  },
+  "excluded_pair_reason": "one reward-unverifiable continuation; all eight returns excluded from local estimation; zero infrastructure failures",
+  "limitations": [
+    "No parameter updates or formal GRPO evaluation in this stage.",
+    "64 decisions come from 16 training tasks; decision observations are not independent tasks.",
+    "Four continuations are noisy; mechanical acceptance does not establish estimator convergence or benchmark improvement.",
+    "R-budget and paired multi-seed training are not yet implemented/executed."
+  ]
+}

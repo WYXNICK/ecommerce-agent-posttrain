@@ -1,5 +1,6 @@
 """Frozen actor execution with exact per-turn rollout tokens (no retokenized targets)."""
 from collections import Counter
+from copy import deepcopy
 from concurrent.futures import ThreadPoolExecutor
 import gzip
 import json
@@ -17,6 +18,7 @@ class TrainingClient:
     def __init__(self, url, model, tokenizer, seed, settings):
         self.url, self.model, self.tokenizer = url, model, tokenizer
         self.seed, self.settings, self.turns = seed, settings, []
+        self.cost = Counter()
 
     def complete(self, messages, tools, max_tokens):
         payload = {
@@ -29,10 +31,12 @@ class TrainingClient:
             'return_token_ids': True, 'return_tokens_as_token_ids': True,
         }
         request_id, started = uuid4().hex, time.monotonic()
+        self.cost['requests'] += 1
         response = request_json(self.url + '/chat/completions', payload,
             headers={'Content-Type': 'application/json'}, timeout=300)
         choice = response['choices'][0]
         prompt, tokens = response['prompt_token_ids'], choice['token_ids']
+        self.cost.update(prompt_tokens=len(prompt), completion_tokens=len(tokens))
         logs = choice['logprobs']['content']
         canonical = self.tokenizer.apply_chat_template(normalize_messages_for_chat_template(messages),
             tools=tools, tokenize=True, return_dict=False, add_generation_prompt=True)
@@ -44,8 +48,12 @@ class TrainingClient:
         if not all(math.isfinite(x) for x in logprobs):
             raise ValueError('non-finite rollout log probability')
         # Record BEFORE parsing: malformed/length-limited model output must learn.
-        self.turns.append({'prompt_ids': prompt, 'response_ids': tokens, 'old_logprobs': logprobs})
+        turn = {'prompt_ids': prompt, 'response_ids': tokens, 'old_logprobs': logprobs}
+        self.turns.append(turn)
         message, audit = decode_completion(response, request_id, time.monotonic() - started)
+        if self.settings.get('local_credit', {}).get('weight', 0):
+            turn['replay'] = {'messages': deepcopy(messages), 'max_tokens': max_tokens,
+                              'message': deepcopy(message)}
         return ModelReply({k: message[k] for k in ('role', 'content', 'tool_calls') if k in message}, audit)
 
 
@@ -78,7 +86,8 @@ def collect_update(tasks, *, client_factory, config, tokenizer, env_url, fingerp
         if (row.get('error') or {}).get('type') == 'ValueError':
             raise ValueError(f"execution or token contract violation: {row['error']}")
         reward = training_signal(row, settings['model_failure_reward'])
-        row.update(training_reward=reward, policy_generation=generation, rollout_turns=client.turns)
+        row.update(training_reward=reward, policy_generation=generation, rollout_turns=client.turns,
+                   sampling_cost=dict(client.cost))
         return row
     with gzip.open(evidence / f'generation-{generation:06d}.jsonl.gz', 'wt') as log:
         for batch in range(settings['max_generation_batches']):
@@ -93,6 +102,8 @@ def collect_update(tasks, *, client_factory, config, tokenizer, env_url, fingerp
                 counts['model_failures'] += row['failure_kind'] == 'model'
                 counts['infrastructure_failures'] += row['failure_kind'] == 'infrastructure'
                 counts['unverifiable'] += row['failure_kind'] == 'unverifiable'
+                for key, value in row['sampling_cost'].items():
+                    counts['main_' + key] += value
             n = settings['rollouts_per_group']
             for i in range(0, len(rows), n):
                 group = rows[i:i+n]

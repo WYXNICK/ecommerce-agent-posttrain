@@ -19,6 +19,7 @@ from shopping_agent.protocol import ROOT, load_config, sha256, validate_executio
 from shopping_agent.runs import write_json
 from shopping_agent.tasks import TaskPool
 from supervise_sft import terminate
+from settings import load_settings
 
 HERE = Path(__file__).resolve().parent
 
@@ -28,9 +29,13 @@ def main():
     for name in ('model', 'work', 'output'):
         parser.add_argument('--'+name, type=Path, required=True)
     parser.add_argument('--resume', type=Path)
+    parser.add_argument('--variant', choices=('outcome', 'local'), default='outcome')
+    parser.add_argument('--validate-only', action='store_true', help='local branch acceptance; no optimizer or model export')
     parser.add_argument('--model-port', type=int, default=8016)
     parser.add_argument('--environment-port', type=int, default=5716)
     args = parser.parse_args()
+    if args.validate_only and (args.variant != 'local' or args.resume):
+        parser.error('--validate-only requires --variant local and no --resume')
     args.output.mkdir(parents=True, exist_ok=True)
     args.work.mkdir(parents=True, exist_ok=True)
     lock = (args.output/'.lock').open('a')
@@ -69,17 +74,19 @@ def main():
             except (URLError, OSError):
                 time.sleep(2)
         raise TimeoutError('service readiness timed out')
-    def keep(mode):
-        subprocess.run([sys.executable, HERE/'keep_gpu.py', mode, '0', '1'], check=True)
+    def keep(mode, gpus=('0', '1')):
+        subprocess.run([sys.executable, HERE/'keep_gpu.py', mode, *gpus], check=True)
     try:
         publish()
-        settings = json.loads((ROOT/'configs/grpo.json').read_text())
+        settings = load_settings(args.variant)
         fingerprint = validate_execution()
         TaskPool().validate_source()
         if sha256(args.model/'model.safetensors') != settings['base_weights_sha256']:
             raise ValueError('base weights do not match selected S-repair')
         files = [ROOT/'configs/grpo.json', *HERE.glob('*.py'), *HERE.glob('*.sh'), *HERE.glob('*.txt'), ROOT/'scripts/sft/artifacts.py',
                  ROOT/'scripts/sft/export_model.py', HERE/'keep_gpu.py', ROOT/'scripts/sft/monitor_gpu.py']
+        if args.variant == 'local':
+            files.append(ROOT/'configs/grpo_local.json')
         kernel_root = Path(os.environ['SHOP_GRPO_KERNELS'])
         kernel_files = inventory(kernel_root/'wheels')
         if not kernel_files or not (kernel_root/'site').is_dir():
@@ -91,7 +98,8 @@ def main():
                 'task_pool_sha256': sha256(ROOT/'data/task_pool/grpo_train.jsonl'),
                 'runtime': {p: importlib.metadata.version(p) for p in ('torch', 'transformers', 'peft', 'vllm', 'verl')},
                 'implementation': 'veRL clipped loss, exact per-turn chat tokens, synchronous two-rank gradient sum',
-                'test_evaluation': 'not scheduled'}
+                'test_evaluation': 'not scheduled', 'variant': args.variant,
+                'validate_only': args.validate_only}
         write_json(args.output/'run.json', spec)
         source = args.work/'evidence'/'run-source'
         source.mkdir(parents=True)
@@ -103,6 +111,8 @@ def main():
         shutil.copytree(kernel_root/'wheels', source/'kernel-wheels')
         persist(source)
         keep('off')
+        if args.validate_only:
+            keep('on', ('1',))  # Validation has one inference server, no GPU1 actor.
         monitor = launch([sys.executable, ROOT/'scripts/sft/monitor_gpu.py', args.output], 'gpu-monitor.log')
         env_url, model_url = f'http://127.0.0.1:{args.environment_port}', f'http://127.0.0.1:{args.model_port}/v1'
         env = launch(['bash', ROOT/'scripts/start_environment.sh'], 'environment.log',
@@ -117,9 +127,24 @@ def main():
             '--logprobs-mode', 'raw_logprobs'], 'serve.log', CUDA_VISIBLE_DEVICES='0',
             VLLM_ALLOW_RUNTIME_LORA_UPDATING='True')
         wait_ready(serve, model_url+'/models', 1200)
+        if args.validate_only:
+            publish(status='validating')
+            check = launch([sys.executable, HERE/'validate_local.py', '--model', args.model,
+                '--output', args.output, '--model-url', model_url, '--environment-url', env_url], 'validation.log')
+            while check.poll() is None:
+                if any(p.poll() is not None for p in (env, serve, monitor)):
+                    raise RuntimeError('a validation service exited; inspect stage logs')
+                time.sleep(5)
+            if check.returncode:
+                raise RuntimeError('local credit validation failed; inspect validation.log')
+            if validate_execution() != fingerprint or any(sha256(ROOT/p) != digest for p,digest in spec['entry_files'].items()):
+                raise ValueError('validation source changed during execution')
+            publish(status='validated', result=str(args.output/'validation.json'))
+            return
         publish(status='training')
         train = launch([sys.executable, '-m', 'torch.distributed.run', '--standalone', '--nproc-per-node=2',
             HERE/'train.py', '--model', args.model, '--work', args.work, '--output', args.output,
+            '--variant', args.variant,
             '--model-url', model_url, '--environment-url', env_url,
             *(['--resume', args.resume] if args.resume else [])], 'train.log', CUDA_VISIBLE_DEVICES='0,1',
             PYTHONPATH=str(kernel_root/'site') + os.pathsep + os.environ['PYTHONPATH'])
@@ -169,23 +194,30 @@ def main():
                       'adapter': None if selected['step'] == 0 else selected['checkpoint'],
                       'format': 'base_plus_adapter', 'evaluation': 'unmerged LoRA; authoritative'},
                   'export_note': 'BF16 merged exports are convenience copies, not silently substituted for the evaluated LoRA policy',
-                  'limits': 'single-seed development-set selection; final test1000 remains locked'}
+                  'limits': 'single-seed development-set selection; this run schedules no test evaluation'}
         write_json(args.output/'summary.json', result)
-        final = ROOT/'results/grpo/outcome'
+        final = ROOT/'results/grpo'/args.variant
         final.mkdir(parents=True, exist_ok=True)
         write_json(final/'summary.json', result)
-        lines = ['# 终局奖励 GRPO 结果', '', '训练与开发集选模已完成；最终测试集未运行。', '',
+        title = '局部信用' if args.variant == 'local' else '终局奖励'
+        lines = [f'# {title} GRPO 结果', '', '训练与开发集选模已完成；本轮未运行测试集。', '',
                  '| 检查点 | dev300 严格成功 | Reward v3 | 平均动作数 |', '|---|---:|---:|---:|']
         for item in result['candidates']:
             s = item['summary']
             lines.append(f"| {'SFT 起点' if item['step']==0 else item['step']} | {s['strict_successes']}/300 | {s['mean_final_reward']:.4f} | {s['average_steps']:.3f} |")
         lines += ['', f"选中 step {selected['step']}；step 0 表示保留原 SFT。开发集用于选模，不能据此宣称测试收益。",
-                  '', '[完整结果与模型身份](../../results/grpo/outcome/summary.json)。']
-        (ROOT/'docs/grpo/results.md').write_text('\n'.join(lines)+'\n')
+                  '', f'[完整结果与模型身份](../../results/grpo/{args.variant}/summary.json)。']
+        doc = ROOT/('docs/grpo-local' if args.variant == 'local' else 'docs/grpo')
+        (doc/'results.md').write_text('\n'.join(lines)+'\n')
         plan = ROOT/'docs/project-completion-plan.md'
-        text = plan.read_text().replace('**运行中**；[方法与状态](grpo/README.md)',
+        text = plan.read_text()
+        if args.variant == 'outcome':
+            text = text.replace('**运行中**；[方法与状态](grpo/README.md)',
             f"**已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](grpo/results.md)")
-        text = text.replace('第 6 步终局奖励 GRPO 正在执行。', '第 6 步终局奖励 GRPO 已完成；结果见阶段总结。')
+            text = text.replace('第 6 步终局奖励 GRPO 正在执行。', '第 6 步终局奖励 GRPO 已完成；结果见阶段总结。')
+        else:
+            text = text.replace('**实现与验证已完成，未训练**；[设计与验收](grpo-local/README.md)',
+                f"**训练已完成**；选中 step {selected['step']}；[结果](grpo-local/results.md)")
         plan.write_text(text)
         publish(status='complete', selected_step=selected['step'], selected_model=result['selected_model'])
     except Exception as exc:
