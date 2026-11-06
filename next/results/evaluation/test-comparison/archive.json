@@ -1,0 +1,36 @@
+{
+  "status": "complete",
+  "artifacts": [
+    {
+      "artifact": "evaluation/test-comparison-20261106/evaluations/s0",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "evaluation/test-comparison-20261106/evaluations/grpo-500",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "evaluation/test-comparison-20261106/evaluations/s-repair",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "evaluation/test-comparison-20261106/source",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "evaluation/test-comparison-20261106/evaluations/grpo-400",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "evaluation/test-comparison-20261106/evidence/final",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    }
+  ],
+  "retry": "independent archive daemon"
+}
