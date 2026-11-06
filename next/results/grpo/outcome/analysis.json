@@ -1,0 +1,31 @@
+{
+  "selected_step": 500,
+  "paired_dev_gains": [
+    1937,
+    10271,
+    10672,
+    11983,
+    12311,
+    15395,
+    15689,
+    16862,
+    18768,
+    22571
+  ],
+  "paired_dev_losses": [
+    2710,
+    2853,
+    4717,
+    11617,
+    15916,
+    17051,
+    22810,
+    23067
+  ],
+  "net_dev_success_gain": 2,
+  "optimizer_updates_in_log": 500,
+  "trained_action_tokens": 1382988,
+  "rollout_seconds": 22433.507900441997,
+  "update_seconds": 24136.859241898637,
+  "final_test": "not run; dev selection is not a generalization claim"
+}

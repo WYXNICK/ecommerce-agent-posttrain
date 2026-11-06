@@ -1,0 +1,211 @@
+{
+  "status": "complete",
+  "artifacts": [
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/step-100",
+      "request": "292bad7701975eebe61e97a5e7760a112998dbedb57fb5872c893d2d87168340.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/run-source",
+      "request": "02555ec4bc3b76600c657aa10e349e498f6414b545992e69d20999fa25d24aa2.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/step-350",
+      "request": "1d283228804f9325cc287e5a2718be74e5a93cdad8c0d51b8dc337c875d301f8.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/checkpoints/step-200",
+      "request": "47188c5c04442ded80f26a8a2584f9d2ce8571b2671ccc026dff5e0e2f6b8f2a.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/checkpoints/step-500",
+      "request": "0a528aad6f50c6ad282578a5817d172e950e162368443fa35e71251af270e25d.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/checkpoints/step-250",
+      "request": "a808adb0df412615e09d8565fb8e192afd66e2f7ab123c44e24740ba38e61800.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/checkpoints/step-300",
+      "request": "999001614631de81c9003dd987bc8255e14192b3bb5fcd7966a4adabef5b8fd5.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/final",
+      "request": "73e74632ece7a578f57c0ad0408a8ff11cf59562791ea1b740510e6b185bb6a5.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/step-250",
+      "request": "6d904ccf7bc60c5551ed0b042dc30d4f59d1cc58ec6697e6f0133c70ec1b8224.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/step-500",
+      "request": "a95a7b0ee602fbd43bb34b5bc0d8971e5974cae9f46a9c65b974fd67f7ba4124.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/dev-500",
+      "request": "40e7cb7f5f3287dd8970cc2d0f60cf84bfde3b105adaf6768dea81a013048893.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/dev-300",
+      "request": "620429c6e76d7cd7f3258602cfd0c30316711c959744d78aebec725ea6d2dce0.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/checkpoints/step-450",
+      "request": "44f2cd2305467884d1377e2f55d5c9ae84e913c3fabb8cfb85eb45934c74f102.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/dev-150",
+      "request": "940dbac4fa7ae20db0be2c547fde9faec7ebe3960173a2b3928f45832f73ea18.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/dev-250",
+      "request": "15e87f06fc89048b125f428bbd28382cf4f321472c80525bf060e1a1755481cc.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/step-300",
+      "request": "37aebf5bb2fc1113ae1ce8c6bce40ab13f543938787de12c6b09a685b306f4b9.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/recovery/final",
+      "request": "a78f5a56620e0aca40834b71997c274ac9ad978c5533347ba1e75f65b7d8fb2b.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/step-450",
+      "request": "7709cafefd17abfc75cf3cb2633cde435914abee4443aa9d67684a985ea035e1.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/checkpoints/step-100",
+      "request": "d48dfdbb27957e62539bc0883937e593c5ce23e38fc65152c9949a79f0df1e0e.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-fla-20261105/evidence/run-source",
+      "request": "0ababe2f7a839746b61f05d2f2a3be4e83486878c20cfc84dcc62c1a91754b4a.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/step-400",
+      "request": "34b96771e798ed4bc42d9b52c24dc75e0de50e35261ba9fb5f339b50696ff517.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/step-150",
+      "request": "f7a7e1565e00c66e10b702264e4402ef170eb059dedfcdf290ea0db3fb1ea670.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/model-step-500",
+      "request": "7279a0f196d58057887bdc2059c6d1a3abd8ed7472a814eb6c3033469b2a5eca.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-fla-20261105/evidence/final",
+      "request": "14c2bb15f5dfcff1a2c368fa645a11526cdce2a40a88eb89c198beba8e1e0f75.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/dev-450",
+      "request": "9a5895190aa336866da15cb984cc2b77bb879bb50ffe49e3a9eba88578388737.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/dev-200",
+      "request": "c30fa32dfb4c0149a7541d95582741b529ade22013a591004ccb9fecfb44a3f6.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-fla-20261105/checkpoints/step-50",
+      "request": "942f08c706c154bdac1e4bc4d1300422c9e5597cd7122a1fc73778a8515cf059.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/checkpoints/step-400",
+      "request": "15ab8d9a2a03cf00f4b00238e7baea316c96c00f0451c35de505035881df3763.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/dev-350",
+      "request": "792d2c5dbbc5ba2f68621d1b0edfff32a37bc41c14c155f49e90ceff5ada5ec1.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/dev-400",
+      "request": "54c508726ff5bc544dd5893709e05f4b098f597f2b88a784e85d52f233c23ece.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/dev-100",
+      "request": "d236e1c5fff429298241a82d20dfaf6ef85cb1d95befe17aa81e7b13d8210a24.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/step-200",
+      "request": "17e2af40676eca82a98186bbebc7501d03e0c03391ab77c4a4be4e64990f463d.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/checkpoints/step-150",
+      "request": "3f4a081f9db2945802aa0781adc4a12da0ef2418ec695528d2e2d18a53c156ac.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/checkpoints/step-350",
+      "request": "ae248f7d5833635c3c2e67db256bbe4ced678b47cf8a81c9e9ef056671c2577e.json",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    }
+  ],
+  "queue": "/mlx_devbox/users/wangyuxuan.28/playground/my-project/shopping-grpo-longhorizon/next/outputs/pipeline/20261104/storage",
+  "retry": "independent artifact archive daemon"
+}
