@@ -279,6 +279,8 @@ def main():
                 writer.add_scalar('sampling/'+key, value, step)
             for key, value in diagnostic.get('local_credit', {}).get('counts', {}).items():
                 writer.add_scalar('local_credit/'+key, value, step)
+            for key, value in diagnostic.get('local_credit', {}).get('metrics', {}).items():
+                writer.add_scalar('local_credit/'+key, value, step)
             writer.flush()
             print('GRPO_PROGRESS '+json.dumps({k:v for k,v in result.items() if k != 'sampling'}), flush=True)
             if step % settings['save_every'] == 0:

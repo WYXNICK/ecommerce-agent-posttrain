@@ -216,8 +216,11 @@ def main():
             f"**已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](grpo/results.md)")
             text = text.replace('第 6 步终局奖励 GRPO 正在执行。', '第 6 步终局奖励 GRPO 已完成；结果见阶段总结。')
         else:
-            text = text.replace('**实现与验证已完成，未训练**；[设计与验收](grpo-local/README.md)',
+            text = text.replace('**运行中**；[方法与状态](grpo-local/README.md)',
                 f"**训练已完成**；选中 step {selected['step']}；[结果](grpo-local/results.md)")
+            stage = doc/'README.md'
+            stage.write_text(stage.read_text().replace('**正式训练运行中。**',
+                '**训练与开发集选模已完成。** 见[结果](results.md)。'))
         plan.write_text(text)
         publish(status='complete', selected_step=selected['step'], selected_model=result['selected_model'])
     except Exception as exc:

@@ -61,14 +61,15 @@ class LocalCreditTests(unittest.TestCase):
 
     def test_shared_runtime_replays_prefix_and_retains_model_failure_returns(self):
         result, evidence, clients = self.estimate()
+        n = load_settings('local')['local_credit']['continuations']
         self.assertEqual(result['status'], 'valid')
-        self.assertEqual(result['returns'], [[1.]*4, [-.65]*4])
-        self.assertEqual(result['verified_branches'], 8)
-        self.assertEqual(result['model_failures'], 4)
+        self.assertEqual(result['returns'], [[1.]*n, [-.65]*n])
+        self.assertEqual(result['verified_branches'], 2*n)
+        self.assertEqual(result['model_failures'], n)
         self.assertEqual(result['increment'], .25)
         branches = [r for r in evidence if r['kind'] == 'local_branch']
-        self.assertEqual([len(r['steps']) for r in branches], [2]*4+[1]*4)
-        self.assertEqual([s for s, _ in clients[1:5]], [s for s, _ in clients[5:9]])
+        self.assertEqual([len(r['steps']) for r in branches], [2]*n+[1]*n)
+        self.assertEqual([s for s, _ in clients[1:n+1]], [s for s, _ in clients[n+1:2*n+1]])
         self.assertEqual(result['cost']['requests'], 1)  # Fixed actions need no model calls.
 
     def test_hidden_reset_change_invalidates_pair_even_if_observation_matches(self):
@@ -113,11 +114,12 @@ class LocalCreditTests(unittest.TestCase):
             tokenizer=Tokenizer(), env_url='unused', fingerprint='test', settings=settings,
             local=settings['local_credit'], log=log, env_factory=QueryReward)
         self.assertEqual(result['status'], 'valid')
-        self.assertEqual(result['returns'], [[1.]*4, [-.4]*4])
-        self.assertEqual(result['cost']['requests'], 9)
+        n = settings['local_credit']['continuations']
+        self.assertEqual(result['returns'], [[1.]*n, [-.4]*n])
+        self.assertEqual(result['cost']['requests'], 2*n+1)
         self.assertTrue(all(len(c.seen) == 1 for c in clients))
         self.assertTrue(all('alternative' in c.seen[0][2]['tool_calls'][0]['function']['arguments']
-                            for c in clients[5:]))
+                            for c in clients[n+1:]))
 
     def test_alternative_service_failure_is_bounded_and_does_not_mutate_source(self):
         source = self.source()
@@ -140,7 +142,7 @@ class LocalCreditTests(unittest.TestCase):
                 return result
         result, _, _ = self.estimate(env_factory=Unverifiable)
         self.assertEqual(result['status'], 'invalid_pair')
-        self.assertEqual(result['unverifiable'], 4)
+        self.assertEqual(result['unverifiable'], load_settings('local')['local_credit']['continuations'])
         self.assertNotIn('increment', result)
 
     def test_equal_actions_skip_without_resampling_or_branches(self):

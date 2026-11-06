@@ -1,0 +1,53 @@
+{
+  "stage": "local_credit_grpo",
+  "started_at": "2026-11-06T08:41:39.374556+00:00",
+  "worker_id": 1163758,
+  "output": "outputs/grpo/local",
+  "work": "/tmp/shopping-next-20261104/grpo/local-20261106",
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227",
+  "base_weights_sha256": "29a3a288a7b2002f1b0b7157369ebde67da28a94b97eb19057809efeb0428e72",
+  "task_pool_sha256": "612c8bfd4532c5e94e1b32085f6e93928c45e9cf4c889b377150345e31f5fbc4",
+  "run_manifest_sha256": "1533423c8d71d87c6be3f1fe29f000fa1a1fd83fff65358641cf780d15d9b5bd",
+  "source_archive": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104/grpo/local-20261106/evidence/run-source",
+  "archive_request": "bbd4ae002a8d663dc72cfdab79a4df926f8531a2a97b81616ec88eb111ab3898.json",
+  "devbox_source_verified": true,
+  "hdfs_source_complete": true,
+  "offline_checks": {
+    "passed": 47,
+    "execution_fingerprint_unchanged": true
+  },
+  "settings": {
+    "version": "local-grpo-v1",
+    "seed": 42,
+    "world_size": 2,
+    "updates": 500,
+    "groups_per_update": 2,
+    "rollouts_per_group": 4,
+    "max_generation_batches": 8,
+    "max_consecutive_skipped_updates": 10,
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "learning_rate": 1e-06,
+    "warmup_updates": 15,
+    "clip_ratio": 0.2,
+    "max_grad_norm": 1.0,
+    "model_failure_reward": -0.65,
+    "advantage_std_normalization": false,
+    "kl_coefficient": 0.0,
+    "save_every": 50,
+    "evaluate_every": 50,
+    "lora_rank": 16,
+    "lora_alpha": 32,
+    "base_weights_sha256": "29a3a288a7b2002f1b0b7157369ebde67da28a94b97eb19057809efeb0428e72",
+    "selection": "dev300 strict successes, mean Reward v3, fewer steps, earlier checkpoint; include starting SFT",
+    "local_credit": {
+      "weight": 0.5,
+      "clip": 0.5,
+      "trajectory_fraction": 0.1,
+      "continuations": 8,
+      "workers": 8,
+      "validation_decisions": 64
+    }
+  },
+  "note": "Immutable launch record. Live status is outputs/grpo/local/status.json; final metrics are recorded separately after completion."
+}

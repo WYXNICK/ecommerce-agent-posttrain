@@ -113,7 +113,7 @@ class PrefixEnvironment:
 
 
 def comparison(returns, settings):
-    """All eight continuations are required; never select successful subsets."""
+    """All continuations are required; never select successful subsets."""
     if any(r is None for arm in returns for r in arm):
         return None
     q = list(map(mean, returns))
@@ -193,7 +193,10 @@ def apply_local_credit(rows, *, client_factory, config, tokenizer, env_url, fing
     local = settings.get('local_credit')
     if not local or local['weight'] == 0:
         return {}  # Exact terminal objective and no additional sampling at lambda=0.
-    counts, records = Counter(), []
+    counts = Counter(training_trajectories=len(rows), selected_trajectories=0,
+                     valid=0, invalid_pair=0, same_action=0, nonzero_increments=0,
+                     requests=0, prompt_tokens=0, completion_tokens=0, branches=0)
+    records = []
     with gzip.open(evidence/f'local-{generation:06d}.jsonl.gz', 'wt') as log:
         for index, row in enumerate(rows):
             seed = seed_for(settings['seed'], generation, index, 'local')
@@ -210,9 +213,17 @@ def apply_local_credit(rows, *, client_factory, config, tokenizer, env_url, fing
                 settings=settings, local=local, log=log)
             records.append(record)
             counts[record['status']] += 1
+            counts['branches'] += record.get('branches', 0)
             for key, value in record['cost'].items():
                 counts[key] += value
             if record['status'] == 'valid':
                 row['rollout_turns'][decision]['local_increment'] = record['increment']
                 counts['nonzero_increments'] += record['increment'] != 0
-    return {'counts': dict(counts), 'comparisons': records}
+    metrics = {'nonzero_trajectory_fraction': counts['nonzero_increments']/len(rows),
+               'elapsed_seconds': sum(r['elapsed_seconds'] for r in records)}
+    valid = [r for r in records if r['status'] == 'valid']
+    if valid:
+        metrics.update(mean_abs_raw_advantage=mean(abs(r['raw_local_advantage']) for r in valid),
+                       mean_abs_increment=mean(abs(r['increment']) for r in valid),
+                       mean_paired_standard_error=mean(r['paired_standard_error'] for r in valid))
+    return {'counts': dict(counts), 'metrics': metrics, 'comparisons': records}
