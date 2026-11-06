@@ -124,11 +124,27 @@ def main():
             *(['--resume', args.resume] if args.resume else [])], 'train.log', CUDA_VISIBLE_DEVICES='0,1',
             PYTHONPATH=str(kernel_root/'site') + os.pathsep + os.environ['PYTHONPATH'])
         publish(child_pid=train.pid)
+        completion_seen = None
+        completed_shutdown = False
         while train.poll() is None:
+            completion = args.output/'training-complete.json'
+            if completion.exists():
+                record = json.loads(completion.read_text())
+                selection = json.loads((args.output/'selection.json').read_text())
+                if (record['status'] != 'complete' or record['step'] != settings['updates']
+                        or selection['status'] != 'training_complete'):
+                    raise ValueError('inconsistent training completion records')
+                completion_seen = completion_seen or time.monotonic()
+                # All updates, evaluations and verified saves precede this marker.
+                # Bound distributed teardown so it cannot block export and cleanup.
+                if time.monotonic()-completion_seen >= 60:
+                    terminate(train)
+                    completed_shutdown = True
+                    break
             if any(p.poll() is not None for p in (env, serve, monitor)):
                 raise RuntimeError('a training service exited; inspect stage logs')
             time.sleep(5)
-        if train.returncode:
+        if train.returncode and not completed_shutdown:
             raise RuntimeError('GRPO exited unsuccessfully; inspect train.log')
         terminate(serve)
         terminate(env)
