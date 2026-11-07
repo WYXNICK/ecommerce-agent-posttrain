@@ -1,6 +1,6 @@
 # 稳定终局 GRPO（R-stable）
 
-**正式训练运行中。** 北京时间2026-11-07 17:20在worker 1163758的双H100启动；[离线验收](../../results/grpo/stable/validation.json)、[启动验收与归档](../../results/grpo/stable/execution.json)。实时状态以`outputs/grpo/stable/progress.json`和`status.json`为准，原生TensorBoard 6016看板的`R-stable`分组展示曲线；完成后本目录`results.md`单独汇总成绩。
+**正式训练运行中。** 当前在worker 1166824的双H100续训，沿用完整检查点状态与冻结配方；[离线验收](../../results/grpo/stable/validation.json)、[初始启动验收](../../results/grpo/stable/execution.json)、[续训验收](../../results/grpo/stable/resume.json)。当前状态与日志见`outputs/grpo/stable-worker1166824/`，前段日志保留在`outputs/grpo/stable/`；原生TensorBoard 6016中分别为`R-stable-resume`和`R-stable`，横轴沿用全局step。完成后本目录`results.md`单独汇总成绩。
 
 ## 1. 为什么优先做这一版
 
@@ -63,7 +63,7 @@ nohup setsid bash next/scripts/grpo/launch.sh --variant stable \
 - 训练结束导出选中与最终模型；结果身份以实际评测的**基座＋adapter**为准。源码快照、训练/评测日志、逐题轨迹、TensorBoard随阶段归档。
 - 复用已有后台监督与双卡保活恢复，SSH断开不影响执行；可捕获失败亦恢复。worker被回收或强杀无法保证执行清理。保活负载不作为训练吞吐。
 
-结果分目录：`outputs/grpo/stable/`为运行证据；`results/grpo/stable/`为验收/最终清单；本目录为阶段总结。原outcome/local结果不覆盖。
+结果分目录：上述`outputs/grpo/stable*`为同一训练的分段证据；`results/grpo/stable/`为验收/最终清单；本目录为阶段总结。原outcome/local结果不覆盖。
 
 ## 5. 如何判断有用
 

@@ -1,0 +1,169 @@
+{
+  "status": "resumed_first_update_verified",
+  "verified_at": "2026-11-07T16:23:29.841617+00:00",
+  "worker_id": 1166824,
+  "resume_step": 50,
+  "output": "outputs/grpo/stable-worker1166824",
+  "previous_output": "outputs/grpo/stable",
+  "unchanged_identity_fields": [
+    "settings",
+    "entry_files",
+    "execution_fingerprint",
+    "actor_kernel_wheels",
+    "runtime",
+    "base_files",
+    "task_pool_sha256"
+  ],
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227",
+  "run_spec_sha256": "027447939080d085d5869c78c2e3480f76f11ed262ce686f6c8e8922cbc0548c",
+  "checkpoint": {
+    "relative": "grpo/stable/checkpoints/step-50",
+    "files": {
+      "README.md": {
+        "bytes": 5254,
+        "sha256": "b71ecd4aa814b7cfeb8f4464f7cf87c0d53099cae94c5599ea47dc481378969a"
+      },
+      "adapter_config.json": {
+        "bytes": 1340,
+        "sha256": "4468f1c4c2730303f09244076a54f9e48aa244769a61a8478bc2ca2f64c48b05"
+      },
+      "adapter_model.safetensors": {
+        "bytes": 67332688,
+        "sha256": "5483eeb7999f8d21686262108ca7267bf402f4961fc02c4cc723c26da9083db9"
+      },
+      "chat_template.jinja": {
+        "bytes": 7755,
+        "sha256": "273d8e0e683b885071fb17e08d71e5f2a5ddfb5309756181681de4f5a1822d80"
+      },
+      "tokenizer.json": {
+        "bytes": 19989325,
+        "sha256": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523"
+      },
+      "tokenizer_config.json": {
+        "bytes": 1164,
+        "sha256": "7488550a894dcf741616126e322ea31d66cf9457b59ec5825f4c7efdced421f8"
+      },
+      "training.json": {
+        "bytes": 5248,
+        "sha256": "10d865b309ae62606b83dea7271231b2d146505999c0b12aa28bfcd40e3ed1d0"
+      },
+      "training_state.pt": {
+        "bytes": 134949749,
+        "sha256": "a3a7789419b77c32fc94f811654f08365c11817a0282daf6ff5b84ea93102b13"
+      }
+    },
+    "restored": [
+      "RL adapter",
+      "AdamW state",
+      "global step and generation",
+      "torch/CUDA RNG",
+      "task order, cursor and Python RNG",
+      "prior model-selection candidates"
+    ]
+  },
+  "continuity": {
+    "previous_completed_step": 50,
+    "first_resumed_step": 51,
+    "first_task_pair_from_saved_cursor": [
+      4687,
+      3119
+    ],
+    "first_task_pair_observed": [
+      4687,
+      3119
+    ],
+    "dev_step50_reused_identical_files": [
+      "run.json",
+      "raw.jsonl",
+      "summary.json"
+    ],
+    "old_supervisor_stop": "intentional SIGTERM after saved step50; complete prior updates retained"
+  },
+  "first_update": {
+    "step": 51,
+    "generation": 51,
+    "accepted_tasks": 8,
+    "accepted_trajectories": 32,
+    "trained_action_tokens": 13676,
+    "input_tokens_by_rank": [
+      2686975,
+      2685525
+    ],
+    "loss": 0.1321120094262776,
+    "grad_norm": 0.11241663992404938,
+    "reference_kl_k3": 0.0001001865405894592,
+    "action_entropy": 0.09466240026309959,
+    "rollout_seconds": 207.50538861192763,
+    "update_seconds": 614.9135914910585,
+    "learning_rate": 1e-06,
+    "peak_memory_gib_rank0": 11.186222553253174
+  },
+  "gpu_samples": [
+    {
+      "time": "2026-11-07T16:23:27.464968+00:00",
+      "gpu": 0,
+      "gpu_percent": 29,
+      "sm_percent": 29,
+      "memory_mib": 36115,
+      "samples": 12,
+      "mean_gpu_percent_60s": 64.25,
+      "mean_sm_percent_60s": 62.0,
+      "below_target_60s": false
+    },
+    {
+      "time": "2026-11-07T16:23:27.555866+00:00",
+      "gpu": 1,
+      "gpu_percent": 100,
+      "sm_percent": 100,
+      "memory_mib": 15198,
+      "samples": 12,
+      "mean_gpu_percent_60s": 100.0,
+      "mean_sm_percent_60s": 100.0,
+      "below_target_60s": false
+    }
+  ],
+  "archive_receipts": [
+    {
+      "artifact": "grpo/stable/checkpoints/step-25",
+      "request": "dc550aff887791c66cacba42a9513ac9e31ba5f2cefd482eb7b4705db42a87cb.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/stable/evidence/final",
+      "request": "31d719fd2c2c6457bd807005c7704861fe8e77e7d97e79a81d0254516683656c.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/stable-worker1166824/evidence/run-source",
+      "request": "94a51968c4be17df6a8544e4a32080fd5ae4caac5a1ce83a7793e72f9c1178ea.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/stable/checkpoints/step-50",
+      "request": "efae3a1851d1f5265c3f8c63920c528e7da35b89f807dca2907b720901621960.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    }
+  ],
+  "archive_registered_artifacts_complete_at_handoff": 118,
+  "supervisor": {
+    "pid": 334475,
+    "parent_pid_verified": 1,
+    "session_id_verified": 334475
+  },
+  "tensorboard": {
+    "port": 6016,
+    "current_run": "R-stable-resume",
+    "previous_run": "R-stable",
+    "step_axis": "global training step"
+  },
+  "stopping": "250 cumulative updates; checkpoint/dev300 every25; normal completion or caught failure restores both idle GPU keepers",
+  "limits": [
+    "First resumed update verifies execution, not improved evaluation performance.",
+    "First resumed batch timing is not a steady-state throughput estimate.",
+    "GPU utilization includes communication waits and adaptive idle fill."
+  ]
+}
