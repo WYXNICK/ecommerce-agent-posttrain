@@ -1,0 +1,92 @@
+{
+  "status": "implementation_validated_not_trained",
+  "validated_at": "2026-11-07T07:34:40.171559+00:00",
+  "tests": {
+    "passed": 55,
+    "failures": 0,
+    "errors": 0,
+    "suites": [
+      "next.scripts.grpo.test_contract",
+      "next.scripts.grpo.test_local_credit",
+      "next.scripts.grpo.test_stable",
+      "next.tests.test_execution"
+    ],
+    "log": "next/outputs/grpo/stable-validation/checks.log",
+    "log_sha256": "5d6703eb8303ab3f67ba04b820eea3a38367b65707e4a1406bc3bf424971ce15"
+  },
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227",
+  "data": {
+    "training_tasks": 2000,
+    "protected_overlap": 0,
+    "task_pool_sha256": "612c8bfd4532c5e94e1b32085f6e93928c45e9cf4c889b377150345e31f5fbc4"
+  },
+  "settings": {
+    "version": "stable-outcome-grpo-v1",
+    "seed": 42,
+    "world_size": 2,
+    "updates": 250,
+    "groups_per_update": 8,
+    "rollouts_per_group": 4,
+    "max_generation_batches": 32,
+    "max_consecutive_skipped_updates": 10,
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "learning_rate": 1e-06,
+    "warmup_updates": 15,
+    "clip_ratio": 0.2,
+    "max_grad_norm": 1.0,
+    "model_failure_reward": -0.65,
+    "advantage_std_normalization": false,
+    "kl_coefficient": 0.001,
+    "save_every": 25,
+    "evaluate_every": 25,
+    "lora_rank": 16,
+    "lora_alpha": 32,
+    "base_weights_sha256": "29a3a288a7b2002f1b0b7157369ebde67da28a94b97eb19057809efeb0428e72",
+    "selection": "dev300 strict successes, mean Reward v3, fewer steps, earlier checkpoint; include starting SFT",
+    "sampling_groups_per_batch": 2,
+    "kl_estimator": "k3+"
+  },
+  "runtime": {
+    "torch": "2.11.0",
+    "transformers": "5.15.0.dev0",
+    "peft": "0.20.0",
+    "verl": "0.8.0"
+  },
+  "verl_core_algos_sha256": "37fa248bdeeef4311dfa40b799786fd8bd6cd6013319223d2540685fce80f843",
+  "source_sha256": {
+    "scripts/grpo/keep_gpu.py": "d1ba22517d484e6620b64a51cce6f1182a15ee1b1c55182987560e2c5a0cdd54",
+    "scripts/grpo/local_credit.py": "8901ee8e6f3171471d8056cbb859dc64041bfa6baea8c25822a277c18f71a05d",
+    "scripts/grpo/regularization.py": "847b7cdb5310c662c03dec979d52481bd9b0733dd4aef1285ae4508f6db958eb",
+    "scripts/grpo/rollout.py": "9f58eada0caa23281988e88cec0d1422295017d1f003ceac80af43fe502bfcc2",
+    "scripts/grpo/run.py": "648d53163beb8bb68a90c67a7df62201000e28d7243fa47d65b1def425b3c976",
+    "scripts/grpo/settings.py": "eb00b1e7cfdca7bec80f976ce56ef40f9d80df155b9380db9a23a5a62bbd27c4",
+    "scripts/grpo/test_contract.py": "de8dbcbe4c8df5d5dcb2692df657493fabd3f292d8563b6332fa02eac38324c6",
+    "scripts/grpo/test_local_credit.py": "3918ac133090f4e159928a97fee37dcd5d14fdbe4f525fc8302122dd537eb979",
+    "scripts/grpo/test_stable.py": "9d5189ae563b14b40896eb56274976f9f9229544e6b44a1afd7a097103f58fe4",
+    "scripts/grpo/train.py": "acf6617db9c06a65829ac6c3a0a25b50b8900866d54171c73024e6110944fbf3",
+    "scripts/grpo/validate_kernels.py": "9c13c7c7d75bfeb3b1160a57b7ff8384dac29d8600aa81ed5bf05d5fb73c2a60",
+    "scripts/grpo/validate_local.py": "61ec8296bbb0d9bf56d17d07352c39f4854b9761e541b2940a04e78efcfe49ed",
+    "configs/grpo.json": "d20d77cf4990ede5b364441e8ee99c203aeb8186e3f7677859673b77b8c80df3",
+    "configs/grpo_stable.json": "53ad8ba5cd07d9ea3582b2aed29f6af67df71bd104cab80904d8251a3c611149",
+    "scripts/grpo/launch.sh": "c6a0f9d4222e1ce8d17c572d1e9484b4dfcadaae283426fd193a603d1cfaba66"
+  },
+  "validation_scope": [
+    "CPU actual LoRA forward/backward with gradient checkpointing",
+    "on-policy expected KL gradient versus exact categorical KL",
+    "frozen reference independent of actor adapter",
+    "true categorical entropy without gradient",
+    "32 trajectories in bounded waves of 8",
+    "partial batch discarded; invalid and equal groups excluded",
+    "combined loss global token normalization across rank partitions",
+    "existing local-credit and runtime regression tests",
+    "frozen execution and held-out data isolation"
+  ],
+  "not_executed": [
+    "GPU training",
+    "model export",
+    "development/test evaluation",
+    "teacher API calls"
+  ],
+  "limits": "No claim of measured H100 memory/throughput or reward improvement. New recipe is not an equal-compute KL ablation."
+}

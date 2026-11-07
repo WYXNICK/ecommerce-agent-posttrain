@@ -66,6 +66,14 @@ def validate_resume_settings(saved, current):
         raise ValueError('resume checkpoint belongs to another training contract')
 
 
+def compare_successes(summary, baseline):
+    current = set(summary['strict_success_task_ids'])
+    initial = set(baseline['strict_success_task_ids'])
+    return {'gained_task_ids': sorted(current - initial),
+            'lost_task_ids': sorted(initial - current),
+            'gained': len(current - initial), 'lost': len(initial - current)}
+
+
 def control(url, payload):
     request = Request(url, data=json.dumps(payload).encode(),
                       headers={'Content-Type': 'application/json'}, method='POST')
@@ -85,7 +93,7 @@ def publish_adapter(model, work, url, step, previous):
     return name
 
 
-def eval_dev(step, name, args, config, tokenizer, fingerprint, adapter):
+def eval_dev(step, name, args, config, tokenizer, fingerprint, adapter, baseline):
     tasks = TaskPool().tasks('dev')
     spec = {'kind': 'evaluate', 'split': 'dev', 'formal': False,
             'execution_fingerprint': fingerprint, 'candidate_task_ids': [t['task_id'] for t in tasks],
@@ -98,6 +106,7 @@ def eval_dev(step, name, args, config, tokenizer, fingerprint, adapter):
     with RunStore(output, spec) as store:
         summary = evaluate(store, tasks=tasks, episode=episode, workers=8)
     item = {'step': step, 'checkpoint': str(adapter), 'summary': summary,
+            'vs_starting_sft': compare_successes(summary, baseline),
             'evidence': {p.name: sha256(p) for p in output.glob('*.json*')}}
     selection_key(item)
     return item
@@ -114,16 +123,18 @@ def main():
     from torch.utils.tensorboard import SummaryWriter
     from omegaconf import OmegaConf
     from verl.trainer.ppo.core_algos import compute_policy_loss_vanilla
+    from regularization import reference_logprobs, reference_kl, action_entropy
 
     parser = argparse.ArgumentParser(description=__doc__)
     for key in ('model', 'work', 'output'):
         parser.add_argument('--' + key, type=Path, required=True)
     parser.add_argument('--resume', type=Path)
-    parser.add_argument('--variant', choices=('outcome', 'local'), default='outcome')
+    parser.add_argument('--variant', choices=('outcome', 'local', 'stable'), default='outcome')
     parser.add_argument('--model-url', required=True)
     parser.add_argument('--environment-url', required=True)
     args = parser.parse_args()
     settings = load_settings(args.variant)
+    regularized = settings['kl_coefficient'] > 0
     fingerprint, config = validate_execution(), load_config()
     pool = TaskPool()
     tasks = pool.tasks('grpo_train')
@@ -178,7 +189,7 @@ def main():
             candidates = resume['candidates']
         active_name = publish_adapter(model, args.work, args.model_url, step, None)
         if resume and step % settings['evaluate_every'] == 0 and not any(c['step'] == step for c in candidates):
-            candidates.append(eval_dev(step, active_name, args, config, tokenizer, fingerprint, args.resume))
+            candidates.append(eval_dev(step, active_name, args, config, tokenizer, fingerprint, args.resume, candidates[0]['summary']))
             write_json(args.output/'selection.json', {'candidates': candidates,
                 'selected': max(candidates, key=selection_key), 'test_evaluation': 'not scheduled'})
     dist.barrier()
@@ -219,25 +230,30 @@ def main():
         lr = settings['learning_rate'] * min(1.0, (step+1)/settings['warmup_updates'])
         for group in optimizer.param_groups:
             group['lr'] = lr
-        metric = torch.zeros(5, device=rank, dtype=torch.float64)
+        metric = torch.zeros(7, device=rank, dtype=torch.float64)
         partitions, input_tokens_by_rank = balance_turns(rows, settings['world_size'])
         for turn, episode_advantage in partitions[rank]:
             prompt, response = turn['prompt_ids'], turn['response_ids']
             ids = torch.tensor([prompt + response], device=rank)
             positions = torch.arange(len(prompt)-1, len(prompt)+len(response)-1, device=rank)
+            targets = torch.tensor(response, device=rank)
+            ref = reference_logprobs(model, ids, positions, targets) if regularized else None
             output = model(input_ids=ids, attention_mask=torch.ones_like(ids),
                            logits_to_keep=positions, use_cache=False)
-            targets = torch.tensor(response, device=rank)
             logprob = -F.cross_entropy(output.logits[0].float(), targets, reduction='none')
             old = torch.tensor(turn['old_logprobs'], device=rank)
             advantage = torch.full_like(logprob, episode_advantage)
             loss, stats = compute_policy_loss_vanilla(old[None], logprob[None], advantage[None],
                 torch.ones_like(logprob)[None], config=policy_config)
-            (loss * len(response) / token_count).backward()
+            kl = reference_kl(logprob, ref).mean() if regularized else logprob.new_zeros(())
+            entropy = action_entropy(output.logits[0]) if regularized else logprob.new_zeros(())
+            objective = loss + settings['kl_coefficient'] * kl
+            (objective * len(response) / token_count).backward()
             delta = (logprob.detach()-old)
             metric += torch.tensor([loss.item()*len(response), stats['actor/pg_clipfrac']*len(response),
-                delta.abs().sum().item(), ((delta.exp()-1)-delta).sum().item(), len(response)], device=rank)
-            del output, loss, logprob, ids
+                delta.abs().sum().item(), ((delta.exp()-1)-delta).sum().item(), len(response),
+                kl.item()*len(response), entropy.item()], device=rank)
+            del output, loss, objective, kl, entropy, logprob, ref, ids
         # Each rank accumulated numerator/global_token_count; sum, do not average.
         gradients = [p.grad if p.grad is not None else torch.zeros_like(p) for p in parameters]
         flat = torch.cat([g.reshape(-1) for g in gradients])
@@ -267,7 +283,14 @@ def main():
                 'mean_training_reward': sum(r['training_reward'] for r in rows)/len(rows),
                 'strict_success_rate': sum((r['terminal_result'].get('reward_detail') or {}).get('reward_type')=='gold_purchase' for r in rows)/len(rows),
                 'sampling': diagnostic, 'peak_memory_gib_rank0': torch.cuda.max_memory_allocated()/2**30}
-            if not all(math.isfinite(result[k]) for k in ('loss', 'grad_norm', 'rollout_actor_kl_estimate')):
+            if regularized:
+                result.update(reference_kl_k3=metric[5].item()/token_count,
+                    action_entropy=metric[6].item()/token_count,
+                    kl_loss=settings['kl_coefficient']*metric[5].item()/token_count,
+                    total_loss=(metric[0].item()+settings['kl_coefficient']*metric[5].item())/token_count,
+                    accepted_trajectories=len(rows),
+                    accepted_tasks=len({row['task_id'] for row in rows}))
+            if not all(math.isfinite(v) for v in result.values() if isinstance(v, (int, float))):
                 raise FloatingPointError('non-finite GRPO metric')
             with (args.output/'metrics.jsonl').open('a') as f:
                 f.write(json.dumps(result)+'\n')
@@ -310,13 +333,19 @@ def main():
                 for source in (evidence/'rollouts').glob('*'):
                     (marker/source.name).touch()
             if step % settings['evaluate_every'] == 0:
-                candidate = eval_dev(step, active_name, args, config, tokenizer, fingerprint, checkpoint)
+                candidate = eval_dev(step, active_name, args, config, tokenizer, fingerprint, checkpoint, candidates[0]['summary'])
                 candidates.append(candidate)
                 best = max(candidates, key=selection_key)
                 report = {'status': 'running' if step < settings['updates'] else 'training_complete',
                           'candidates': candidates, 'selected': best, 'test_evaluation': 'not scheduled'}
                 write_json(args.output/'selection.json', report)
                 writer.add_scalar('dev/strict_success_rate', candidate['summary']['strict_success_rate'], step)
+                writer.add_scalar('dev/mean_final_reward', candidate['summary']['mean_final_reward'], step)
+                writer.add_scalar('dev/average_steps', candidate['summary']['average_steps'], step)
+                for key in ('wrong_purchase', 'repeat_loop'):
+                    writer.add_scalar('dev/'+key, candidate['summary']['reward_type_counts'].get(key, 0), step)
+                for key in ('gained', 'lost'):
+                    writer.add_scalar('dev/'+key, candidate['vs_starting_sft'][key], step)
                 writer.flush()
                 dev_evidence = args.work/'evidence'/f'dev-{step}'
                 shutil.copytree(args.output/'dev'/f'step-{step}', dev_evidence)

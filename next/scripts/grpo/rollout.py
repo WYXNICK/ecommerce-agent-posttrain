@@ -77,6 +77,8 @@ def collect_update(tasks, *, client_factory, config, tokenizer, env_url, fingerp
                    settings, generation, evidence):
     """Bounded dynamic sampling uses exactly the returns used by GRPO."""
     accepted, counts, groups = [], Counter(), []
+    batch_groups = settings.get('sampling_groups_per_batch', settings['groups_per_update'])
+    seen_tasks = set()
     evidence.mkdir(parents=True, exist_ok=True)
     def episode(item):
         task, seed = item
@@ -91,7 +93,13 @@ def collect_update(tasks, *, client_factory, config, tokenizer, env_url, fingerp
         return row
     with gzip.open(evidence / f'generation-{generation:06d}.jsonl.gz', 'wt') as log:
         for batch in range(settings['max_generation_batches']):
-            selected = [next(tasks) for _ in range(settings['groups_per_update'])]
+            selected = []
+            while len(selected) < batch_groups:
+                task = next(tasks)
+                if task['task_id'] in seen_tasks:
+                    continue
+                seen_tasks.add(task['task_id'])
+                selected.append(task)
             jobs = [(task, settings['seed'] + generation * 10000 + batch * 100 + i * 10 + j)
                     for i, task in enumerate(selected) for j in range(settings['rollouts_per_group'])]
             with ThreadPoolExecutor(max_workers=len(jobs)) as executor:
@@ -117,8 +125,10 @@ def collect_update(tasks, *, client_factory, config, tokenizer, env_url, fingerp
                     accepted.extend(group)
                     counts['accepted_groups'] += 1
                 else:
-                    counts['filtered_' + (reason or 'surplus')] += 1
+                    reason = reason or 'surplus'
+                    counts['filtered_' + reason] += 1
                 groups.append({'task_id': group[0]['task_id'], 'rewards': rewards, 'filter': reason})
             if len(accepted) == settings['groups_per_update'] * n:
                 return accepted, {'counts': dict(counts), 'groups': groups, 'generation_batches': batch+1}
+    counts['discarded_partial_groups'] = len(accepted) // settings['rollouts_per_group']
     return [], {'counts': dict(counts), 'groups': groups, 'generation_batches': settings['max_generation_batches']}

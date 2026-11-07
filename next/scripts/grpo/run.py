@@ -29,7 +29,7 @@ def main():
     for name in ('model', 'work', 'output'):
         parser.add_argument('--'+name, type=Path, required=True)
     parser.add_argument('--resume', type=Path)
-    parser.add_argument('--variant', choices=('outcome', 'local'), default='outcome')
+    parser.add_argument('--variant', choices=('outcome', 'local', 'stable'), default='outcome')
     parser.add_argument('--validate-only', action='store_true', help='local branch acceptance; no optimizer or model export')
     parser.add_argument('--model-port', type=int, default=8016)
     parser.add_argument('--environment-port', type=int, default=5716)
@@ -79,14 +79,16 @@ def main():
     try:
         publish()
         settings = load_settings(args.variant)
+        if args.variant == 'stable' and not all(os.environ.get(key) for key in ('SHOP_ARTIFACT_QUEUE', 'SHOP_ARTIFACT_ROOT')):
+            raise ValueError('stable GRPO requires the devbox/HDFS artifact queue and worker artifact root')
         fingerprint = validate_execution()
         TaskPool().validate_source()
         if sha256(args.model/'model.safetensors') != settings['base_weights_sha256']:
             raise ValueError('base weights do not match selected S-repair')
         files = [ROOT/'configs/grpo.json', *HERE.glob('*.py'), *HERE.glob('*.sh'), *HERE.glob('*.txt'), ROOT/'scripts/sft/artifacts.py',
                  ROOT/'scripts/sft/export_model.py', HERE/'keep_gpu.py', ROOT/'scripts/sft/monitor_gpu.py']
-        if args.variant == 'local':
-            files.append(ROOT/'configs/grpo_local.json')
+        if args.variant != 'outcome':
+            files.append(ROOT/f'configs/grpo_{args.variant}.json')
         kernel_root = Path(os.environ['SHOP_GRPO_KERNELS'])
         kernel_files = inventory(kernel_root/'wheels')
         if not kernel_files or not (kernel_root/'site').is_dir():
@@ -199,7 +201,7 @@ def main():
         final = ROOT/'results/grpo'/args.variant
         final.mkdir(parents=True, exist_ok=True)
         write_json(final/'summary.json', result)
-        title = '局部信用' if args.variant == 'local' else '终局奖励'
+        title = {'outcome': '终局奖励', 'local': '局部信用', 'stable': '稳定终局'}[args.variant]
         lines = [f'# {title} GRPO 结果', '', '训练与开发集选模已完成；本轮未运行测试集。', '',
                  '| 检查点 | dev300 严格成功 | Reward v3 | 平均动作数 |', '|---|---:|---:|---:|']
         for item in result['candidates']:
@@ -207,7 +209,7 @@ def main():
             lines.append(f"| {'SFT 起点' if item['step']==0 else item['step']} | {s['strict_successes']}/300 | {s['mean_final_reward']:.4f} | {s['average_steps']:.3f} |")
         lines += ['', f"选中 step {selected['step']}；step 0 表示保留原 SFT。开发集用于选模，不能据此宣称测试收益。",
                   '', f'[完整结果与模型身份](../../results/grpo/{args.variant}/summary.json)。']
-        doc = ROOT/('docs/grpo-local' if args.variant == 'local' else 'docs/grpo')
+        doc = ROOT/'docs'/('grpo' if args.variant == 'outcome' else 'grpo-'+args.variant)
         (doc/'results.md').write_text('\n'.join(lines)+'\n')
         plan = ROOT/'docs/project-completion-plan.md'
         text = plan.read_text()
@@ -215,11 +217,17 @@ def main():
             text = text.replace('**运行中**；[方法与状态](grpo/README.md)',
             f"**已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](grpo/results.md)")
             text = text.replace('第 6 步终局奖励 GRPO 正在执行。', '第 6 步终局奖励 GRPO 已完成；结果见阶段总结。')
-        else:
+        elif args.variant == 'local':
             text = text.replace('**运行中**；[方法与状态](grpo-local/README.md)',
                 f"**训练已完成**；选中 step {selected['step']}；[结果](grpo-local/results.md)")
             stage = doc/'README.md'
             stage.write_text(stage.read_text().replace('**正式训练运行中。**',
+                '**训练与开发集选模已完成。** 见[结果](results.md)。'))
+        else:
+            text = text.replace('**实现与离线验证完成，未启动**；[设计](grpo-stable/README.md)',
+                f"**训练已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](grpo-stable/results.md)")
+            stage = doc/'README.md'
+            stage.write_text(stage.read_text().replace('**实现与离线验证完成；尚未训练。**',
                 '**训练与开发集选模已完成。** 见[结果](results.md)。'))
         plan.write_text(text)
         publish(status='complete', selected_step=selected['step'], selected_model=result['selected_model'])
