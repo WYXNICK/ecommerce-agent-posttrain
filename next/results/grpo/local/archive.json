@@ -16,10 +16,274 @@
       "hdfs_complete": true,
       "files": 23,
       "bytes": 63719884
+    },
+    {
+      "artifact": "grpo/local-20261106/checkpoints/step-250",
+      "request": "01e7ff04d81611c7fe19244c2f4a40e7a8aabccd5079ed00109186255970eb77.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 8,
+      "bytes": 222299184
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/step-200",
+      "request": "029e5f6aaf4b28b4ff32a88b46b43958e09dfb658563c2c0201d6cbd6be44a46.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 105,
+      "bytes": 205637449
+    },
+    {
+      "artifact": "grpo/local-20261106/checkpoints/step-450",
+      "request": "04644807ee652fcaf6041089b234c6c74d72e8818433921168aab0630850bca4.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 8,
+      "bytes": 222304943
+    },
+    {
+      "artifact": "grpo/local-20261106/checkpoints/step-100",
+      "request": "04dd91225ac7e444753a8f6952b0cc4194626480aea32409f7afb953ae68204f.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 8,
+      "bytes": 222292310
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/step-250",
+      "request": "0be81ba6a0186ff9aacb270f270684d3a12b369a8ccdbf52e1ea745568ce7d53.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 105,
+      "bytes": 210567363
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/dev-300",
+      "request": "1720072b1bb6420ec6842cb649c0f3e6ccf8e5d603cb8a4a807b4eef8ee7891a.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 4,
+      "bytes": 33670481
+    },
+    {
+      "artifact": "grpo/local-20261106/model-step-500",
+      "request": "17d2c15f76b07967c1bbc7632b9fad85a5e4271da986ed153f050d8844f7f47a.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 8,
+      "bytes": 4446562051
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/step-500",
+      "request": "23480b9476d89d719ee6bd7b4c5141fd58cf7b6a9b192d99570d9eb74d9a89d9.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 110,
+      "bytes": 220100704
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/dev-500",
+      "request": "29d844b5fbf5aa1c9ff2e8f0fae48a59dd6f8d795dd1bd8a729ecdec2e56c16c.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 4,
+      "bytes": 31485946
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/step-150",
+      "request": "2a70931dfa1d0ff9ee236a56f08df819f61d0bdb546ee311d37aafb91c0026e2.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 105,
+      "bytes": 181157542
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/step-400",
+      "request": "2c1b8f4e1513caf5f77fa73591d6b1dd8165e51a3bdfd41fb6a502c787f53b60.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 106,
+      "bytes": 198935173
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/dev-100",
+      "request": "3c3cabd52ad6a2a7358433974a06982e3fa3e26bc6f10f721a50f9d0895e7673.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 4,
+      "bytes": 37005886
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/final",
+      "request": "47665d0ac8ae61b4ef48d8cfd98f352acefbd4323fb80866d495d6341424e0ed.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 1054,
+      "bytes": 2417810523
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/step-50",
+      "request": "48015b1b530c6e6dd44403374f7363a50d793f2e1cf9316817689ebc3c844a2e.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 105,
+      "bytes": 224800170
+    },
+    {
+      "artifact": "grpo/local-20261106/checkpoints/step-500",
+      "request": "4fa56e94c0d5c19e95f94f6990a538abf370ca792e92b65df88205a39efcf4d6.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 8,
+      "bytes": 222309360
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/dev-250",
+      "request": "567b2dcd0483d6e4de7b6cc0202d7f27707865bb944bbfd7ce3e213ddceb2c7f.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 4,
+      "bytes": 34618941
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/dev-350",
+      "request": "683629353f5660a83ffc003a0b8d96ded2f004ae1370130acc1691e939f63bd1.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 4,
+      "bytes": 32294007
+    },
+    {
+      "artifact": "grpo/local-20261106/checkpoints/step-300",
+      "request": "6926fb72f9b05da2029251f8aede87f05c3f7c0f1dea818afcb28b2555b3e502.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 8,
+      "bytes": 222298860
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/step-300",
+      "request": "7b5f95a63cf317a5e397668bd9d94ab88db5b2b77c91dc9af4ad5d281f4352d8.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 105,
+      "bytes": 190938071
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/dev-150",
+      "request": "7d372c4087a03d51cdb3081bc89b444b5cef17ccbfd808f7ad7f6a5019afb8a8.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 4,
+      "bytes": 35966624
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/dev-450",
+      "request": "9b1c2fc3466a7de72f1f9a3de521b903964792331078c25fad71b7c7fbed6f0a.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 4,
+      "bytes": 31884378
+    },
+    {
+      "artifact": "grpo/local-20261106/checkpoints/step-350",
+      "request": "a2524c31b1492948921e3dc006df7a523c0b1786349a46dea8d44401f8584f78.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 8,
+      "bytes": 222302665
+    },
+    {
+      "artifact": "grpo/local-20261106/checkpoints/step-200",
+      "request": "a712f876045f9eafdb83b2ee6e04ce86a6c5716f9e47504e554f5ae257782331.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 8,
+      "bytes": 222297993
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/step-100",
+      "request": "ad94798b17625d1ae7a96306b35b97d74cc1e29396710bc1ba5278d229bfa320.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 105,
+      "bytes": 209601499
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/run-source",
+      "request": "bbd4ae002a8d663dc72cfdab79a4df926f8531a2a97b81616ec88eb111ab3898.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 20,
+      "bytes": 1586687
+    },
+    {
+      "artifact": "grpo/local-20261106/checkpoints/step-150",
+      "request": "bd3e55931f175d0828efb986e90fc9518a6c7b428ff45383eb979e1f65994196.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 8,
+      "bytes": 222294671
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/dev-400",
+      "request": "bd879de1d36ff108c7e9b4a5135438dc450845560f29bc769b0cd7b0678e097b.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 4,
+      "bytes": 31636298
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/step-450",
+      "request": "c34469a29a9f36b044f8b96a93c3d4dcda8941bccb8e838025868a9fd1cf3e5f.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 106,
+      "bytes": 182991325
+    },
+    {
+      "artifact": "grpo/local-20261106/checkpoints/step-400",
+      "request": "c708c24fa4530b01069c535cdb69f54df3ea39432c7a54d5cf8a12eae565ef89.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 8,
+      "bytes": 222305637
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/step-350",
+      "request": "d3abedf587a17096faf57ee5562db73b35729edcc0c3e3ec655da9681c2f5258.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 108,
+      "bytes": 212285375
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/dev-200",
+      "request": "db24d415a0da68c4704772f8f00709879e9d8656ae271ea25684e9c41cf0fb8c.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 4,
+      "bytes": 35075793
+    },
+    {
+      "artifact": "grpo/local-20261106/evidence/dev-50",
+      "request": "e5c770c5aaa11181df2e04482aac7c477ce6f8ff1fedb26b9593cd77ae311fcc.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 4,
+      "bytes": 37735916
+    },
+    {
+      "artifact": "grpo/local-20261106/checkpoints/step-50",
+      "request": "fa467bc89fbaadd1cf6e083c9bd582674729b145a063751c2ea60506a8fe1e45.json",
+      "devbox_verified": true,
+      "hdfs_complete": true,
+      "files": 8,
+      "bytes": 222287843
     }
   ],
   "hdfs_root": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104",
   "verification": "devbox: full SHA256 inventory; HDFS: uploaded inventory and remote file sizes",
-  "contents": "frozen source/configuration and complete validation evidence, trajectories, inference/environment logs, GPU monitor, offline test log and audit script",
-  "new_training_checkpoints": 0
+  "contents": "Validation evidence and formal local-credit training: frozen source/configuration, 10 checkpoints, step500 model export, complete main/branch trajectories, training/development metrics and logs, TensorBoard, GPU monitoring and final run summary.",
+  "new_training_checkpoints": 10
 }
