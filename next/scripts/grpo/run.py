@@ -224,10 +224,10 @@ def main():
             stage.write_text(stage.read_text().replace('**正式训练运行中。**',
                 '**训练与开发集选模已完成。** 见[结果](results.md)。'))
         else:
-            text = text.replace('**实现与离线验证完成，未启动**；[设计](grpo-stable/README.md)',
+            text = text.replace('**运行中**；[设计](grpo-stable/README.md)',
                 f"**训练已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](grpo-stable/results.md)")
             stage = doc/'README.md'
-            stage.write_text(stage.read_text().replace('**实现与离线验证完成；尚未训练。**',
+            stage.write_text(stage.read_text().replace('**正式训练运行中。**',
                 '**训练与开发集选模已完成。** 见[结果](results.md)。'))
         plan.write_text(text)
         publish(status='complete', selected_step=selected['step'], selected_model=result['selected_model'])

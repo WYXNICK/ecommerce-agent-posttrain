@@ -1,0 +1,86 @@
+{
+  "status": "formal_run_started_first_update_verified",
+  "started_at": "2026-11-07T09:20:12.773506+00:00",
+  "worker_id": 1163758,
+  "output": "outputs/grpo/stable",
+  "run_spec_sha256": "89c259da62cb8c3a7889ab6e9d5a0970cb82b847359665ac1e939254cd1128de",
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227",
+  "first_update": {
+    "step": 1,
+    "accepted_tasks": 8,
+    "accepted_trajectories": 32,
+    "trained_action_tokens": 11278,
+    "input_tokens_by_rank": [
+      1865038,
+      1867053
+    ],
+    "loss": 0.057466966756207445,
+    "grad_norm": 0.1153239756822586,
+    "rollout_actor_logprob_abs_difference": 0.002166608583017617,
+    "reference_kl_k3": 0.0,
+    "action_entropy": 0.08978896259284505,
+    "rollout_seconds": 178.7787292948924,
+    "update_seconds": 302.2204141994007,
+    "peak_memory_gib_rank0": 11.110741138458252
+  },
+  "sampling_counts": {
+    "trajectories": 120,
+    "model_failures": 13,
+    "infrastructure_failures": 0,
+    "unverifiable": 1,
+    "main_requests": 1223,
+    "main_prompt_tokens": 7752238,
+    "main_completion_tokens": 29515,
+    "generated_groups": 30,
+    "filtered_equal": 21,
+    "accepted_groups": 8,
+    "filtered_invalid": 1
+  },
+  "gpu_samples": [
+    {
+      "time": "2026-11-07T09:33:44.667712+00:00",
+      "gpu": 0,
+      "gpu_percent": 96,
+      "sm_percent": 96,
+      "memory_mib": 35708,
+      "samples": 12,
+      "mean_gpu_percent_60s": 67.5,
+      "mean_sm_percent_60s": 68.08333333333333,
+      "below_target_60s": false
+    },
+    {
+      "time": "2026-11-07T09:33:44.744922+00:00",
+      "gpu": 1,
+      "gpu_percent": 100,
+      "sm_percent": 100,
+      "memory_mib": 15188,
+      "samples": 12,
+      "mean_gpu_percent_60s": 100.0,
+      "mean_sm_percent_60s": 100.0,
+      "below_target_60s": false
+    }
+  ],
+  "source_backups": [
+    {
+      "artifact": "grpo/stable/evidence/run-source",
+      "devbox_receipt_sha256": "77f76aa35f664c79d01417cbd071e1dfd990119871ef9f0bacf76a66d07dca15",
+      "hdfs_receipt_sha256": "5177a5990c8402733fc6ddc6a05f27b8f2ef1fb5076e2eff02496f7233a61338",
+      "files": 22
+    }
+  ],
+  "tensorboard": {
+    "port": 6016,
+    "run": "R-stable"
+  },
+  "supervisor": {
+    "pid": 824555,
+    "parent_pid_verified": 1,
+    "session_id_verified": 824555
+  },
+  "stopping": "250 successful updates; save/dev every 25; existing abnormal-stop and both-GPU keepalive restoration",
+  "limits": [
+    "First-update acceptance only, not an evaluation result or evidence of improved success rate.",
+    "Reference KL is measured before optimizer update; zero at the starting SFT policy is expected.",
+    "GPU utilization includes waiting and optional idle fill; use wall time and token counts for throughput."
+  ]
+}
