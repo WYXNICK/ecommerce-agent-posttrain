@@ -13,6 +13,9 @@
 | [docs/data-reflow/](docs/data-reflow/README.md) | 一轮失败回放修复、普通增量数据对照与后续 GRPO 起点选择 |
 | [docs/sft/](docs/sft/README.md) | SFT 阶段：Astra 2,000＋200、双卡 LoRA、开发集选模与归档 |
 | [docs/teacher-evaluation/](docs/teacher-evaluation/README.md) | 教师正式评测：Sol 80.4%、Astra 80.9%，各完整 1,000 题 |
+| [docs/grpo/](docs/grpo/README.md) | 当前可用主结果：原终局奖励GRPO |
+| [docs/grpo-s0/](docs/grpo-s0/README.md) | 当前起点消融：未修复S0直接GRPO |
+| [docs/evaluation/](docs/evaluation/results.md) | 已完成的六模型test1000统一对照 |
 | [docs/data-preparation/methodology.md](docs/data-preparation/methodology.md) | 数据筛选规则、分布、复现与详细使用说明 |
 | [docs/execution.md](docs/execution.md) | 统一入口、冻结协议、教师 API 与运行命令 |
 | [docs/resource-usage.md](docs/resource-usage.md) | 两教师采集及评测的 token、缓存明细与费用核算状态 |
@@ -26,7 +29,7 @@
 | [data/task_pool/metadata.json](data/task_pool/metadata.json) | 数据分布、来源和 SHA-256 校验清单 |
 | [tests/test_prepare_task_pool.py](tests/test_prepare_task_pool.py) | 划分、哈希、奖励与去重验收 |
 
-已冻结教师候选 4,000、GRPO 2,000、SFT 验证候选 800、开发 300、测试 1,000，另有训练备用 3,977。Baseline、Sol / Astra 各 2,000＋200 条教师数据及各完整 1,000 题教师评测均已完成，并通过全量离线复核。**正式教师及 SFT 数据采用 Astra；Sol 原样保留为独立参考。** 冷启动 SFT 与开发集选模已完成，选中 step 750（dev 220/300，73.33%）；普通/修复增量 SFT 对照也已完成，选中修复组 step 72（dev 226/300，75.33%）作为下一阶段起点，结果见各阶段总结。[运行与模型保存](docs/sft/runtime.md)提供唯一活动入口。GRPO 与学生最终测试尚未执行。
+正式教师及SFT数据采用Astra，Sol原样保留为独立参考。数据准备、冷启动SFT、失败回流对照、原终局GRPO及六模型最终评测均已完成。**原终局GRPO为可用主结果；局部信用和稳定终局仅作探索备份。** S0直接RL与batch/采样对照的设计及状态统一见[总计划](docs/project-completion-plan.md)，活动日志入口见[current.json](outputs/pipeline/current.json)。
 
 每阶段文档在 `docs/<阶段>/`，指标在 `results/<阶段>/`，数据成品在 `data/`。自动更新的运行报告与完整日志保留本地，采集与评测分开：Astra 采集报告在 `next/docs/teacher-collection/runtime/astra-current.md`，教师评测在 `next/outputs/teacher-evaluation/<教师>/progress.md`。每个阶段完成后整理并推送当前分支，规则见 [AGENTS.md](AGENTS.md)。
 

@@ -5,9 +5,25 @@ from unittest.mock import patch
 from train import balance_turns, validate_resume_settings
 from rollout import TrainingClient, group_advantages, training_signal
 from shopping_agent.clients import ModelOutputError
+from settings import load_settings, starting_candidate
 
 
 class ContractTests(unittest.TestCase):
+    def test_s0_changes_only_model_identity(self):
+        baseline, s0 = load_settings(), load_settings('s0')
+        self.assertEqual({k for k in baseline if baseline[k] != s0[k]},
+                         {'version', 'base_weights_sha256'})
+        self.assertEqual(baseline.keys(), s0.keys())
+        with self.assertRaises(ValueError):
+            validate_resume_settings(baseline, s0)
+
+    def test_s0_uses_its_own_selected_evaluation(self):
+        import json
+        from shopping_agent.protocol import ROOT
+        selected = json.loads((ROOT/'results/sft/astra-s0/summary.json').read_text())['selected']
+        self.assertEqual(starting_candidate('s0'), selected)
+        self.assertNotEqual(selected['summary']['strict_success_task_ids'],
+                            starting_candidate('outcome')['summary']['strict_success_task_ids'])
     def test_failure_returns_and_group_baseline(self):
         row = {'failure_kind': 'model', 'done': False, 'final_reward': 0}
         self.assertEqual(training_signal(row, -.65), -.65)

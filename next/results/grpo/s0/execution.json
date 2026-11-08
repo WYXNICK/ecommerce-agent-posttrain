@@ -1,0 +1,42 @@
+{
+  "status": "formal_run_started_first_update_verified",
+  "variant": "s0",
+  "output": "outputs/grpo/s0",
+  "starting_sft": "S0 step750; dev220/300",
+  "changed_recipe_fields": [
+    "version",
+    "base_weights_sha256"
+  ],
+  "checks": {
+    "cpu_contract_tests_passed": 29,
+    "base_weights_sha256": "4674684936facf7e95c3848f0cf5f4fa2773a3f664520e5c89686fc76ddb26e9",
+    "run_spec_sha256": "78ac88e3acb970f8fd34695150ca4eb06c67c1267dc1c785b3974ebdb1668f99"
+  },
+  "first_update": {
+    "step": 1,
+    "trained_action_tokens": 2672,
+    "input_tokens_by_rank": [
+      381018,
+      382865
+    ],
+    "grad_norm": 0.2856340706348419,
+    "rollout_actor_logprob_abs_difference": 0.0025172115954537294,
+    "clip_fraction": 0.0,
+    "rollout_seconds": 34.094639452174306,
+    "update_seconds": 56.928764406591654,
+    "peak_memory_gib_rank0": 11.072346210479736
+  },
+  "accepted_tasks": 2,
+  "accepted_trajectories": 8,
+  "source_archive": [
+    {
+      "artifact": "grpo/s0/evidence/run-source",
+      "receipt": "2de5044ef28dcc9ea39112465192c51f856e2af5722554502a3af2bfe0f896a9.json",
+      "receipts": "complete",
+      "hdfs": "complete"
+    }
+  ],
+  "stopping": "500 effective updates; save/dev300 every50; restore both idle GPU keepers on completion or caught failure",
+  "test_evaluation": "not scheduled",
+  "limits": "Startup verification only; no evidence of improved task success yet."
+}

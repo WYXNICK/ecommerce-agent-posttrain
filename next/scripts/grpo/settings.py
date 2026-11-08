@@ -22,6 +22,18 @@ def load_settings(variant='outcome'):
                 and settings['save_every'] == settings['evaluate_every']
                 and settings['updates'] % settings['save_every'] == 0):
             raise ValueError('invalid stable GRPO sampling/KL/checkpoint configuration')
+    elif variant == 's0':
+        settings.update(json.loads((ROOT / 'configs/grpo_s0.json').read_text()))
     elif variant != 'outcome':
         raise ValueError('unknown GRPO variant')
     return settings
+
+
+def starting_result_path(variant):
+    return ROOT / ('results/sft/astra-s0/summary.json' if variant == 's0'
+                   else 'results/data-reflow/r1/summary.json')
+
+
+def starting_candidate(variant):
+    result = json.loads(starting_result_path(variant).read_text())
+    return result['selected'] if variant == 's0' else result['arms']['repair']['selected']

@@ -20,7 +20,7 @@ from urllib.request import Request, urlopen
 from artifacts import persist, inventory
 from rollout import TrainingClient, collect_update
 from local_credit import apply_local_credit
-from settings import load_settings
+from settings import load_settings, starting_candidate
 from shopping_agent.clients import LocalChatClient, request_json
 from shopping_agent.protocol import ROOT, StudentTokenizer, load_config, sha256, validate_execution
 from shopping_agent.runs import RunStore, evaluate, write_json
@@ -129,7 +129,7 @@ def main():
     for key in ('model', 'work', 'output'):
         parser.add_argument('--' + key, type=Path, required=True)
     parser.add_argument('--resume', type=Path)
-    parser.add_argument('--variant', choices=('outcome', 'local', 'stable'), default='outcome')
+    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0'), default='outcome')
     parser.add_argument('--model-url', required=True)
     parser.add_argument('--environment-url', required=True)
     args = parser.parse_args()
@@ -180,7 +180,7 @@ def main():
         model.print_trainable_parameters()
         writer = SummaryWriter(str(args.output / 'tensorboard'))
         stream = TaskStream(tasks, settings['seed'])
-        base = json.loads((ROOT/'results/data-reflow/r1/summary.json').read_text())['arms']['repair']['selected']
+        base = starting_candidate(args.variant)
         candidates = [{**base, 'step': 0, 'role': 'starting_sft'}]
         if resume:
             saved = resume['task_stream']

@@ -19,7 +19,7 @@ from shopping_agent.protocol import ROOT, load_config, sha256, validate_executio
 from shopping_agent.runs import write_json
 from shopping_agent.tasks import TaskPool
 from supervise_sft import terminate
-from settings import load_settings
+from settings import load_settings, starting_result_path
 
 HERE = Path(__file__).resolve().parent
 
@@ -29,7 +29,7 @@ def main():
     for name in ('model', 'work', 'output'):
         parser.add_argument('--'+name, type=Path, required=True)
     parser.add_argument('--resume', type=Path)
-    parser.add_argument('--variant', choices=('outcome', 'local', 'stable'), default='outcome')
+    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0'), default='outcome')
     parser.add_argument('--validate-only', action='store_true', help='local branch acceptance; no optimizer or model export')
     parser.add_argument('--model-port', type=int, default=8016)
     parser.add_argument('--environment-port', type=int, default=5716)
@@ -79,16 +79,17 @@ def main():
     try:
         publish()
         settings = load_settings(args.variant)
-        if args.variant == 'stable' and not all(os.environ.get(key) for key in ('SHOP_ARTIFACT_QUEUE', 'SHOP_ARTIFACT_ROOT')):
-            raise ValueError('stable GRPO requires the devbox/HDFS artifact queue and worker artifact root')
+        if args.variant in ('stable', 's0') and not all(os.environ.get(key) for key in ('SHOP_ARTIFACT_QUEUE', 'SHOP_ARTIFACT_ROOT')):
+            raise ValueError('GRPO requires the devbox/HDFS artifact queue and worker artifact root')
         fingerprint = validate_execution()
         TaskPool().validate_source()
         if sha256(args.model/'model.safetensors') != settings['base_weights_sha256']:
-            raise ValueError('base weights do not match selected S-repair')
+            raise ValueError('base weights do not match the configured SFT starting model')
         files = [ROOT/'configs/grpo.json', *HERE.glob('*.py'), *HERE.glob('*.sh'), *HERE.glob('*.txt'), ROOT/'scripts/sft/artifacts.py',
                  ROOT/'scripts/sft/export_model.py', HERE/'keep_gpu.py', ROOT/'scripts/sft/monitor_gpu.py']
         if args.variant != 'outcome':
             files.append(ROOT/f'configs/grpo_{args.variant}.json')
+        files.append(starting_result_path(args.variant))
         kernel_root = Path(os.environ['SHOP_GRPO_KERNELS'])
         kernel_files = inventory(kernel_root/'wheels')
         if not kernel_files or not (kernel_root/'site').is_dir():
@@ -201,7 +202,7 @@ def main():
         final = ROOT/'results/grpo'/args.variant
         final.mkdir(parents=True, exist_ok=True)
         write_json(final/'summary.json', result)
-        title = {'outcome': '终局奖励', 'local': '局部信用', 'stable': '稳定终局'}[args.variant]
+        title = {'outcome': '终局奖励', 'local': '局部信用', 'stable': '稳定终局', 's0': 'S0 直接终局奖励'}[args.variant]
         lines = [f'# {title} GRPO 结果', '', '训练与开发集选模已完成；本轮未运行测试集。', '',
                  '| 检查点 | dev300 严格成功 | Reward v3 | 平均动作数 |', '|---|---:|---:|---:|']
         for item in result['candidates']:
@@ -223,12 +224,18 @@ def main():
             stage = doc/'README.md'
             stage.write_text(stage.read_text().replace('**正式训练运行中。**',
                 '**训练与开发集选模已完成。** 见[结果](results.md)。'))
-        else:
+        elif args.variant == 'stable':
             text = text.replace('**运行中**；[设计](grpo-stable/README.md)',
                 f"**训练已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](grpo-stable/results.md)")
             stage = doc/'README.md'
             stage.write_text(stage.read_text().replace('**正式训练运行中。**',
                 '**训练与开发集选模已完成。** 见[结果](results.md)。'))
+        elif args.variant == 's0':
+            text = text.replace('**运行中**；[方案与状态](grpo-s0/README.md)',
+                f"**训练已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](grpo-s0/results.md)")
+            stage = doc/'README.md'
+            stage.write_text(stage.read_text().replace('**状态：运行中。**',
+                '**状态：训练与开发集选模已完成。** 见[结果](results.md)。'))
         plan.write_text(text)
         publish(status='complete', selected_step=selected['step'], selected_model=result['selected_model'])
     except Exception as exc:
