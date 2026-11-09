@@ -137,4 +137,4 @@ S-repair step72 → 终局奖励 GRPO：2个有效任务×每题4条，500次更
 
 六模型冻结测试集对照已完成：Baseline、Astra（复用完整结果）、S0、S-repair、GRPO step400/500。两个 GRPO 候选在测试前固定，完整报告，不按测试成绩选模。见[评测方案](evaluation/README.md)。
 
-S0 GRPO test1000 **运行中**：固定 step450/500，复用原六模型结果作对照；见 [方案](grpo-s0/test.md)。
+S0 GRPO test1000 **已完成**：固定 step450/500，复用原六模型结果作对照；见 [方案](grpo-s0/test.md)。

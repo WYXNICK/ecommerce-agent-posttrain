@@ -1,0 +1,26 @@
+{
+  "status": "complete",
+  "artifacts": [
+    {
+      "artifact": "evaluation/s0-grpo-test/evaluations/s0-grpo-500",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "evaluation/s0-grpo-test/evidence/final",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "evaluation/s0-grpo-test/source",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "evaluation/s0-grpo-test/evaluations/s0-grpo-450",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    }
+  ],
+  "retry": "independent archive daemon"
+}
