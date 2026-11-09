@@ -1,0 +1,9 @@
+{
+  "version": "hard-candidates-v1",
+  "pool": "next/data/task_pool/train_reserve.jsonl",
+  "minimum_varying_required_axes": 2,
+  "minimum_choices_per_axis": 2,
+  "search_top_k": 20,
+  "minimum_preceding_spec_distractors": 3,
+  "minimum_difficulty_signals": 2
+}
