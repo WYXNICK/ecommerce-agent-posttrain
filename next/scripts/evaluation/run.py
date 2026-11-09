@@ -25,12 +25,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ['models-root','work','output']:
         parser.add_argument('--'+name,type=Path,required=True)
+    parser.add_argument('--plan',type=Path,default=ROOT/'configs/test_comparison.json')
     args = parser.parse_args()
     args.output.mkdir(parents=True,exist_ok=True)
     args.work.mkdir(parents=True,exist_ok=True)
     lock = (args.output/'.lock').open('a')
     fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-    plan = json.loads((ROOT/'configs/test_comparison.json').read_text())
+    plan = json.loads(args.plan.read_text())
     if validate_execution() != plan['execution_fingerprint']:
         raise ValueError('execution contract differs from fixed comparison')
     state = {'status':'starting','pid':os.getpid(),'started_at':time.time()}
@@ -67,7 +68,7 @@ def main():
         source = args.work/'source'
         source.mkdir(exist_ok=True)
         for p in HERE.glob('*.py'):shutil.copy2(p,source/p.name)
-        shutil.copy2(ROOT/'configs/test_comparison.json',source/'test_comparison.json')
+        shutil.copy2(args.plan,source/'test_comparison.json')
         persist(source)
         keep('off')
         monitor = launch([sys.executable,ROOT/'scripts/sft/monitor_gpu.py',args.output],'gpu-monitor.log')
@@ -101,7 +102,7 @@ def main():
                             headers={'Content-Type':'application/json'},method='POST')
                         with urlopen(request,timeout=180) as response:response.read()
                     job = launch([sys.executable,HERE/'evaluate.py','--name',name,'--models-root',args.models_root,
-                        '--output',args.output/name,'--model-url',url,'--environment-url',env_url],f'{name}.log')
+                        '--output',args.output/name,'--plan',args.plan,'--model-url',url,'--environment-url',env_url],f'{name}.log')
                     while job.poll() is None:
                         if any(p.poll() is not None for p in [server,env,monitor]):
                             terminate(job)
@@ -117,9 +118,10 @@ def main():
                 terminate(server)
         publish(status='evaluating')
         with ThreadPoolExecutor(max_workers=2) as executor:
-            futures = [executor.submit(lane,0,['s0','grpo-400']),executor.submit(lane,1,['s-repair','grpo-500'])]
+            names = [model['name'] for model in plan['models']]
+            futures = [executor.submit(lane,gpu,names[gpu::2]) for gpu in range(2)]
             for future in futures:future.result()
-        subprocess.run([sys.executable,HERE/'report.py','--output',args.output],check=True)
+        subprocess.run([sys.executable,HERE/'report.py','--output',args.output,'--plan',args.plan],check=True)
         publish(status='complete')
     except Exception as exc:
         publish(status='failed',error=f'{type(exc).__name__}: {exc}')

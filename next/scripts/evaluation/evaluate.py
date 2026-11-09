@@ -19,8 +19,9 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--model-url', required=True)
     parser.add_argument('--environment-url', required=True)
+    parser.add_argument('--plan',type=Path,default=ROOT/'configs/test_comparison.json')
     args = parser.parse_args()
-    plan = json.loads((ROOT/'configs/test_comparison.json').read_text())
+    plan = json.loads(args.plan.read_text())
     model = next(m for m in plan['models'] if m['name'] == args.name)
     fingerprint = validate_execution()
     if fingerprint != plan['execution_fingerprint'] or sha256(ROOT/'data/task_pool/test.jsonl') != plan['test_sha256']:
@@ -45,7 +46,7 @@ def main():
     if len(tasks) != plan['tasks']:
         raise ValueError('test count changed')
     spec = {'kind':'evaluate', 'split':'test', 'formal':True,
-            'execution_fingerprint':fingerprint, 'comparison_sha256':sha256(ROOT/'configs/test_comparison.json'),
+            'execution_fingerprint':fingerprint, 'comparison_sha256':sha256(args.plan),
             'entry_sha256':sha256(Path(__file__)), 'model':model,
             'candidate_task_ids':[t['task_id'] for t in tasks], 'workers':8,
             'model_url':args.model_url, 'environment_url':args.environment_url,

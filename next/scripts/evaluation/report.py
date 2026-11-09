@@ -1,4 +1,4 @@
-"""Validate all six fixed test results and publish an unbiased comparison."""
+"""Validate fixed test results and publish an unbiased comparison."""
 import argparse
 import json
 import math
@@ -37,8 +37,9 @@ def paired(a,b,n):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--plan',type=Path,default=ROOT/'configs/test_comparison.json')
     args=parser.parse_args()
-    plan=json.loads((ROOT/'configs/test_comparison.json').read_text())
+    plan=json.loads(args.plan.read_text())
     ids=[t['task_id'] for t in TaskPool().tasks('test')]
     summaries,evidence={},{}
     for item in plan['reuse']:
@@ -51,38 +52,41 @@ def main():
         directory=args.output/item['name']
         summary,hashes=validate_result(directory,ids,plan['execution_fingerprint'])
         spec=json.loads((directory/'run.json').read_text())
-        if spec['model'] != item or spec['comparison_sha256'] != sha256(ROOT/'configs/test_comparison.json'):
+        if spec['model'] != item or spec['comparison_sha256'] != sha256(args.plan):
             raise ValueError('evaluated candidate differs from frozen comparison')
         summaries[item['name']]=summary
         evidence[item['name']]={'directory':str(directory),'sha256':hashes,'reused':False}
     pairs={f'{a}_to_{b}':paired(summaries[a],summaries[b],len(ids)) for a,b in
-           [('baseline','s0'),('s0','s-repair'),('s-repair','grpo-400'),('s-repair','grpo-500'),('grpo-400','grpo-500')]}
+           plan.get('pairs', [('baseline','s0'),('s0','s-repair'),('s-repair','grpo-400'),('s-repair','grpo-500'),('grpo-400','grpo-500')])}
     result={'status':'complete','split':'test','tasks':len(ids),'plan':plan,'summaries':summaries,
             'paired':pairs,'evidence':evidence,
             'limitations':['One execution per task/model; no multiple training seeds.',
                           'Both GRPO candidates reported; test does not select the winner.',
                           'Paired p values are descriptive, unadjusted across multiple comparisons.',
                           'Teacher high reasoning has different inference compute; not a controlled student ablation.']}
-    target=ROOT/'results/evaluation/test-comparison'
+    target=ROOT/plan.get('result_directory','results/evaluation/test-comparison')
     target.mkdir(parents=True,exist_ok=True)
     write_json(target/'summary.json',result)
-    lines=['# 冻结测试集：六模型对照','','**已完成：每个模型完整 1,000 题。** Baseline 与 Astra 复用已验证结果，其他四个模型按冻结名单评测。',
+    lines=[plan.get('report_title','# 冻结测试集：六模型对照'),'','**已完成：每个模型完整 1,000 题。** 复用项通过原始证据校验；新增模型按冻结名单评测。',
            '', '| 模型 | 严格成功 | 成功率 | 平均 Reward v3 | 平均步骤 | 错误购买 | 重复循环 |', '|---|---:|---:|---:|---:|---:|---:|']
     for name,s in summaries.items():
         counts=s['reward_type_counts']
         lines.append(f"| {name} | {s['strict_successes']}/1000 | {s['strict_success_rate']:.2%} | {s['mean_final_reward']:.4f} | {s['average_steps']:.3f} | {counts.get('wrong_purchase',0)} | {counts.get('repeat_loop',0)} |")
     lines += ['', '## 同题对照','','| 对照 | 新增成功 | 退步 | 净变化 | 配对检验 p（未作多重校正） |','|---|---:|---:|---:|---:|']
     for name,p in pairs.items():lines.append(f"| {name} | {len(p['gained'])} | {len(p['lost'])} | {p['net']:+d} | {p['mcnemar_exact_two_sided_p']:.4f} |")
-    lines += ['', '## 解释边界','','step500 是开发集成功率规则选出的主候选；step400 是预先固定的 Reward 最优次候选。两者都报告，不根据测试分数追认最优模型。',
+    lines += ['', '## 解释边界','',plan.get('selection_note','step500 是开发集成功率规则选出的主候选；step400 是预先固定的 Reward 最优次候选。两者都报告，不根据测试分数追认最优模型。'),
               '单次执行与单训练种子不能证明多次训练的稳定收益。教师使用 high 私有推理，推理成本与学生不同。错误购买和循环等指标与成功率共同呈现，避免只看奖励或交互步数。',
               '完整汇总包含 token 用量、失败类型、成功任务 ID 和逐题得失。测试题及轨迹不用于回流训练或调参。', '',
-              '[完整指标与证据](../../results/evaluation/test-comparison/summary.json) · [方案](README.md)。']
-    (ROOT/'docs/evaluation/results.md').write_text('\n'.join(lines)+'\n')
-    path=ROOT/'docs/evaluation/README.md'
+              f"[完整指标与证据](../../{plan.get('result_directory','results/evaluation/test-comparison')}/summary.json) · [方案](README.md)。"]
+    (ROOT/plan.get('report_path','docs/evaluation/results.md')).write_text('\n'.join(lines)+'\n')
+    path=ROOT/plan.get('readme_path','docs/evaluation/README.md')
     path.write_text(path.read_text().replace('**状态：运行中。**','**状态：已完成。**'))
     path=ROOT/'docs/project-completion-plan.md'
-    text=path.read_text().replace('六模型冻结测试集对照正在执行','六模型冻结测试集对照已完成').replace('**运行中**；六模型冻结 test1000 对照','**本轮对照已完成**；六模型冻结 test1000 对照').replace('最终学生 test1000 对照正在执行','最终学生 test1000 对照已完成')
+    text=path.read_text().replace('S0 GRPO test1000 **运行中**','S0 GRPO test1000 **已完成**').replace('六模型冻结测试集对照正在执行','六模型冻结测试集对照已完成').replace('**运行中**；六模型冻结 test1000 对照','**本轮对照已完成**；六模型冻结 test1000 对照').replace('最终学生 test1000 对照正在执行','最终学生 test1000 对照已完成')
     path.write_text(text)
+    if plan.get('readme_path'):
+        path=(ROOT/plan['readme_path']).parent/'README.md'
+        path.write_text(path.read_text().replace('S0 GRPO test1000 **运行中**','S0 GRPO test1000 **已完成**'))
 
 
 if __name__=='__main__':main()
