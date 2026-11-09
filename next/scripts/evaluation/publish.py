@@ -1,4 +1,4 @@
-"""Publish the completed test comparison after verified evidence archival."""
+"""Publish a completed stage after verified evidence archival."""
 import argparse
 import fcntl
 import json
@@ -42,10 +42,10 @@ def main():
     (result/'archive.json').write_text(json.dumps(archive,indent=2)+'\n')
     report=repo/'next'/plan.get('report_path','docs/evaluation/results.md')
     with report.open('a') as f:f.write(f"\n归档状态：**{archive['status']}**；[归档清单](../../{plan.get('result_directory','results/evaluation/test-comparison')}/archive.json)。\n")
-    paths=['next/scripts/evaluation', str(args.plan.relative_to(repo)) if args.plan else 'next/configs/test_comparison.json', str(result.relative_to(repo)), str(report.parent.relative_to(repo)), 'next/docs/project-completion-plan.md']
+    paths=[plan.get('implementation','next/scripts/evaluation'), plan.get('configuration', str(args.plan.relative_to(repo)) if args.plan else 'next/configs/test_comparison.json'), str(result.relative_to(repo)), str(report.parent.relative_to(repo)), 'next/docs/project-completion-plan.md']
     subprocess.run(['git','diff','--check'],cwd=repo,check=True)
     subprocess.run(['git','add','--',*paths],cwd=repo,check=True)
-    subprocess.run(['git','commit','--only','-m','Publish fixed test comparison and archived evidence','--',*paths],cwd=repo,check=True)
+    subprocess.run(['git','commit','--only','-m','Publish completed stage results and archived evidence','--',*paths],cwd=repo,check=True)
     commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=repo,text=True).strip()
     subprocess.run(['git','push','origin','HEAD'],cwd=repo,check=True)
     (args.output/'publication.json').write_text(json.dumps({'status':'complete','commit':commit,'archive':archive['status']},indent=2)+'\n')

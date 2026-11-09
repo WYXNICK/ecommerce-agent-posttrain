@@ -13,15 +13,16 @@ def load_settings(variant='outcome'):
                 and local['continuations'] >= 2 and 1 <= local['workers'] <= 8):
             raise ValueError('invalid local credit sampling/scale configuration')
         settings.update(version='local-grpo-v1', local_credit=local)
-    elif variant == 'stable':
-        settings.update(json.loads((ROOT / 'configs/grpo_stable.json').read_text()))
-        if not (0 < settings['kl_coefficient'] and settings['kl_estimator'] == 'k3+'
-                and 1 <= settings['sampling_groups_per_batch'] <= settings['groups_per_update']
+    elif variant in ('stable', 'batch'):
+        settings.update(json.loads((ROOT / f'configs/grpo_{variant}.json').read_text()))
+        if not (1 <= settings['sampling_groups_per_batch'] <= settings['groups_per_update']
                 and settings['sampling_groups_per_batch'] * settings['rollouts_per_group'] <= 8
                 and settings['max_generation_batches'] * settings['sampling_groups_per_batch'] >= settings['groups_per_update']
                 and settings['save_every'] == settings['evaluate_every']
                 and settings['updates'] % settings['save_every'] == 0):
-            raise ValueError('invalid stable GRPO sampling/KL/checkpoint configuration')
+            raise ValueError('invalid GRPO sampling/checkpoint configuration')
+        if variant == 'stable' and not (0 < settings['kl_coefficient'] and settings['kl_estimator'] == 'k3+'):
+            raise ValueError('invalid stable GRPO KL configuration')
     elif variant == 's0':
         settings.update(json.loads((ROOT / 'configs/grpo_s0.json').read_text()))
     elif variant != 'outcome':

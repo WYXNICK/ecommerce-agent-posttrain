@@ -29,7 +29,7 @@ def main():
     for name in ('model', 'work', 'output'):
         parser.add_argument('--'+name, type=Path, required=True)
     parser.add_argument('--resume', type=Path)
-    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0'), default='outcome')
+    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0', 'batch'), default='outcome')
     parser.add_argument('--validate-only', action='store_true', help='local branch acceptance; no optimizer or model export')
     parser.add_argument('--model-port', type=int, default=8016)
     parser.add_argument('--environment-port', type=int, default=5716)
@@ -79,7 +79,7 @@ def main():
     try:
         publish()
         settings = load_settings(args.variant)
-        if args.variant in ('stable', 's0') and not all(os.environ.get(key) for key in ('SHOP_ARTIFACT_QUEUE', 'SHOP_ARTIFACT_ROOT')):
+        if args.variant in ('stable', 's0', 'batch') and not all(os.environ.get(key) for key in ('SHOP_ARTIFACT_QUEUE', 'SHOP_ARTIFACT_ROOT')):
             raise ValueError('GRPO requires the devbox/HDFS artifact queue and worker artifact root')
         fingerprint = validate_execution()
         TaskPool().validate_source()
@@ -202,7 +202,7 @@ def main():
         final = ROOT/'results/grpo'/args.variant
         final.mkdir(parents=True, exist_ok=True)
         write_json(final/'summary.json', result)
-        title = {'outcome': '终局奖励', 'local': '局部信用', 'stable': '稳定终局', 's0': 'S0 直接终局奖励'}[args.variant]
+        title = {'outcome': '终局奖励', 'local': '局部信用', 'stable': '稳定终局', 's0': 'S0 直接终局奖励', 'batch': '4×4 终局奖励'}[args.variant]
         lines = [f'# {title} GRPO 结果', '', '训练与开发集选模已完成；本轮未运行测试集。', '',
                  '| 检查点 | dev300 严格成功 | Reward v3 | 平均动作数 |', '|---|---:|---:|---:|']
         for item in result['candidates']:
@@ -233,6 +233,12 @@ def main():
         elif args.variant == 's0':
             text = text.replace('**运行中**；[方案与状态](grpo-s0/README.md)',
                 f"**训练已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](grpo-s0/results.md)")
+            stage = doc/'README.md'
+            stage.write_text(stage.read_text().replace('**状态：运行中。**',
+                '**状态：训练与开发集选模已完成。** 见[结果](results.md)。'))
+        elif args.variant == 'batch':
+            text = text.replace('**运行中**；[方案与状态](grpo-batch/README.md)',
+                f"**训练已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](grpo-batch/results.md)")
             stage = doc/'README.md'
             stage.write_text(stage.read_text().replace('**状态：运行中。**',
                 '**状态：训练与开发集选模已完成。** 见[结果](results.md)。'))

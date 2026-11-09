@@ -129,7 +129,7 @@ def main():
     for key in ('model', 'work', 'output'):
         parser.add_argument('--' + key, type=Path, required=True)
     parser.add_argument('--resume', type=Path)
-    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0'), default='outcome')
+    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0', 'batch'), default='outcome')
     parser.add_argument('--model-url', required=True)
     parser.add_argument('--environment-url', required=True)
     args = parser.parse_args()
