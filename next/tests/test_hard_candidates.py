@@ -9,10 +9,15 @@ from unittest.mock import patch
 
 NEXT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(NEXT / "scripts/evaluation"))
-from audit_hard import observed_reserve, retrieval_signal, structural_signals
+from audit_hard import blocking_exposure, observed_reserve, retrieval_signal, structural_signals
 
 
 class HardCandidateTests(unittest.TestCase):
+    def test_general_only_exposure_allowed_but_shared_exposure_still_blocked(self):
+        sources = [{"path": "general/raw.jsonl", "reserve_task_ids": [5, 6]},
+                   {"path": "repair/raw.jsonl", "reserve_task_ids": [6, 7]}]
+        self.assertEqual(blocking_exposure(sources, ["general/raw.jsonl"]), {6, 7})
+
     def setUp(self):
         self.config = json.loads((NEXT / "configs/hard_candidates.json").read_text())
         self.product = {"category": "服装›上衣", "customization_options": {

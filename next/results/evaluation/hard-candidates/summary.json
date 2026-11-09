@@ -1,9 +1,15 @@
 {
-  "schema": "hard-candidates-v1",
-  "created_at": "2026-11-09T13:27:25.647212+00:00",
+  "schema": "hard-candidates-v2",
+  "created_at": "2026-11-09T14:06:14.416306+00:00",
   "config": {
-    "version": "hard-candidates-v1",
+    "version": "hard-candidates-v2",
     "pool": "next/data/task_pool/train_reserve.jsonl",
+    "nonparticipant_exposure_sources": [
+      "next/outputs/history/20261103/reflow-r1/general/raw.jsonl",
+      "next/outputs/history/20261103/reflow-r1/general/train.jsonl",
+      "next/outputs/history/20261103/reflow-r1/general/rejected.jsonl"
+    ],
+    "reflow_manifest": "next/data/reflow/r1/manifest.json",
     "minimum_varying_required_axes": 2,
     "minimum_choices_per_axis": 2,
     "search_top_k": 20,
@@ -14,7 +20,7 @@
   "source_sha256": "57b10950a0064d16c81535a1d764a75879a508d250dde8a2a1787c5e6045559f",
   "search_index_sha256": "755589649a2bebe48d2bab5cc794fed64fec1af3df2eebfa8577b129f823e8b8",
   "pool_sha256": "54e6f3f944e95f2cdf1d34dd36d17cf5bf744cbbedcca95ff847c182c63d3ed4",
-  "script_sha256": "96c6155f6181cd0b3474e3bb60bdf919b769a6f14f84b2366fa286f9cc078eea",
+  "script_sha256": "1fee37ac46186ce293e986bf613a5158c3bd74327c0f74079622044d8aaf0521",
   "reserve_total": 3977,
   "observed_reserve": 179,
   "observed_reserve_ids": [
@@ -199,40 +205,52 @@
     23287
   ],
   "unobserved_reserve": 3798,
+  "excluded_exposure": 0,
+  "eligible_reserve": 3977,
+  "nonparticipant_only_reused": 179,
+  "reflow_manifest_sha256": "e932b940981bbf8c95e40e9bffe25c6fc785ae683591f57d4ff64fc0f1906e9e",
+  "repair_and_replay_group_overlap": 0,
+  "ineligible_model_lineages": [
+    "general_incremental_sft_and_descendants"
+  ],
   "exposure_files_scanned": 101,
-  "quality_excluded": 11,
+  "quality_excluded": 12,
   "quality_reason_counts": {
-    "nonpositive_gold_price": 2,
+    "nonpositive_gold_price": 3,
     "nonstandard_or_random_target": 9
   },
-  "target_outside_top_k": 387,
+  "target_outside_top_k": 405,
   "signal_counts": {
-    "A_multi_axis": 430,
-    "B_budget_coupling": 561,
-    "C_retrieval_discrimination": 255
+    "A_multi_axis": 446,
+    "B_budget_coupling": 592,
+    "C_retrieval_discrimination": 263
   },
-  "candidate_count": 113,
+  "candidate_count": 117,
+  "candidate_exposure_counts": {
+    "unobserved": 113,
+    "nonparticipant_general_sft_only": 4
+  },
   "candidate_combinations": {
-    "A_multi_axis+B_budget_coupling": 40,
-    "B_budget_coupling+C_retrieval_discrimination": 58,
+    "A_multi_axis+B_budget_coupling": 41,
+    "B_budget_coupling+C_retrieval_discrimination": 61,
     "A_multi_axis+C_retrieval_discrimination": 12,
     "A_multi_axis+B_budget_coupling+C_retrieval_discrimination": 3
   },
   "candidate_domains": {
-    "Clothing": 21,
+    "Clothing": 22,
     "Home": 28,
     "Kids": 15,
     "Leisure": 21,
-    "Supplies": 8,
-    "Appliances": 8,
-    "Beauty": 5,
+    "Supplies": 9,
+    "Appliances": 9,
+    "Beauty": 6,
     "Food": 3,
     "Sports": 4
   },
   "semantically_and_interactively_certified": 0,
   "files": {
     "audit.jsonl": {
-      "sha256": "bccde8476028cfadfc1afd83cb7aa8ab42bd80db9e88a5a251da124b02cbbc69",
+      "sha256": "e7c51e09e35eccb2403151fdea65c1499801e8baa5a9ea6609ecf539b771d715",
       "path": "next/outputs/evaluation/hard-candidates/audit.jsonl"
     },
     "exposure.json": {
@@ -240,54 +258,58 @@
       "path": "next/outputs/evaluation/hard-candidates/exposure.json"
     },
     "candidates.jsonl": {
-      "sha256": "0215177af9e6465d743f0e02158d3760ac3c21bd9691652f41d4aedf67009699",
+      "sha256": "a075c0050f2e2374c1a88c5e21ebb9766e30a7650eb15f95c312cb59bbdaba2e",
       "path": "next/outputs/evaluation/hard-candidates/candidates.jsonl"
     }
   },
   "review": {
     "file": "next/results/evaluation/hard-candidates/review.json",
-    "reviewed": 113,
+    "reviewed": 117,
     "decisions": {
       "exclude": 6,
       "quarantine": 6
     },
-    "remaining_candidates": 101,
+    "remaining_candidates": 105,
     "remaining_domains": {
-      "Clothing": 19,
+      "Clothing": 20,
       "Home": 25,
       "Kids": 14,
       "Leisure": 17,
-      "Supplies": 7,
-      "Appliances": 7,
-      "Beauty": 5,
+      "Supplies": 8,
+      "Appliances": 8,
+      "Beauty": 6,
       "Food": 3,
       "Sports": 4
     },
     "remaining_combinations": {
-      "A_multi_axis+B_budget_coupling": 35,
-      "B_budget_coupling+C_retrieval_discrimination": 52,
+      "A_multi_axis+B_budget_coupling": 36,
+      "B_budget_coupling+C_retrieval_discrimination": 55,
       "A_multi_axis+C_retrieval_discrimination": 11,
       "A_multi_axis+B_budget_coupling+C_retrieval_discrimination": 3
+    },
+    "remaining_exposure_counts": {
+      "unobserved": 101,
+      "nonparticipant_general_sft_only": 4
     }
   },
   "published_files": {
     "review.json": {
       "path": "next/results/evaluation/hard-candidates/review.json",
-      "sha256": "067c91e541ad62b6b10436b6a68d86924d6331b625e1fbdd5388676392aea3be"
+      "sha256": "72a6745f0fb36d4db2705b4313bf47b445d3dbebaffdf62f46556b5578f3e96e"
     },
     "candidates.jsonl": {
       "path": "next/results/evaluation/hard-candidates/candidates.jsonl",
-      "sha256": "47cb7ee5f8a98d92e9d93271226a26d2a111bf022df408d3ec338013ca4cd7e9"
+      "sha256": "c5e8ae6f9b77253c6aa15f2443c660d61652ed5f462556a80f8c6bae2b0478fe"
     },
     "private-evidence.jsonl.gz": {
       "path": "next/results/evaluation/hard-candidates/private-evidence.jsonl.gz",
-      "sha256": "9a0b16a925eedde8a0c5fe954398253792e9b73d6a54aa85bb0cd8a69fa1a8ac"
+      "sha256": "0f8b88ebea6e77709294f41ffda966b8e9ddee32986e8cda34440f68f4922b52"
     }
   },
   "frozen_task_audit_sha256": "7ab7bc2cca177dd82af8295aadbc105421a09fbcefd934e4f7fd5112c0d08772",
-  "config_sha256": "345e10a443d1c15b544304746de8c136d65a2193d18297b127fc24e3d48b8404",
+  "config_sha256": "dea3b5df99572341ca9e09675342bcce5923e9e31d7b12bc54fcf0947635ce5f",
   "validation": {
-    "targeted_tests_passed": 4,
+    "targeted_tests_passed": 5,
     "training_or_evaluation_started": false,
     "split_files_modified": false
   }

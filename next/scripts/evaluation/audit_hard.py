@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Audit unused reserve tasks; produce candidates, never a certified test split."""
+"""Audit reserve tasks held out from participating model lineages."""
 
 from __future__ import annotations
 
@@ -84,6 +84,12 @@ def structural_signals(goal: dict, product: dict, config: dict) -> dict:
     }
 
 
+def blocking_exposure(sources: list[dict], nonparticipant_sources: list[str]) -> set[int]:
+    """A group remains blocked if any participating/unknown source used it."""
+    return {task_id for source in sources if source["path"] not in nonparticipant_sources
+            for task_id in source["reserve_task_ids"]}
+
+
 def retrieval_signal(goal: dict, by_asin: dict, searcher, config: dict) -> dict:
     # Query is exactly the public instruction; no hidden target title/ASIN is added.
     hits = searcher.search(goal["instruction_text"], k=config["search_top_k"])
@@ -122,12 +128,20 @@ def audit(config: dict, output: Path) -> dict:
     assert not any(r["group_id"] in reserve_groups for r in original.values()
                    if r["assignment"] in {"teacher_candidates", "grpo_train", "sft_validation_candidates", "dev", "test"})
     used, exposure = observed_reserve(reserve, original)
-    print(f"Exposure audit: {len(reserve)} reserve, {len(used)} observed", flush=True)
+    blocked = blocking_exposure(exposure, config.get("nonparticipant_exposure_sources", []))
+    manifest_path = ROOT / config["reflow_manifest"]
+    manifest = json.loads(manifest_path.read_text())
+    protected_ids = set(manifest["replay_task_ids"])
+    for split in manifest["arms"]["repair"].values():
+        protected_ids.update(split["task_ids"])
+    protected_groups = {original[i]["group_id"] for i in protected_ids}
+    assert not {original[i]["group_id"] for i in reserve - blocked} & protected_groups, "repair/replay lineage overlap"
+    print(f"Exposure audit: {len(reserve)} reserve, {len(used)} observed, {len(blocked)} blocked", flush=True)
     products, by_asin, prices, _ = load_products(str(source))
     goals = get_goals(products, prices)
     searcher = MultiFieldBM25Searcher(index, expected_product_sha256=metadata["source_sha256"])
     rows = []
-    for task_id in sorted(reserve - used):
+    for task_id in sorted(reserve - blocked):
         goal = goals[task_id]
         product = by_asin[goal["asin"]]
         assert goal["asin"] == original[task_id]["asin"], "runtime task mapping changed"
@@ -147,12 +161,13 @@ def audit(config: dict, output: Path) -> dict:
         eligible = not reasons and retrieval["gold_rank"] is not None
         candidate = eligible and len(signals) >= config["minimum_difficulty_signals"]
         rows.append({"task_id": task_id, "group_id": original[task_id]["group_id"],
+                     "exposure": "nonparticipant_general_sft_only" if task_id in used else "unobserved",
                      "asin": goal["asin"], "domain": quality["domain"],
                      "instruction": goal["instruction_text"], "title": product["title"],
                      "quality_reasons": reasons, "signals": signals, "candidate": candidate,
                      "gold_check": gold, **features, **retrieval})
         if len(rows) % 500 == 0:
-            print(f"Audited {len(rows)}/{len(reserve - used)}", flush=True)
+            print(f"Audited {len(rows)}/{len(reserve - blocked)}", flush=True)
     candidates = [row for row in rows if row["candidate"]]
     output.mkdir(parents=True, exist_ok=True)
     write_jsonl(output / "audit.jsonl", rows)
@@ -164,13 +179,19 @@ def audit(config: dict, output: Path) -> dict:
         "source_sha256": sha256(source), "search_index_sha256": sha256(index),
         "pool_sha256": sha256(pool_path), "script_sha256": sha256(Path(__file__)),
         "reserve_total": len(reserve), "observed_reserve": len(used),
-        "observed_reserve_ids": sorted(used), "unobserved_reserve": len(rows),
+        "observed_reserve_ids": sorted(used), "unobserved_reserve": len(reserve - used),
+        "excluded_exposure": len(blocked), "eligible_reserve": len(rows),
+        "nonparticipant_only_reused": len(used - blocked),
+        "reflow_manifest_sha256": sha256(manifest_path),
+        "repair_and_replay_group_overlap": 0,
+        "ineligible_model_lineages": ["general_incremental_sft_and_descendants"],
         "exposure_files_scanned": len(exposure),
         "quality_excluded": sum(bool(row["quality_reasons"]) for row in rows),
         "quality_reason_counts": dict(Counter(r for row in rows for r in row["quality_reasons"])),
         "target_outside_top_k": sum(not row["quality_reasons"] and row["gold_rank"] is None for row in rows),
         "signal_counts": dict(Counter(s for row in rows for s in row["signals"])),
         "candidate_count": len(candidates),
+        "candidate_exposure_counts": dict(Counter(row["exposure"] for row in candidates)),
         "candidate_combinations": dict(Counter("+".join(row["signals"]) for row in candidates)),
         "candidate_domains": dict(Counter(row["domain"] for row in candidates)),
         "semantically_and_interactively_certified": 0,

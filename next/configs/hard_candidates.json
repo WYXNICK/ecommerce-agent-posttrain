@@ -1,6 +1,12 @@
 {
-  "version": "hard-candidates-v1",
+  "version": "hard-candidates-v2",
   "pool": "next/data/task_pool/train_reserve.jsonl",
+  "nonparticipant_exposure_sources": [
+    "next/outputs/history/20261103/reflow-r1/general/raw.jsonl",
+    "next/outputs/history/20261103/reflow-r1/general/train.jsonl",
+    "next/outputs/history/20261103/reflow-r1/general/rejected.jsonl"
+  ],
+  "reflow_manifest": "next/data/reflow/r1/manifest.json",
   "minimum_varying_required_axes": 2,
   "minimum_choices_per_axis": 2,
   "search_top_k": 20,
