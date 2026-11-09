@@ -1,0 +1,211 @@
+{
+  "status": "complete",
+  "artifacts": [
+    {
+      "artifact": "grpo/s0/checkpoints/step-100",
+      "receipt": "a67ce179e8a75f689a2e1117a008bc8a17fc948ce433cf25afa5538f57db612a.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/checkpoints/step-150",
+      "receipt": "fddc536e019facfaed9bb2b0e98dc700e37a11691d45b0a2d4f3c7ebab01e93b.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/checkpoints/step-200",
+      "receipt": "807534059410679e5e486ec228471096ca197a566e34b7c08f92e71e35fb4c75.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/checkpoints/step-250",
+      "receipt": "44ddc651aba553be01b8e566514728910f9da4107395181186feb334d37f4c8c.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/checkpoints/step-300",
+      "receipt": "29959c2ea8ae179e760938a69983120313a4cb9c1f92c6b325ecf09c104d7cfc.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/checkpoints/step-350",
+      "receipt": "05614fa3ccfea9f93d9dc4d38212d1912d1b80ea926af309cfda8fd42fe0db6a.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/checkpoints/step-400",
+      "receipt": "910dde673be2b8bb287fc5dd7ae8228adc15098dd88ea88b60bdba33eba379c9.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/checkpoints/step-450",
+      "receipt": "d4f463edd281757f38be5a1723aa901d87f2959cb526ccbab477ea0bd33c93c0.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/checkpoints/step-50",
+      "receipt": "7def47c50efc57036539f33e32c1b2f526035fa7b38d18629b1681d431eee18a.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/checkpoints/step-500",
+      "receipt": "bd886dd46f4f24f9eca368ba4c0cd7fbe6d47aab4f8850adf01b8dd5315118ac.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/dev-100",
+      "receipt": "e8e1b4e7c9a0ab15d24ada16a1c1cdbde7ad178ee9fbd38fb71416b9f52943c8.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/dev-150",
+      "receipt": "c991fdcb881e6df320e0173980ff49ec95edd15170445dfdbb799a852f570e1b.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/dev-200",
+      "receipt": "0275a51f000a63ed0a718da16898ebd8e07fe6e00fcaddf6d27c5b4dc3890ea8.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/dev-250",
+      "receipt": "b22fa96cd54036bab7ec3c420c608bf9a6468b34eaeadbcb77985fe30d1d1cac.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/dev-300",
+      "receipt": "dfce8e8d181360ed97216b7b5180182684d42196e7b00ef1b88af2977fff5e0e.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/dev-350",
+      "receipt": "1f9422d36c4db9d279e0d177227ac10ab68c65c98cedbbf0f3be7cbeb4a9b507.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/dev-400",
+      "receipt": "233a86e7596d24f14016e1aff4b9e725b93b4755ba81d4a2b6219cd22ab15252.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/dev-450",
+      "receipt": "e953e526db6a571b420fbf65062750ebab43932d33b845d172cd10090ad8d522.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/dev-50",
+      "receipt": "98649656e14108ea956dcd0af20617111acff2b5d2e1501a1b3d11a8afe49095.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/dev-500",
+      "receipt": "515273b87ff7ce24fdef7fd4e6425c67630e69f6d13e7cebd943d5f5721a4eb4.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/final",
+      "receipt": "4044a5d456cf2c41ee52bd145acecb35c2b5f5d89667465b7af956c4f867dbe6.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/run-source",
+      "receipt": "2de5044ef28dcc9ea39112465192c51f856e2af5722554502a3af2bfe0f896a9.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/step-100",
+      "receipt": "dbf08ee74abf979411b0fbbe32c54bc22a2088754e97186c64dd74b9a1a46cee.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/step-150",
+      "receipt": "0f133b6a0629a1c0e84642ad8688741fcf4647d2b9d39533353bb688bb338387.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/step-200",
+      "receipt": "4fc63ad155b5e88b2b512ae5d9250aaefe70f3b4bdb14c40304c9f112e40a819.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/step-250",
+      "receipt": "eb54880730f3ac4d1055de0e129caeaa08cadd4766dd0d4e325cf44b2513c6d4.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/step-300",
+      "receipt": "b9e17590674b65ec622b6cd450c834bfad38b1be83c324d9fd7081fc1fc3a278.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/step-350",
+      "receipt": "15d8d99b54735ee4620252359a4c3972f5db128ec3cd5f423cdc7a4cbf710eb1.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/step-400",
+      "receipt": "1455e2728efa2607523367b2b2f04ef400a08f9aba02f82b33a528d04ff3f389.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/step-450",
+      "receipt": "0630754c3a1736a8e54fc89e3a3cb0b04374fc4dbf0806c4eb77db0d86fe0c48.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/step-50",
+      "receipt": "3e90766229599f457abaac576409327eee10ed037619ba23e753de4ad21b4ad7.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/step-500",
+      "receipt": "6e002cd783a2d25afc4a20ccd6711251c584ca3125bc2dd49e10a85e4761cd6e.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/model-step-450",
+      "receipt": "826ad718ac367a5030e76017e46a7357df2009679b5e453c42238faa4319374f.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/model-step-500",
+      "receipt": "abc695deb02f21a9963ec82c2df7487d4dc60e75894ec3b16793aae9c0b6ca02.json",
+      "devbox_status": "complete",
+      "hdfs_status": "complete"
+    }
+  ],
+  "hdfs_root": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104",
+  "evidence_queue": "outputs/pipeline/20261104/storage"
+}
