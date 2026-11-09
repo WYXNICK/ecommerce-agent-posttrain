@@ -1,0 +1,166 @@
+{
+  "version": "final-candidates-20261109",
+  "primary": "grpo-500",
+  "models": [
+    {
+      "name": "s0",
+      "role": "initial_sft",
+      "identity_manifest": "configs/test_comparison.json",
+      "base": "s0/epoch-750",
+      "adapter": null
+    },
+    {
+      "name": "s-repair",
+      "role": "rl_baseline",
+      "identity_manifest": "configs/test_comparison.json",
+      "base": "reflow/repair/epoch-72",
+      "adapter": null
+    },
+    {
+      "name": "grpo-400",
+      "role": "fixed_secondary",
+      "identity_manifest": "configs/test_comparison.json",
+      "base": "reflow/repair/epoch-72",
+      "adapter": "grpo/outcome-eval50-20261105/checkpoints/step-400"
+    },
+    {
+      "name": "grpo-500",
+      "role": "primary",
+      "identity_manifest": "configs/test_comparison.json",
+      "base": "reflow/repair/epoch-72",
+      "adapter": "grpo/outcome-eval50-20261105/checkpoints/step-500"
+    },
+    {
+      "name": "s0-grpo-450",
+      "role": "s0_ablation_dev_selected",
+      "identity_manifest": "configs/s0_grpo_test.json",
+      "base": "s0/epoch-750",
+      "adapter": "grpo/s0/checkpoints/step-450"
+    },
+    {
+      "name": "s0-grpo-500",
+      "role": "s0_ablation_final_checkpoint",
+      "identity_manifest": "configs/s0_grpo_test.json",
+      "base": "s0/epoch-750",
+      "adapter": "grpo/s0/checkpoints/step-500"
+    }
+  ],
+  "metrics_sources": [
+    "results/evaluation/test-comparison/summary.json",
+    "results/evaluation/s0-grpo-test/summary.json"
+  ],
+  "artifacts": [
+    {
+      "artifact": "s0/epoch-750",
+      "devbox": "/tmp/shopping-next-models/20261104/s0/epoch-750",
+      "manifest": "f172edd083de3b67e07fd7afedc215b8767c7e099d5caba2fd3a1db1f9814eac.json",
+      "devbox_verified": true,
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "s0/checkpoints/checkpoint-750",
+      "devbox": "/tmp/shopping-next-models/20261104/s0/checkpoints/checkpoint-750",
+      "manifest": "0614b61f41b585f2eb63c77507fd04c838153af8a43bd524eaea9c20530eb676.json",
+      "devbox_verified": true,
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "s0/training-evidence",
+      "devbox": "/tmp/shopping-next-models/20261104/s0/training-evidence",
+      "manifest": "86e39f6a9b09e0e65f98f7f8cc18b9c101cea7c2f306f52956350675b2345d9e.json",
+      "devbox_verified": true,
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "reflow/repair/epoch-72",
+      "devbox": "/tmp/shopping-next-models/20261104/reflow/repair/epoch-72",
+      "manifest": "fd1b9f01005d1aadcb50ca6a9ac94afcb3085f1622ad36cc96a9672223fd6502.json",
+      "devbox_verified": true,
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "reflow/repair/checkpoints/checkpoint-72",
+      "devbox": "/tmp/shopping-next-models/20261104/reflow/repair/checkpoints/checkpoint-72",
+      "manifest": "cda2cc363f0ccc11abe28a4962b9264c913bd07064ea9534bc6cf680df1da64d.json",
+      "devbox_verified": true,
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "evidence/reflow",
+      "devbox": "/tmp/shopping-next-models/20261104/evidence/reflow",
+      "manifest": "896599fbb332c99673cb914f1c1f3057e539e7ba19357a055d4141a637c763ec.json",
+      "devbox_verified": true,
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/checkpoints/step-400",
+      "devbox": "/tmp/shopping-next-models/20261104/grpo/outcome-eval50-20261105/checkpoints/step-400",
+      "manifest": "15ab8d9a2a03cf00f4b00238e7baea316c96c00f0451c35de505035881df3763.json",
+      "devbox_verified": true,
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/checkpoints/step-500",
+      "devbox": "/tmp/shopping-next-models/20261104/grpo/outcome-eval50-20261105/checkpoints/step-500",
+      "manifest": "0a528aad6f50c6ad282578a5817d172e950e162368443fa35e71251af270e25d.json",
+      "devbox_verified": true,
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/outcome-eval50-20261105/evidence/recovery/final",
+      "devbox": "/tmp/shopping-next-models/20261104/grpo/outcome-eval50-20261105/evidence/recovery/final",
+      "manifest": "a78f5a56620e0aca40834b71997c274ac9ad978c5533347ba1e75f65b7d8fb2b.json",
+      "devbox_verified": true,
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/checkpoints/step-450",
+      "devbox": "/tmp/shopping-next-models/20261104/grpo/s0/checkpoints/step-450",
+      "manifest": "d4f463edd281757f38be5a1723aa901d87f2959cb526ccbab477ea0bd33c93c0.json",
+      "devbox_verified": true,
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/checkpoints/step-500",
+      "devbox": "/tmp/shopping-next-models/20261104/grpo/s0/checkpoints/step-500",
+      "manifest": "bd886dd46f4f24f9eca368ba4c0cd7fbe6d47aab4f8850adf01b8dd5315118ac.json",
+      "devbox_verified": true,
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "grpo/s0/evidence/final",
+      "devbox": "/tmp/shopping-next-models/20261104/grpo/s0/evidence/final",
+      "manifest": "4044a5d456cf2c41ee52bd145acecb35c2b5f5d89667465b7af956c4f867dbe6.json",
+      "devbox_verified": true,
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "evaluation/test-comparison-20261106/evidence/final",
+      "devbox": "/tmp/shopping-next-models/20261104/evaluation/test-comparison-20261106/evidence/final",
+      "manifest": "b115c2ec83b58bde8642ab51804ce35de71e443622360b8aa3bfe00134abcd3f.json",
+      "devbox_verified": true,
+      "hdfs_status": "complete"
+    },
+    {
+      "artifact": "evaluation/s0-grpo-test/evidence/final",
+      "devbox": "/tmp/shopping-next-models/20261104/evaluation/s0-grpo-test/evidence/final",
+      "manifest": "774db876a3a0e8bacb49a295fd9d2047658c699862cd2b500d10daf926c04d37.json",
+      "devbox_verified": true,
+      "hdfs_status": "complete"
+    }
+  ],
+  "verified_hdfs_root": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104",
+  "additional_hdfs": {
+    "root": "hdfs://harunava/home/byte_tiktok_feed_quality/wangyuxuan/shopping-grpo-longhorizon/next",
+    "status": "blocked",
+    "reason": "GDPR permission denied. Forbidden by DirectAccessControl rule",
+    "use_after_access_granted": true
+  },
+  "policy": "Keep exact base plus adapter as evaluated; test is not used for checkpoint selection. Existing artifacts are retained.",
+  "verification": {
+    "date": "2026-11-09",
+    "local": "All selected artifact files SHA256 verified against immutable manifests",
+    "hdfs": "Remote artifact-manifest file inventories and hashes match verified local manifests",
+    "note": "Remote payload was not downloaded again; original upload receipts include inventory/size validation."
+  }
+}
