@@ -1,0 +1,352 @@
+{
+  "worker": 1166824,
+  "thresholds": {
+    "meaningful_end_to_end_speedup": 1.3,
+    "loss_absolute_difference": 0.0001,
+    "logprob_mean_absolute_difference": 0.001,
+    "raw_gradient_relative_l2": 0.001,
+    "optimizer_update_relative_l2": 0.001
+  },
+  "measurements": [
+    {
+      "variant": "baseline",
+      "batch": 0,
+      "repeat": 0,
+      "source": "batch-20261109-through-step286-step101",
+      "seconds": 148.55695602856576,
+      "rank_metrics": [
+        {
+          "seconds": 148.55695602856576,
+          "peak_allocated_gib": 31.19319200515747,
+          "peak_reserved_gib": 31.990234375
+        },
+        {
+          "seconds": 148.55352947674692,
+          "peak_allocated_gib": 11.12885570526123,
+          "peak_reserved_gib": 11.90234375
+        }
+      ],
+      "input_tokens_by_rank": [
+        1319946,
+        1319944
+      ],
+      "action_tokens": 7062,
+      "loss": 0.06922499567515045,
+      "grad_norm": 0.18164178729057312,
+      "clip_fraction": 0.0004248088360237893
+    },
+    {
+      "variant": "baseline",
+      "batch": 1,
+      "repeat": 0,
+      "source": "batch-step20",
+      "seconds": 135.91230378113687,
+      "rank_metrics": [
+        {
+          "seconds": 135.91230378113687,
+          "peak_allocated_gib": 31.240017414093018,
+          "peak_reserved_gib": 33.54296875
+        },
+        {
+          "seconds": 135.91076453775167,
+          "peak_allocated_gib": 11.165259838104248,
+          "peak_reserved_gib": 11.90234375
+        }
+      ],
+      "input_tokens_by_rank": [
+        1246287,
+        1246347
+      ],
+      "action_tokens": 6454,
+      "loss": 0.0907003529344434,
+      "grad_norm": 0.12324199825525284,
+      "clip_fraction": 0.0007747133560582584
+    },
+    {
+      "variant": "baseline",
+      "batch": 0,
+      "repeat": 1,
+      "source": "batch-20261109-through-step286-step101",
+      "seconds": 99.45053765922785,
+      "rank_metrics": [
+        {
+          "seconds": 99.44882196001709,
+          "peak_allocated_gib": 31.19319248199463,
+          "peak_reserved_gib": 33.54296875
+        },
+        {
+          "seconds": 99.45053765922785,
+          "peak_allocated_gib": 11.128856182098389,
+          "peak_reserved_gib": 11.90234375
+        }
+      ],
+      "input_tokens_by_rank": [
+        1319946,
+        1319944
+      ],
+      "action_tokens": 7062,
+      "loss": 0.06922499567515045,
+      "grad_norm": 0.18155376613140106,
+      "clip_fraction": 0.0004248088360237893
+    },
+    {
+      "variant": "microbatch2",
+      "batch": 0,
+      "repeat": 0,
+      "source": "batch-20261109-through-step286-step101",
+      "seconds": 245.70724875852466,
+      "rank_metrics": [
+        {
+          "seconds": 245.70724875852466,
+          "peak_allocated_gib": 40.1105899810791,
+          "peak_reserved_gib": 41.56640625
+        },
+        {
+          "seconds": 245.69940528646111,
+          "peak_allocated_gib": 19.922990798950195,
+          "peak_reserved_gib": 21.361328125
+        }
+      ],
+      "input_tokens_by_rank": [
+        1319946,
+        1319944
+      ],
+      "action_tokens": 7062,
+      "loss": 0.06923128269070507,
+      "grad_norm": 0.17833863198757172,
+      "clip_fraction": 0.0002832058906825262
+    },
+    {
+      "variant": "microbatch2_causalpad",
+      "batch": 0,
+      "repeat": 0,
+      "source": "batch-20261109-through-step286-step101",
+      "seconds": 117.48415343090892,
+      "rank_metrics": [
+        {
+          "seconds": 117.48174977861345,
+          "peak_allocated_gib": 38.00808906555176,
+          "peak_reserved_gib": 39.44140625
+        },
+        {
+          "seconds": 117.48415343090892,
+          "peak_allocated_gib": 17.86911916732788,
+          "peak_reserved_gib": 19.302734375
+        }
+      ],
+      "input_tokens_by_rank": [
+        1319946,
+        1319944
+      ],
+      "action_tokens": 7062,
+      "loss": 0.06923128269070507,
+      "grad_norm": 0.17836874723434448,
+      "clip_fraction": 0.0002832058906825262
+    },
+    {
+      "variant": "microbatch2_causalpad",
+      "batch": 0,
+      "repeat": 1,
+      "source": "batch-20261109-through-step286-step101",
+      "seconds": 93.13218610361218,
+      "rank_metrics": [
+        {
+          "seconds": 93.13051506690681,
+          "peak_allocated_gib": 38.008089542388916,
+          "peak_reserved_gib": 39.44140625
+        },
+        {
+          "seconds": 93.13218610361218,
+          "peak_allocated_gib": 17.86911964416504,
+          "peak_reserved_gib": 19.302734375
+        }
+      ],
+      "input_tokens_by_rank": [
+        1319946,
+        1319944
+      ],
+      "action_tokens": 7062,
+      "loss": 0.06923128269070507,
+      "grad_norm": 0.1783376783132553,
+      "clip_fraction": 0.0002832058906825262
+    }
+  ],
+  "comparisons": [
+    {
+      "variant": "baseline",
+      "batch": 0,
+      "repeat": 1,
+      "timing_reference_seconds": 99.45053765922785,
+      "update_speedup": 1.0,
+      "estimated_end_to_end_speedup": 1.0,
+      "loss_absolute_difference": 0.0,
+      "logprob_mae": 0.0,
+      "logprob_max_difference": 0.0,
+      "vectors": {
+        "gradient": {
+          "relative_l2": 0.010659342346454673,
+          "cosine": 0.9999432791327144,
+          "max_absolute": 4.550605081021786e-05,
+          "different_fraction": 0.9600399732589722
+        },
+        "update": {
+          "relative_l2": 0.0019027621971861712,
+          "cosine": 0.99999818979006,
+          "max_absolute": 4.3356749301892705e-08,
+          "different_fraction": 0.7182212471961975
+        }
+      },
+      "strict_consistency_passed": false
+    },
+    {
+      "variant": "microbatch2",
+      "batch": 0,
+      "repeat": 0,
+      "timing_reference_seconds": 99.45053765922785,
+      "update_speedup": 0.40475215184622215,
+      "estimated_end_to_end_speedup": 0.5365739042754105,
+      "loss_absolute_difference": 6.287015554620745e-06,
+      "logprob_mae": 0.002113496419042349,
+      "logprob_max_difference": 0.2381136417388916,
+      "vectors": {
+        "gradient": {
+          "relative_l2": 0.11331701660221087,
+          "cosine": 0.9936291203757988,
+          "max_absolute": 0.00067604158539325,
+          "different_fraction": 0.9999861121177673
+        },
+        "update": {
+          "relative_l2": 0.02122746369427789,
+          "cosine": 0.9997766797400688,
+          "max_absolute": 2.980232238769531e-07,
+          "different_fraction": 0.9677706956863403
+        }
+      },
+      "strict_consistency_passed": false
+    },
+    {
+      "variant": "microbatch2_causalpad",
+      "batch": 0,
+      "repeat": 0,
+      "timing_reference_seconds": 99.45053765922785,
+      "update_speedup": 0.8465017175079154,
+      "estimated_end_to_end_speedup": 0.9037569060020286,
+      "loss_absolute_difference": 6.287015554620745e-06,
+      "logprob_mae": 0.002113496419042349,
+      "logprob_max_difference": 0.2381136417388916,
+      "vectors": {
+        "gradient": {
+          "relative_l2": 0.11319284691536428,
+          "cosine": 0.9936414603129439,
+          "max_absolute": 0.0006546812219312415,
+          "different_fraction": 0.9999862313270569
+        },
+        "update": {
+          "relative_l2": 0.021239985979261095,
+          "cosine": 0.9997765140011157,
+          "max_absolute": 2.9336661100387573e-07,
+          "different_fraction": 0.9677653908729553
+        }
+      },
+      "strict_consistency_passed": false
+    },
+    {
+      "variant": "microbatch2_causalpad",
+      "batch": 0,
+      "repeat": 1,
+      "timing_reference_seconds": 99.45053765922785,
+      "update_speedup": 1.0678428352211804,
+      "estimated_end_to_end_speedup": 1.0387572532549785,
+      "loss_absolute_difference": 6.287015554620745e-06,
+      "logprob_mae": 0.002113496419042349,
+      "logprob_max_difference": 0.2381136417388916,
+      "vectors": {
+        "gradient": {
+          "relative_l2": 0.11306338482387218,
+          "cosine": 0.9936584237469349,
+          "max_absolute": 0.0006631967698922381,
+          "different_fraction": 0.9999861121177673
+        },
+        "update": {
+          "relative_l2": 0.021205536085404108,
+          "cosine": 0.9997771277750983,
+          "max_absolute": 2.980232238769531e-07,
+          "different_fraction": 0.967736005783081
+        }
+      },
+      "strict_consistency_passed": false
+    }
+  ],
+  "limitations": [
+    "Offline update replay only; rollout scheduling unchanged.",
+    "Speed estimates exclude periodic evaluation, export and archival.",
+    "Numerical agreement does not guarantee identical future stochastic training or final score.",
+    "Microbatch2 masked variant: one complete update only, further repeats stopped after slow result.",
+    "Only causal-padding variant has a warmed repeat; second batch coverage is baseline only because memory/kernel gates rejected other variants.",
+    "No online rollout, training-quality or final evaluation speedup was measured."
+  ],
+  "status": "completed_not_adopted",
+  "decision": "Keep production trainer and running recipe unchanged; small warmed speed gain and additional numerical differences.",
+  "production_worker": 1171145,
+  "production_training_changed": false,
+  "benchmark_source": "scripts/grpo/benchmark_update.py",
+  "source_sha256": "53736d60408fb7c7478af16cb453aba45802399d73c0997a44e254c96042d7d5",
+  "initial_source_sha256": "4c2acadd79756e87f64779f6ebb8629551aff5abd161d26127aa6031327cc681",
+  "batches_sha256": "c3d93526d547829e3da440fd0183eb158ce222da8f92439db0610f66347cc192",
+  "source_batches": [
+    {
+      "label": "batch-20261109-through-step286-step101",
+      "source_sha256": "b3c03c98beb2b8695f25d1a843e40337d89706e5e228766e68d3abbeb57d0786",
+      "source": "next/outputs/grpo/segments/batch-20261109-through-step286/rollouts/generation-000101.jsonl.gz"
+    },
+    {
+      "label": "batch-step20",
+      "source_sha256": "d8649531a0097d3cb30f8dd4386aa4143c4003ee0ea4a5df34ef47e3f89824ac",
+      "source": "next/outputs/grpo/batch/rollouts/generation-000020.jsonl.gz"
+    }
+  ],
+  "memory_budget": {
+    "rank0_inference_reservation_gib": 20,
+    "per_process_fraction": 0.85
+  },
+  "unqualified_variants": [
+    {
+      "variant": "no_recompute",
+      "reason": "long-sequence warmup exceeded 67.24 GiB safety budget on both ranks"
+    },
+    {
+      "variant": "selective_half",
+      "reason": "long-sequence warmup exceeded 67.24 GiB safety budget on rank0"
+    }
+  ],
+  "microbatch_toolchain": {
+    "scope": "isolated test process only",
+    "cuda_compiler_and_headers": "13.2.86",
+    "packages": [
+      {
+        "name": "nvidia-cuda-runtime",
+        "version": "13.2.86",
+        "filename": "nvidia_cuda_runtime-13.2.86-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+        "sha256": "3498247680dfddce31bad102af7e3e26fc795342a3cac64722bb0fa95e7f60f0",
+        "bytes": 2323576
+      },
+      {
+        "name": "nvidia-cuda-crt",
+        "version": "13.2.86",
+        "filename": "nvidia_cuda_crt-13.2.86-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+        "sha256": "e3ab08801bf9b1e6dc979275d25e816bb5000521b648e19c324d5eef0c79f1da",
+        "bytes": 133300
+      },
+      {
+        "name": "nvidia-cuda-cccl",
+        "version": "13.2.86",
+        "filename": "nvidia_cuda_cccl-13.2.86-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl",
+        "sha256": "35da671cf0cecd3539da214a11bb8e7634366c9e950da9c5feecf6c490a65b20",
+        "bytes": 3600135
+      }
+    ]
+  },
+  "numerical_interpretation": "Strict 0.1% vector tolerance was not met even by baseline repeat. Report repeatability floor explicitly; do not relax tolerance to assert unchanged quality. Microbatch differences exceed that observed floor.",
+  "raw_evidence": "outputs/performance/grpo-20261110",
+  "runtime_state": "Test GPU keepalive restored; production continues unchanged."
+}
