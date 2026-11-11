@@ -17,7 +17,7 @@ from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
 from workflow import NEXT, settings_and_policy, verify_initial_policy
-from artifacts import persist
+from artifacts import persist, inventory
 from supervise_sft import terminate, completed_training
 from shopping_agent.protocol import sha256, validate_execution
 from shopping_agent.runs import write_json
@@ -38,12 +38,17 @@ def main():
     lock = (args.output/'.lock').open('a'); fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     settings, policy = settings_and_policy()
     verify_initial_policy(args.models_root,policy)
+    kernel_root = Path(os.environ['SHOP_GRPO_KERNELS'])
+    kernel_files = inventory(kernel_root/'wheels')
+    if not kernel_files or not (kernel_root/'site').is_dir():
+        raise ValueError('restore the previously validated isolated FLA installation')
     files = [NEXT/'configs/consolidation.json', NEXT/'configs/sft.json', NEXT/settings['model_registry'],
              NEXT/settings['baseline_result'], NEXT/'configs/data_selection.json',
              *sorted((NEXT/'scripts/consolidation').glob('*.py')),
              *sorted((NEXT/'scripts/reflow').glob('*.py')), *sorted((NEXT/'scripts/sft').glob('*.py')),
              NEXT/'scripts/grpo/keep_gpu.py', NEXT/'scripts/start_environment.sh']
     spec = {'execution_fingerprint':validate_execution(), 'settings':settings, 'policy':policy,
+            'actor_kernel_wheels':kernel_files,
             'models_root':str(args.models_root.resolve()), 'work':str(args.work),
             'entry_files':{str(p.relative_to(NEXT)):sha256(p) for p in files}}
     if (args.output/'run.json').exists() and json.loads((args.output/'run.json').read_text()) != spec:
@@ -54,18 +59,18 @@ def main():
     env_url, model_url = 'http://127.0.0.1:5736', 'http://127.0.0.1:8036/v1'
     def publish(**values):
         state.update(values,updated_at=time.time());write_json(args.output/'status.json',state)
-    def keep(mode):
-        subprocess.run([sys.executable,NEXT/'scripts/grpo/keep_gpu.py',mode,'0','1'],check=True)
+    def keep(mode,gpus=('0','1')):
+        subprocess.run([sys.executable,NEXT/'scripts/grpo/keep_gpu.py',mode,*gpus],check=True)
     def launch(command,log,**env):
         with (args.output/log).open('a') as stream:
             p = subprocess.Popen(list(map(str,command)),stdin=subprocess.DEVNULL,stdout=stream,stderr=subprocess.STDOUT,
                                  start_new_session=True,env={**os.environ,**env})
         processes.append(p)
         return p
-    def run(command,log,training=None):
+    def run(command,log,training=None,**environment):
         if any(sha256(NEXT/name) != digest for name,digest in spec['entry_files'].items()):
             raise ValueError('source changed during execution')
-        job = launch(command,log); finished = None
+        job = launch(command,log,**environment); finished = None
         while job.poll() is None:
             if any(p.poll() is not None for p in services) or (server is not None and server.poll() is not None):
                 raise RuntimeError('runtime service exited; stop rather than mislabel data')
@@ -90,7 +95,8 @@ def main():
         raise TimeoutError('service startup timeout')
     def serve(adapter,label):
         nonlocal server
-        keep('off')
+        keep('off',('0',))
+        keep('on',('1',))
         server = launch([sys.executable,'-m','vllm.entrypoints.openai.api_server',
             '--model',args.models_root/policy['base'],'--served-model-name','repair-base',
             '--host','127.0.0.1','--port','8036','--tensor-parallel-size','1',
@@ -139,7 +145,9 @@ def main():
                     '--weights',weights,'--output',out,'--settings',args.output/'training-settings.json']
                 saved = sorted(weights.glob('checkpoint-*'),key=lambda p:int(p.name.split('-')[-1]))
                 if saved:cmd += ['--resume',saved[-1]]
-                run(cmd,f'train-{arm}.log',(out,work,training));keep('on')
+                run(cmd,f'train-{arm}.log',(out,work,training),
+                    PYTHONPATH=str(kernel_root/'site')+os.pathsep+os.environ['PYTHONPATH'])
+                keep('on')
             trained = json.loads((out/'train_summary.json').read_text())
             for checkpoint in trained['epoch_checkpoints']:
                 step = int(Path(checkpoint).name.split('-')[-1])

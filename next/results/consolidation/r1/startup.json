@@ -1,0 +1,72 @@
+{
+  "status": "launched",
+  "started_at": "2026-11-11T03:53:14.809928+00:00",
+  "worker_id": 1171145,
+  "gpus": "2 x H100 80GB",
+  "supervisor_pid": 759673,
+  "output": "outputs/consolidation/r1",
+  "work_relative": "consolidation/r1-20261111",
+  "initial_policy": "grpo-500",
+  "execution": "mining 2000 train tasks -> verified Astra repair -> replay/repair SFT -> four dev300 evaluations",
+  "teacher_snapshot": "gpt-6-astra-2026-09-03",
+  "preflight_sha256": "a135760c62831ea8731fc9df46d118e0959c0c84e3a7649428cb29f7dd2810ea",
+  "eta": {
+    "estimated_hours": [
+      4,
+      7
+    ],
+    "finish_utc_range": [
+      "2026-11-11T07:53:14.809928+00:00",
+      "2026-11-11T10:53:14.809928+00:00"
+    ],
+    "basis": "Prior same-task mining ~0.45 h; 491 teacher repair attempts ~3.03 h; prior 288-example two-epoch SFT ~0.54-0.69 h per arm; current cap600 examples per arm; FLA enabled",
+    "uncertainty": "API delays/retries and accepted repair count; not a completion guarantee"
+  },
+  "test1000": "not scheduled",
+  "backup": "existing devbox receiver and asynchronous HDFS uploader; completion requires receipts",
+  "run_manifest_sha256": "503141b7887b163fdaf4f63021043fab637aa30f54715ead6fe2201e9ff943d2",
+  "startup_checks": {
+    "consolidation_tests": 6,
+    "status": "passed",
+    "log": "outputs/consolidation/validation/startup-checks.log"
+  },
+  "actor_kernels": {
+    "delta_rule": "fla.ops.gated_delta_rule.chunk",
+    "normalization": "fla.modules.norm.fused_norm_gate"
+  },
+  "keepalive": {
+    "serving": "GPU0 adaptive; GPU1 full idle keeper",
+    "training": "two GPUs, adaptive filler yields to computation",
+    "finished_or_catchable_failure": "full idle keeper on both GPUs"
+  },
+  "health_check": {
+    "checked_at_unix": 1794369469.8243277,
+    "stage": "mine",
+    "collected": 224,
+    "expected": 2000,
+    "unresolved_infrastructure_tasks": [],
+    "detached_session": true,
+    "gpu_utilization_sample_percent": [
+      91,
+      100
+    ],
+    "sm_utilization_samples_percent": [
+      [
+        91,
+        75,
+        94
+      ],
+      [
+        100,
+        100,
+        100
+      ]
+    ]
+  },
+  "source_archive": {
+    "devbox_receipt": "next/outputs/pipeline/20261104/storage/receipts/4bf75da8234de4ac27b1760c209bd4a54f9af17874bd265e5f9d31dbe46705f4.json",
+    "devbox_verified": true,
+    "hdfs_receipt_present": true,
+    "hdfs_receipt": "next/outputs/pipeline/20261104/storage/hdfs/4bf75da8234de4ac27b1760c209bd4a54f9af17874bd265e5f9d31dbe46705f4.json"
+  }
+}

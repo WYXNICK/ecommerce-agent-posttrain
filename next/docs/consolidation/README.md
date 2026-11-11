@@ -1,6 +1,6 @@
 # GRPO 后定向纠错与成功能力保留
 
-**状态：实现与离线验证完成，尚未采集或训练。** 原终局 GRPO step500 继续作为主结果。本阶段是一次有对照的监督纠错实验，不把未执行的方案写成收益，也不把后续 SFT 收益归入 GRPO。
+**R-consolidation 状态：运行中。** 已于2026-11-11在worker1171145启动正式采集→两组训练→dev300评测。 原终局 GRPO step500 继续作为主结果。本阶段是一次有对照的监督纠错实验，不把未执行的方案写成收益，也不把后续 SFT 收益归入 GRPO。
 
 ## 1. 为什么优先做这一版
 
@@ -56,7 +56,7 @@
 - 模型和检查点使用worker的`/tmp`工作目录，但保存时通过已有artifact队列等待开发机校验收妥，再异步上传HDFS；归档成功以回执为准。训练/评测均用未合并adapter，不自动导出合并模型。
 - 沿用原双卡监控及空闲保活：运行计算时切换自适应负载，结束或可捕获异常时恢复两卡保活。不能保证worker被强制回收后继续运行；保活不能代替实时GPU/SM监控。
 
-获得正式执行授权后，使用既有worker环境、凭证、备份接收器及HDFS上传器，设置`SHOP_ARTIFACT_QUEUE/ROOT`与`SHOP_KEEP_STATE/SHOP_IDLE_KEEP_ON/OFF`。模型根目录须包含冻结清单中的基座与原step500 adapter。后台启动形式：
+本轮已获得正式执行授权。使用既有worker环境、凭证、备份接收器及HDFS上传器，设置`SHOP_ARTIFACT_QUEUE/ROOT`、`SHOP_GRPO_KERNELS`与`SHOP_KEEP_STATE/SHOP_IDLE_KEEP_ON/OFF`。模型根目录须包含冻结清单中的基座与原step500 adapter。后台启动形式：
 
 ```bash
 nohup python next/scripts/consolidation/run.py \
@@ -66,4 +66,4 @@ nohup python next/scripts/consolidation/run.py \
 
 运行前创建独立`RUN_OUTPUT`目录；`RUN_WORK`位于artifact根目录内，日志目录使用开发机可见的共享存储。凭证不写入命令或仓库。初次检查后完整执行，不额外铺设小规模探查。
 
-**本次验收：** 数据隔离、同预算组构造、小模型adapter输出等价与续训梯度、实际2B基座/adapter文件身份、完整dev选择、真实模板后缀mask、前缀回放及原SFT目标检查通过。详细离线检查见[验证清单](../../results/consolidation/r1/validation.json)。**没有执行正式采集、GPU训练或新增评测，效果待验证。**
+**本次验收：** 数据隔离、同预算组构造、小模型adapter输出等价与续训梯度、实际2B基座/adapter文件身份、完整dev选择、真实模板后缀mask、前缀回放及原SFT目标检查通过。详细离线检查见[验证清单](../../results/consolidation/r1/validation.json)。**正式流程已启动，尚无新的训练与评测结果。** 两组训练复用原已验收的隔离FLA算子；算子包哈希随运行清单冻结。

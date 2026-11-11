@@ -160,10 +160,27 @@ def main():
                 summary = json.loads((args.output/arm/'dev'/f'step-{step}'/'summary.json').read_text())
                 candidates.append({'arm': arm, 'step': step, 'checkpoint': checkpoint, 'summary': summary,
                                    'vs_initial': paired_changes(summary, baseline['summary'])})
-        write_json(args.output/'summary.json', {'status':'complete', 'baseline':baseline, 'candidates':candidates,
+        report = {'status':'complete', 'baseline':baseline, 'candidates':candidates,
             'selected':select_candidate(baseline,candidates), 'selection':settings['selection'],
             'training_budgets':budgets, 'data':json.loads((args.output/'dataset/manifest.json').read_text()),
-            'interpretation':'post-GRPO supervised correction; not an additional GRPO gain', 'test_evaluation':'not run'})
+            'interpretation':'post-GRPO supervised correction; not an additional GRPO gain', 'test_evaluation':'not run'}
+        write_json(args.output/'summary.json', report)
+        destination = NEXT/'results/consolidation/r1'
+        destination.mkdir(parents=True,exist_ok=True)
+        write_json(destination/'summary.json',report)
+        lines = ['# GRPO 后纠错与回放结果', '', '采集、两组训练及完整开发集评测已完成；未运行新的测试集评测。', '',
+                 '| 候选 | 严格成功 | Reward v3 | 新增 / 丢失成功 | 平均步骤 |', '|---|---:|---:|---:|---:|']
+        for item in [baseline,*candidates]:
+            s = item['summary']; changes = paired_changes(s,baseline['summary'])
+            lines.append(f"| {item['arm']} step{item['step']} | {s['strict_successes']}/300 | {s['mean_final_reward']:.4f} | {changes['gained']} / {changes['lost']} | {s['average_steps']:.3f} |")
+        selected = report['selected']
+        lines += ['',f"按预设规则选中 **{selected['arm']} step{selected['step']}**。监督纠错收益与原GRPO收益分开报告；单种子开发集选模不能证明稳定泛化。",
+                  '', '[方法、对照与局限](README.md)；[数据、训练成本及完整指标](../../results/consolidation/r1/summary.json)。HDFS是否完成以运行目录归档回执为准。']
+        (NEXT/'docs/consolidation/results.md').write_text('\n'.join(lines)+'\n')
+        for path in [NEXT/'docs/consolidation/README.md',NEXT/'docs/project-completion-plan.md']:
+            text = path.read_text().replace('**R-consolidation 状态：运行中。**',
+                '**R-consolidation 状态：采集、训练及开发集评测已完成。**')
+            path.write_text(text)
         return
     tokenizer = StudentTokenizer.load(config, path=args.models_root/policy['base'])
     if args.stage == 'prepare':
