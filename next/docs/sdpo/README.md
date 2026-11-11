@@ -1,6 +1,6 @@
 # SDPO：利用真实反馈的在线自蒸馏
 
-**状态：实现与验证已完成，未启动训练。** 原终局 GRPO step500 仍是已完成的主结果，GRPO 后纠错 SFT 继续作为备选。
+**状态：运行中。** 已从修复 SFT 启动独立 SDPO 训练；完成后自动汇总开发集选模结果。原终局 GRPO step500 仍是已完成的主结果，GRPO 后纠错 SFT 继续作为备选。
 
 ## 1. 目的与依据
 
@@ -97,6 +97,20 @@ w = min(2, exp(学生采样 token 的 logp − vLLM 原始 logp))
 - 验收：`outputs/sdpo/validation/`；检查清单与结果：`results/sdpo/validation.json`。
 - 保留配置/源码、原始轨迹、反馈来源与原文、训练/评测日志、TensorBoard、LoRA＋优化器＋EMA＋随机状态。每50步先校验备份到开发机，再排队归档 HDFS。
 - 正常结束或可捕获失败恢复双卡保活。worker 强制回收不能靠进程内清理恢复，须依靠已落盘备份。
+
+### 日志与结果入口
+
+本轮[运行清单](../../results/sdpo/r1/run.json)记录冻结配置与源码指纹。输出统一在 `outputs/sdpo/r1/`，实时状态以 `status.json` 为准：
+
+| 文件/目录 | 内容 |
+|---|---|
+| `train.log`、`metrics.jsonl`、`tensorboard/` | 完整训练日志、每次更新指标和原生训练曲线 |
+| `sampling.jsonl`、`rollouts/` | 采样统计、原始执行轨迹和反馈证据 |
+| `dev/step-*/`、`selection.json` | 每50步开发集逐题评测及候选选模 |
+| `run.json`、`summary.json` | 冻结配置/源码指纹，以及结束后自动生成的最终汇总 |
+| `launcher.log`、`serve.log`、`environment.log`、`gpu.jsonl` | 启动、模型服务、环境和 GPU 日志，供必要时排查 |
+
+仓库根目录执行 `tail -f next/outputs/sdpo/r1/train.log` 查看训练；查看训练曲线时，TensorBoard 的 logdir 指向 `next/outputs/sdpo/r1/tensorboard/`。阶段文档只汇总方法、完成状态和最终结果，不重复抄录逐步日志。
 
 在已设置 `SHOP_RUNTIME`、`SHOP_GRPO_KERNELS`、归档队列与保活脚本环境变量后：
 

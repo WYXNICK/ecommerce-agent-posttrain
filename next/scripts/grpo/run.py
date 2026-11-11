@@ -233,10 +233,10 @@ def main():
         plan = ROOT/'docs/project-completion-plan.md'
         text = plan.read_text()
         if args.variant == 'sdpo':
-            text = text.replace('**实现与验证已完成，未启动训练**；[SDPO 方案](sdpo/README.md)',
+            text = text.replace('**运行中**；[SDPO 方案](sdpo/README.md)',
                 f"**训练与开发集选模已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](sdpo/results.md)")
             stage = doc/'README.md'
-            stage.write_text(stage.read_text().replace('**状态：实现与验证已完成，未启动训练。**',
+            stage.write_text(stage.read_text().replace('**状态：运行中。**',
                 '**状态：训练与开发集选模已完成。** 见[结果](results.md)。'))
         if args.variant == 'outcome':
             text = text.replace('**运行中**；[方法与状态](grpo/README.md)',
