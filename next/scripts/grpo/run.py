@@ -1,4 +1,4 @@
-"""Detached GRPO supervisor: services, training, selected export, durable evidence."""
+"""Detached online-training supervisor: GRPO/SDPO, export, durable evidence."""
 import argparse
 from datetime import datetime, timezone
 import fcntl
@@ -29,13 +29,13 @@ def main():
     for name in ('model', 'work', 'output'):
         parser.add_argument('--'+name, type=Path, required=True)
     parser.add_argument('--resume', type=Path)
-    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0', 'batch'), default='outcome')
-    parser.add_argument('--validate-only', action='store_true', help='local branch acceptance; no optimizer or model export')
+    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0', 'batch', 'sdpo'), default='outcome')
+    parser.add_argument('--validate-only', action='store_true', help='local/SDPO acceptance; no optimizer or model export')
     parser.add_argument('--model-port', type=int, default=8016)
     parser.add_argument('--environment-port', type=int, default=5716)
     args = parser.parse_args()
-    if args.validate_only and (args.variant != 'local' or args.resume):
-        parser.error('--validate-only requires --variant local and no --resume')
+    if args.validate_only and (args.variant not in ('local', 'sdpo') or args.resume):
+        parser.error('--validate-only requires --variant local/sdpo and no --resume')
     args.output.mkdir(parents=True, exist_ok=True)
     args.work.mkdir(parents=True, exist_ok=True)
     lock = (args.output/'.lock').open('a')
@@ -79,8 +79,8 @@ def main():
     try:
         publish()
         settings = load_settings(args.variant)
-        if args.variant in ('stable', 's0', 'batch') and not all(os.environ.get(key) for key in ('SHOP_ARTIFACT_QUEUE', 'SHOP_ARTIFACT_ROOT')):
-            raise ValueError('GRPO requires the devbox/HDFS artifact queue and worker artifact root')
+        if args.variant in ('stable', 's0', 'batch', 'sdpo') and not all(os.environ.get(key) for key in ('SHOP_ARTIFACT_QUEUE', 'SHOP_ARTIFACT_ROOT')):
+            raise ValueError('online training requires the devbox/HDFS artifact queue and worker artifact root')
         fingerprint = validate_execution()
         TaskPool().validate_source()
         if sha256(args.model/'model.safetensors') != settings['base_weights_sha256']:
@@ -88,7 +88,7 @@ def main():
         files = [ROOT/'configs/grpo.json', *HERE.glob('*.py'), *HERE.glob('*.sh'), *HERE.glob('*.txt'), ROOT/'scripts/sft/artifacts.py',
                  ROOT/'scripts/sft/export_model.py', HERE/'keep_gpu.py', ROOT/'scripts/sft/monitor_gpu.py']
         if args.variant != 'outcome':
-            files.append(ROOT/f'configs/grpo_{args.variant}.json')
+            files.append(ROOT/('configs/sdpo.json' if args.variant == 'sdpo' else f'configs/grpo_{args.variant}.json'))
         files.append(starting_result_path(args.variant))
         kernel_root = Path(os.environ['SHOP_GRPO_KERNELS'])
         kernel_files = inventory(kernel_root/'wheels')
@@ -100,7 +100,9 @@ def main():
                 'resume': str(args.resume) if args.resume else None,
                 'task_pool_sha256': sha256(ROOT/'data/task_pool/grpo_train.jsonl'),
                 'runtime': {p: importlib.metadata.version(p) for p in ('torch', 'transformers', 'peft', 'vllm', 'verl')},
-                'implementation': 'veRL clipped loss, exact per-turn chat tokens, synchronous two-rank gradient sum',
+                'implementation': ('SDPO full-logit reverse KL, feedback-conditioned LoRA EMA teacher'
+                    if args.variant == 'sdpo' else 'veRL clipped loss') +
+                    '; exact per-turn tokens, synchronous two-rank gradient sum',
                 'test_evaluation': 'not scheduled', 'variant': args.variant,
                 'validate_only': args.validate_only}
         write_json(args.output/'run.json', spec)
@@ -114,7 +116,7 @@ def main():
         shutil.copytree(kernel_root/'wheels', source/'kernel-wheels')
         persist(source)
         keep('off')
-        if args.validate_only:
+        if args.validate_only and args.variant == 'local':
             keep('on', ('1',))  # Validation has one inference server, no GPU1 actor.
         monitor = launch([sys.executable, ROOT/'scripts/sft/monitor_gpu.py', args.output], 'gpu-monitor.log')
         env_url, model_url = f'http://127.0.0.1:{args.environment_port}', f'http://127.0.0.1:{args.model_port}/v1'
@@ -127,10 +129,11 @@ def main():
             '--gdn-prefill-backend', 'triton', '--max-num-seqs', '8', '--max-model-len', '24576',
             '--max-num-batched-tokens', '8192', '--enable-auto-tool-choice', '--tool-call-parser', 'qwen3_coder',
             '--enable-lora', '--max-loras', '1', '--max-cpu-loras', '2', '--max-lora-rank', '16',
+            *(['--generation-config', 'vllm'] if args.variant == 'sdpo' else []),
             '--logprobs-mode', 'raw_logprobs'], 'serve.log', CUDA_VISIBLE_DEVICES='0',
             VLLM_ALLOW_RUNTIME_LORA_UPDATING='True')
         wait_ready(serve, model_url+'/models', 1200)
-        if args.validate_only:
+        if args.validate_only and args.variant == 'local':
             publish(status='validating')
             check = launch([sys.executable, HERE/'validate_local.py', '--model', args.model,
                 '--output', args.output, '--model-url', model_url, '--environment-url', env_url], 'validation.log')
@@ -144,17 +147,24 @@ def main():
                 raise ValueError('validation source changed during execution')
             publish(status='validated', result=str(args.output/'validation.json'))
             return
-        publish(status='training')
+        publish(status='validating' if args.validate_only else 'training')
         train = launch([sys.executable, '-m', 'torch.distributed.run', '--standalone', '--nproc-per-node=2',
             HERE/'train.py', '--model', args.model, '--work', args.work, '--output', args.output,
             '--variant', args.variant,
             '--model-url', model_url, '--environment-url', env_url,
+            *(['--validate-only'] if args.validate_only else []),
             *(['--resume', args.resume] if args.resume else [])], 'train.log', CUDA_VISIBLE_DEVICES='0,1',
             PYTHONPATH=str(kernel_root/'site') + os.pathsep + os.environ['PYTHONPATH'])
         publish(child_pid=train.pid)
         completion_seen = None
         completed_shutdown = False
         while train.poll() is None:
+            if args.validate_only and (args.output/'validation.json').exists():
+                completion_seen = completion_seen or time.monotonic()
+                if time.monotonic()-completion_seen >= 60:
+                    terminate(train)
+                    completed_shutdown = True
+                    break
             completion = args.output/'training-complete.json'
             if completion.exists():
                 record = json.loads(completion.read_text())
@@ -178,6 +188,12 @@ def main():
         terminate(env)
         if validate_execution() != fingerprint or any(sha256(ROOT/p) != digest for p,digest in spec['entry_files'].items()):
             raise ValueError('training source changed during execution')
+        if args.validate_only:
+            validation = json.loads((args.output/'validation.json').read_text())
+            if validation['status'] != 'passed' or validation['optimizer_steps'] != 0:
+                raise ValueError('SDPO validation did not finish without parameter updates')
+            publish(status='validated', result=str(args.output/'validation.json'))
+            return
         publish(status='exporting')
         selection = json.loads((args.output/'selection.json').read_text())
         selected = selection['selected']
@@ -199,21 +215,29 @@ def main():
                   'export_note': 'BF16 merged exports are convenience copies, not silently substituted for the evaluated LoRA policy',
                   'limits': 'single-seed development-set selection; this run schedules no test evaluation'}
         write_json(args.output/'summary.json', result)
-        final = ROOT/'results/grpo'/args.variant
+        result_relative = 'sdpo/r1' if args.variant == 'sdpo' else f'grpo/{args.variant}'
+        final = ROOT/'results'/result_relative
         final.mkdir(parents=True, exist_ok=True)
         write_json(final/'summary.json', result)
-        title = {'outcome': '终局奖励', 'local': '局部信用', 'stable': '稳定终局', 's0': 'S0 直接终局奖励', 'batch': '4×4 终局奖励'}[args.variant]
-        lines = [f'# {title} GRPO 结果', '', '训练与开发集选模已完成；本轮未运行测试集。', '',
+        title = {'outcome': '终局奖励 GRPO', 'local': '局部信用 GRPO', 'stable': '稳定终局 GRPO',
+                 's0': 'S0 直接终局奖励 GRPO', 'batch': '4×4 终局奖励 GRPO', 'sdpo': '反馈自蒸馏 SDPO'}[args.variant]
+        lines = [f'# {title} 结果', '', '训练与开发集选模已完成；本轮未运行测试集。', '',
                  '| 检查点 | dev300 严格成功 | Reward v3 | 平均动作数 |', '|---|---:|---:|---:|']
         for item in result['candidates']:
             s = item['summary']
             lines.append(f"| {'SFT 起点' if item['step']==0 else item['step']} | {s['strict_successes']}/300 | {s['mean_final_reward']:.4f} | {s['average_steps']:.3f} |")
         lines += ['', f"选中 step {selected['step']}；step 0 表示保留原 SFT。开发集用于选模，不能据此宣称测试收益。",
-                  '', f'[完整结果与模型身份](../../results/grpo/{args.variant}/summary.json)。']
-        doc = ROOT/'docs'/('grpo' if args.variant == 'outcome' else 'grpo-'+args.variant)
+                  '', f'[完整结果与模型身份](../../results/{result_relative}/summary.json)。']
+        doc = ROOT/'docs'/('sdpo' if args.variant == 'sdpo' else 'grpo' if args.variant == 'outcome' else 'grpo-'+args.variant)
         (doc/'results.md').write_text('\n'.join(lines)+'\n')
         plan = ROOT/'docs/project-completion-plan.md'
         text = plan.read_text()
+        if args.variant == 'sdpo':
+            text = text.replace('**实现与验证已完成，未启动训练**；[SDPO 方案](sdpo/README.md)',
+                f"**训练与开发集选模已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](sdpo/results.md)")
+            stage = doc/'README.md'
+            stage.write_text(stage.read_text().replace('**状态：实现与验证已完成，未启动训练。**',
+                '**状态：训练与开发集选模已完成。** 见[结果](results.md)。'))
         if args.variant == 'outcome':
             text = text.replace('**运行中**；[方法与状态](grpo/README.md)',
             f"**已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](grpo/results.md)")

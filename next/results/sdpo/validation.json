@@ -1,0 +1,149 @@
+{
+  "status": "implementation_and_validation_complete",
+  "formal_training_started": false,
+  "configuration": "configs/sdpo.json",
+  "starting_model": "S-repair step72",
+  "starting_weights_sha256": "29a3a288a7b2002f1b0b7157369ebde67da28a94b97eb19057809efeb0428e72",
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227",
+  "training_pool": {
+    "tasks": 2000,
+    "sha256": "612c8bfd4532c5e94e1b32085f6e93928c45e9cf4c889b377150345e31f5fbc4",
+    "protected_overlap": 0,
+    "validation": "TaskPool.validate_source"
+  },
+  "unit_tests": {
+    "status": "passed",
+    "new_sdpo_cases": 10,
+    "related_suite_executions": 50,
+    "command": "PYTHONPATH=next/src:next/scripts/sft:next/scripts/grpo OMP_NUM_THREADS=1 python -m unittest discover -s next/scripts/grpo -p 'test_*.py'"
+  },
+  "dual_h100_validation": {
+    "status": "passed",
+    "optimizer_steps": 0,
+    "test_evaluation": false,
+    "sampling": {
+      "counts": {
+        "trajectories": 16,
+        "model_failures": 1,
+        "infrastructure_failures": 0,
+        "unverifiable": 0,
+        "main_requests": 110,
+        "main_prompt_tokens": 471187,
+        "main_completion_tokens": 2736,
+        "generated_groups": 2,
+        "sdpo_demonstration_trajectories": 16,
+        "sdpo_environment_feedback_trajectories": 1,
+        "sdpo_success_trajectories": 15,
+        "sdpo_failure_trajectories": 1,
+        "sdpo_action_tokens": 2736,
+        "accepted_groups": 2
+      },
+      "groups": [
+        {
+          "task_id": 19368,
+          "rewards": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            -0.65,
+            1.0
+          ],
+          "filter": null
+        },
+        {
+          "task_id": 14934,
+          "rewards": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "filter": null
+        }
+      ],
+      "generation_batches": 2
+    },
+    "trained_action_tokens": 2736,
+    "loss": 0.030870064340909623,
+    "grad_norm": 0.5098464488983154,
+    "rollout_actor_logprob_abs_difference": 0.0009251436082284562,
+    "importance_clipped_fraction": 0.0,
+    "teacher_sampled_logprob_delta": -0.03329047620280756,
+    "peak_allocated_gib_by_rank": [
+      7.300625324249268,
+      7.239060401916504
+    ],
+    "elapsed_seconds": 70.37954893894494,
+    "limits": "one real batch verifies execution and gradients, not performance improvement"
+  },
+  "tested_max_student_sequence_tokens": 9717,
+  "evidence": {
+    "local_directory": "outputs/sdpo/validation",
+    "run_json_sha256": "98457dfbc16d44f3b5ff708aeb2a0e5e86603818154b1eca4fc26668a9fc7185",
+    "entry_files_sha256": {
+      "configs/grpo.json": "d20d77cf4990ede5b364441e8ee99c203aeb8186e3f7677859673b77b8c80df3",
+      "scripts/grpo/test_batch.py": "ce1ed98470fc040eb45898b8bbd082830bb950a529b51fc754a27fd78f84aaba",
+      "scripts/grpo/validate_kernels.py": "9c13c7c7d75bfeb3b1160a57b7ff8384dac29d8600aa81ed5bf05d5fb73c2a60",
+      "scripts/grpo/test_local_credit.py": "3918ac133090f4e159928a97fee37dcd5d14fdbe4f525fc8302122dd537eb979",
+      "scripts/grpo/regularization.py": "847b7cdb5310c662c03dec979d52481bd9b0733dd4aef1285ae4508f6db958eb",
+      "scripts/grpo/test_sdpo.py": "0d151e7df6731ce5ffc0434cb04c1ab835c18dd1dd45d434f161a5d316c59dba",
+      "scripts/grpo/settings.py": "e4d9e245602ff22e8ce5826385b0f66d7460678e6c152180abbad843804205d8",
+      "scripts/grpo/train.py": "1cb1d8dbf93ec1218cae3ec98e85df2a587a3360748376f7ee8af796066d4d11",
+      "scripts/grpo/test_stable.py": "9d5189ae563b14b40896eb56274976f9f9229544e6b44a1afd7a097103f58fe4",
+      "scripts/grpo/local_credit.py": "8901ee8e6f3171471d8056cbb859dc64041bfa6baea8c25822a277c18f71a05d",
+      "scripts/grpo/validate_local.py": "61ec8296bbb0d9bf56d17d07352c39f4854b9761e541b2940a04e78efcfe49ed",
+      "scripts/grpo/keep_gpu.py": "d1ba22517d484e6620b64a51cce6f1182a15ee1b1c55182987560e2c5a0cdd54",
+      "scripts/grpo/run.py": "1f38593261de34000027ffad5783c673045677601711063ca273c119a2e96424",
+      "scripts/grpo/self_distillation.py": "6ce2115e8ae8786e24e91fc396485ad2100001f06cce53ccedba27df70fa5d7c",
+      "scripts/grpo/benchmark_update.py": "53736d60408fb7c7478af16cb453aba45802399d73c0997a44e254c96042d7d5",
+      "scripts/grpo/test_contract.py": "f0810a04650fc097e704ce6c4e638e3de898bf47e9fe7ff81e3e27b27e3882af",
+      "scripts/grpo/rollout.py": "9b7813a3516d52456d660d9f28edfc2cb8b8066091da7fb9387551e76ee33515",
+      "scripts/grpo/launch.sh": "c6a0f9d4222e1ce8d17c572d1e9484b4dfcadaae283426fd193a603d1cfaba66",
+      "scripts/grpo/requirements.txt": "43986cbf23b51dc629ad85cc917a9a11c9183ca1600b7383368e8ea702ea9080",
+      "scripts/sft/artifacts.py": "7ffe535f9ae5815df64258df452ce60623827e425f4d12a57c892c83aed65015",
+      "scripts/sft/export_model.py": "f343277464cf1dadc8f2d7580634fbc58d50325f8505e01fe055b093065e49c4",
+      "scripts/sft/monitor_gpu.py": "93cfbf3996215cc54765e74edb087b1be2a6fef1829f08f93695bee5c2ea7577",
+      "configs/sdpo.json": "c81f9d21650614e27157b7f6f8bad20180fa0a3d4634b89cd57d4039bfc74888",
+      "results/data-reflow/r1/summary.json": "399cf97ab7c1ac6f65441ae3410e0e0cb21de11814bea99c498659f4b84ed2cf"
+    },
+    "archives": [
+      {
+        "relative": "sdpo/validation-20261111/evidence/run-source",
+        "local_verified": true,
+        "hdfs_status": "complete",
+        "hdfs_root": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104"
+      },
+      {
+        "relative": "sdpo/validation-20261111/evidence/final",
+        "local_verified": true,
+        "hdfs_status": "complete",
+        "hdfs_root": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104"
+      }
+    ]
+  },
+  "keepalive": {
+    "restored": true,
+    "gpu_util_percent": [
+      100,
+      100
+    ],
+    "sm_util_percent": [
+      100,
+      100
+    ],
+    "measurement": "nvidia-smi query + dmon after validation"
+  },
+  "limits": [
+    "No optimizer step, model export or benchmark evaluation was performed.",
+    "One real batch does not establish quality gains or worst-case context memory usage.",
+    "Peak memory is per-actor allocated memory, excluding the independent vLLM service.",
+    "Batch time is not a full-training ETA; keepalive utilization is not useful training throughput."
+  ]
+}

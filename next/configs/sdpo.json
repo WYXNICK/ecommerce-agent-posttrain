@@ -1,0 +1,15 @@
+{
+  "version": "shopping-sdpo-v1",
+  "rollouts_per_group": 8,
+  "sampling_groups_per_batch": 1,
+  "max_generation_batches": 8,
+  "self_distillation": {
+    "divergence": "reverse_kl",
+    "teacher_update_rate": 0.01,
+    "importance_clip": 2.0,
+    "logit_chunk_tokens": 32,
+    "feedback_tokens": 4096,
+    "teacher_context_tokens": 28672,
+    "reference_commit": "7c457fc1b1f636ae794eb0362ba37d4743b06fbc"
+  }
+}

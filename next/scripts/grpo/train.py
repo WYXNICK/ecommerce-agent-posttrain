@@ -1,8 +1,8 @@
-"""Synchronous two-GPU terminal GRPO using veRL's clipped policy loss.
+"""Synchronous two-GPU online learning: terminal GRPO or shopping SDPO.
 
 Turn-unpacked teacher forcing retains each exact serving prompt and sampled action.
-All turns in an episode share its group-centered return. Gradients are summed
-once across ranks and normalized by the global count of sampled action tokens.
+GRPO uses group-centered returns; SDPO uses feedback-conditioned token distributions.
+Gradients are summed across ranks and normalized by the global action-token count.
 """
 import argparse
 from datetime import timedelta
@@ -52,10 +52,13 @@ def balance_turns(rows, world_size):
     turns = [(turn, row['advantage'] + turn.get('local_increment', 0.0))
              for row in rows for turn in row['rollout_turns']]
     partitions, loads = [[] for _ in range(world_size)], [0] * world_size
-    for turn, advantage in sorted(turns, key=lambda item: len(item[0]['prompt_ids']) + len(item[0]['response_ids']), reverse=True):
+    def cost(turn):
+        return (len(turn['prompt_ids']) + len(turn['response_ids']) +
+                len(turn.get('teacher_prompt_ids', [])))
+    for turn, advantage in sorted(turns, key=lambda item: cost(item[0]), reverse=True):
         rank = min(range(world_size), key=loads.__getitem__)
         partitions[rank].append((turn, advantage))
-        loads[rank] += len(turn['prompt_ids']) + len(turn['response_ids'])
+        loads[rank] += cost(turn)
     return partitions, loads
 
 
@@ -129,11 +132,16 @@ def main():
     for key in ('model', 'work', 'output'):
         parser.add_argument('--' + key, type=Path, required=True)
     parser.add_argument('--resume', type=Path)
-    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0', 'batch'), default='outcome')
+    parser.add_argument('--validate-only', action='store_true', help='one SDPO batch, no optimizer step')
+    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0', 'batch', 'sdpo'), default='outcome')
     parser.add_argument('--model-url', required=True)
     parser.add_argument('--environment-url', required=True)
     args = parser.parse_args()
+    if args.validate_only and (args.variant != 'sdpo' or args.resume):
+        parser.error('--validate-only requires a fresh SDPO validation')
     settings = load_settings(args.variant)
+    sdpo = settings.get('self_distillation')
+    from self_distillation import EMATeacher, distillation_loss, hindsight_logits, prepare_group
     regularized = settings['kl_coefficient'] > 0
     fingerprint, config = validate_execution(), load_config()
     pool = TaskPool()
@@ -172,6 +180,7 @@ def main():
         optimizer.load_state_dict(resume['optimizer'])
         torch.set_rng_state(resume['torch_rng'])
         torch.cuda.set_rng_state(resume['cuda_rng'])
+    teacher = EMATeacher(model, sdpo['teacher_update_rate'], resume['ema_teacher'] if resume else None) if sdpo else None
     step = resume['step'] if resume else 0
     generation = resume['generation'] if resume else 0
     policy_config = OmegaConf.create({'clip_ratio': settings['clip_ratio'], 'clip_ratio_low': None,
@@ -204,8 +213,9 @@ def main():
             factory = lambda seed: TrainingClient(args.model_url, active_name, tokenizer, seed, settings)
             rows, diagnostic = collect_update(stream, client_factory=factory, config=config,
                 tokenizer=tokenizer, env_url=args.environment_url, fingerprint=fingerprint,
-                settings=settings, generation=generation, evidence=args.output/'rollouts')
-            if rows:
+                settings=settings, generation=generation, evidence=args.output/'rollouts',
+                group_transform=prepare_group if sdpo else None)
+            if rows and not sdpo:
                 diagnostic['local_credit'] = apply_local_credit(rows, client_factory=factory,
                     config=config, tokenizer=tokenizer, env_url=args.environment_url, fingerprint=fingerprint,
                     settings=settings, generation=generation, evidence=args.output/'rollouts')
@@ -219,7 +229,7 @@ def main():
                 with (args.output/'sampling.jsonl').open('a') as f:
                     f.write(json.dumps({'generation': generation, 'step': step, **diagnostic})+'\n')
             if skipped >= settings['max_consecutive_skipped_updates']:
-                raise RuntimeError('bounded sampler repeatedly found no valid reward-varying groups')
+                raise RuntimeError('bounded sampler repeatedly found no usable training groups')
             continue
         skipped = 0
         # Full history is input only. Each sampled action appears once as a target,
@@ -230,7 +240,7 @@ def main():
         lr = settings['learning_rate'] * min(1.0, (step+1)/settings['warmup_updates'])
         for group in optimizer.param_groups:
             group['lr'] = lr
-        metric = torch.zeros(7, device=rank, dtype=torch.float64)
+        metric = torch.zeros(12, device=rank, dtype=torch.float64)
         partitions, input_tokens_by_rank = balance_turns(rows, settings['world_size'])
         for turn, episode_advantage in partitions[rank]:
             prompt, response = turn['prompt_ids'], turn['response_ids']
@@ -238,22 +248,32 @@ def main():
             positions = torch.arange(len(prompt)-1, len(prompt)+len(response)-1, device=rank)
             targets = torch.tensor(response, device=rank)
             ref = reference_logprobs(model, ids, positions, targets) if regularized else None
+            teacher_logits = hindsight_logits(model, teacher, turn, rank) if sdpo else None
             output = model(input_ids=ids, attention_mask=torch.ones_like(ids),
                            logits_to_keep=positions, use_cache=False)
             logprob = -F.cross_entropy(output.logits[0].float(), targets, reduction='none')
             old = torch.tensor(turn['old_logprobs'], device=rank)
-            advantage = torch.full_like(logprob, episode_advantage)
-            loss, stats = compute_policy_loss_vanilla(old[None], logprob[None], advantage[None],
-                torch.ones_like(logprob)[None], config=policy_config)
+            if sdpo:
+                loss, sdpo_stats = distillation_loss(output.logits[0], teacher_logits, targets, old, sdpo)
+                stats = {'actor/pg_clipfrac': sdpo_stats['importance_clipped_fraction']}
+            else:
+                advantage = torch.full_like(logprob, episode_advantage)
+                loss, stats = compute_policy_loss_vanilla(old[None], logprob[None], advantage[None],
+                    torch.ones_like(logprob)[None], config=policy_config)
             kl = reference_kl(logprob, ref).mean() if regularized else logprob.new_zeros(())
-            entropy = action_entropy(output.logits[0]) if regularized else logprob.new_zeros(())
+            entropy = action_entropy(output.logits[0]) if regularized or sdpo else logprob.new_zeros(())
             objective = loss + settings['kl_coefficient'] * kl
             (objective * len(response) / token_count).backward()
             delta = (logprob.detach()-old)
             metric += torch.tensor([loss.item()*len(response), stats['actor/pg_clipfrac']*len(response),
                 delta.abs().sum().item(), ((delta.exp()-1)-delta).sum().item(), len(response),
-                kl.item()*len(response), entropy.item()], device=rank)
-            del output, loss, objective, kl, entropy, logprob, ref, ids
+                kl.item()*len(response), entropy.item(),
+                sdpo_stats['teacher_sampled_logprob_delta']*len(response) if sdpo else 0.0,
+                len(response) if sdpo and turn['sdpo_strict_success'] else 0,
+                sdpo_stats['teacher_sampled_logprob_delta']*len(response) if sdpo and turn['sdpo_strict_success'] else 0,
+                len(response) if sdpo and not turn['sdpo_strict_success'] else 0,
+                sdpo_stats['teacher_sampled_logprob_delta']*len(response) if sdpo and not turn['sdpo_strict_success'] else 0], device=rank)
+            del output, loss, objective, kl, entropy, logprob, ref, ids, teacher_logits
         # Each rank accumulated numerator/global_token_count; sum, do not average.
         gradients = [p.grad if p.grad is not None else torch.zeros_like(p) for p in parameters]
         flat = torch.cat([g.reshape(-1) for g in gradients])
@@ -266,7 +286,27 @@ def main():
         dist.all_reduce(metric)
         if step == 0 and (metric[2].item()/token_count > 0.2 or metric[1].item()/token_count > 0.25):
             raise ValueError('actor/rollout likelihood mismatch exceeds first-update acceptance thresholds')
+        if args.validate_only:
+            memory = [None] * settings['world_size']
+            dist.all_gather_object(memory, torch.cuda.max_memory_allocated()/2**30)
+            if rank == 0:
+                write_json(args.output/'validation.json', {
+                    'status': 'passed', 'optimizer_steps': 0, 'test_evaluation': False,
+                    'sampling': diagnostic, 'trained_action_tokens': token_count,
+                    'loss': metric[0].item()/token_count, 'grad_norm': norm.item(),
+                    'rollout_actor_logprob_abs_difference': metric[2].item()/token_count,
+                    'importance_clipped_fraction': metric[1].item()/token_count,
+                    'teacher_sampled_logprob_delta': metric[7].item()/token_count,
+                    'peak_allocated_gib_by_rank': memory,
+                    'elapsed_seconds': time.monotonic()-started,
+                    'limits': 'one real batch verifies execution and gradients, not performance improvement'})
+                writer.close()
+            dist.barrier()
+            dist.destroy_process_group()
+            return
         optimizer.step()
+        if teacher:
+            teacher.update()
         step += 1
         update_seconds = time.monotonic()-update_started
         if rank == 0:
@@ -290,6 +330,19 @@ def main():
                     total_loss=(metric[0].item()+settings['kl_coefficient']*metric[5].item())/token_count,
                     accepted_trajectories=len(rows),
                     accepted_tasks=len({row['task_id'] for row in rows}))
+            if sdpo:
+                # Distillation KL compares different contexts; it is not the
+                # GRPO reference-policy penalty or a proxy for task success.
+                result.pop('clip_fraction')
+                result.update(sdpo_reverse_kl=result['loss'],
+                    importance_clipped_fraction=metric[1].item()/token_count,
+                    teacher_sampled_logprob_delta=metric[7].item()/token_count,
+                    action_entropy=metric[6].item()/token_count,
+                    accepted_trajectories=len(rows),
+                    accepted_tasks=len({row['task_id'] for row in rows}))
+                for name, count_index, delta_index in (('success', 8, 9), ('failure', 10, 11)):
+                    if metric[count_index].item():
+                        result['teacher_logprob_delta_'+name] = metric[delta_index].item()/metric[count_index].item()
             if not all(math.isfinite(v) for v in result.values() if isinstance(v, (int, float))):
                 raise FloatingPointError('non-finite GRPO metric')
             with (args.output/'metrics.jsonl').open('a') as f:
@@ -305,7 +358,7 @@ def main():
             for key, value in diagnostic.get('local_credit', {}).get('metrics', {}).items():
                 writer.add_scalar('local_credit/'+key, value, step)
             writer.flush()
-            print('GRPO_PROGRESS '+json.dumps({k:v for k,v in result.items() if k != 'sampling'}), flush=True)
+            print(('SDPO_PROGRESS ' if sdpo else 'GRPO_PROGRESS ')+json.dumps({k:v for k,v in result.items() if k != 'sampling'}), flush=True)
             if step % settings['save_every'] == 0:
                 checkpoint = args.work / 'checkpoints' / f'step-{step}'
                 model.save_pretrained(checkpoint)
@@ -313,7 +366,8 @@ def main():
                 torch.save({'optimizer': optimizer.state_dict(), 'step': step, 'generation': generation,
                     'torch_rng': torch.get_rng_state(), 'cuda_rng': torch.cuda.get_rng_state(),
                     'task_stream': stream.state(), 'candidates': candidates, 'settings': settings,
-                    'execution_fingerprint': fingerprint}, checkpoint/'training_state.pt')
+                    'execution_fingerprint': fingerprint,
+                    **({'ema_teacher': teacher.state_dict()} if teacher else {})}, checkpoint/'training_state.pt')
                 write_json(checkpoint/'training.json', result)
                 persist(checkpoint)
                 evidence = args.work/'evidence'/f'step-{step}'

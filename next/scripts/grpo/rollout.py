@@ -30,6 +30,8 @@ class TrainingClient:
             'logprobs': True, 'top_logprobs': 0,
             'return_token_ids': True, 'return_tokens_as_token_ids': True,
         }
+        if self.settings.get('self_distillation'):
+            payload['top_k'] = -1
         request_id, started = uuid4().hex, time.monotonic()
         self.cost['requests'] += 1
         response = request_json(self.url + '/chat/completions', payload,
@@ -49,6 +51,8 @@ class TrainingClient:
             raise ValueError('non-finite rollout log probability')
         # Record BEFORE parsing: malformed/length-limited model output must learn.
         turn = {'prompt_ids': prompt, 'response_ids': tokens, 'old_logprobs': logprobs}
+        if self.settings.get('self_distillation'):
+            turn['messages'] = deepcopy(messages)
         self.turns.append(turn)
         message, audit = decode_completion(response, request_id, time.monotonic() - started)
         if self.settings.get('local_credit', {}).get('weight', 0):
@@ -74,7 +78,7 @@ def group_advantages(rewards):
 
 
 def collect_update(tasks, *, client_factory, config, tokenizer, env_url, fingerprint,
-                   settings, generation, evidence):
+                   settings, generation, evidence, group_transform=None):
     """Bounded dynamic sampling uses exactly the returns used by GRPO."""
     accepted, counts, groups = [], Counter(), []
     batch_groups = settings.get('sampling_groups_per_batch', settings['groups_per_update'])
@@ -105,7 +109,6 @@ def collect_update(tasks, *, client_factory, config, tokenizer, env_url, fingerp
             with ThreadPoolExecutor(max_workers=len(jobs)) as executor:
                 rows = list(executor.map(episode, jobs))
             for row in rows:
-                log.write(json.dumps(row, ensure_ascii=False) + '\n')
                 counts['trajectories'] += 1
                 counts['model_failures'] += row['failure_kind'] == 'model'
                 counts['infrastructure_failures'] += row['failure_kind'] == 'infrastructure'
@@ -117,18 +120,26 @@ def collect_update(tasks, *, client_factory, config, tokenizer, env_url, fingerp
                 group = rows[i:i+n]
                 rewards = [r['training_reward'] for r in group]
                 counts['generated_groups'] += 1
-                reason = ('invalid' if any(r is None for r in rewards) or any(not r['rollout_turns'] for r in group)
-                          else 'equal' if max(rewards) - min(rewards) <= 1e-8 else None)
-                if reason is None and len(accepted) < settings['groups_per_update'] * n:
-                    for row, advantage in zip(group, group_advantages(rewards)):
-                        row['advantage'] = advantage
-                    accepted.extend(group)
+                if group_transform is not None:
+                    eligible = group_transform(group, tokenizer, settings, counts)
+                    reason = None if eligible else 'no_feedback'
+                else:
+                    eligible = group
+                    reason = ('invalid' if any(r is None for r in rewards) or any(not r['rollout_turns'] for r in group)
+                              else 'equal' if max(rewards) - min(rewards) <= 1e-8 else None)
+                if reason is None and counts['accepted_groups'] < settings['groups_per_update']:
+                    if group_transform is None:
+                        for row, advantage in zip(group, group_advantages(rewards)):
+                            row['advantage'] = advantage
+                    accepted.extend(eligible)
                     counts['accepted_groups'] += 1
                 else:
                     reason = reason or 'surplus'
                     counts['filtered_' + reason] += 1
                 groups.append({'task_id': group[0]['task_id'], 'rewards': rewards, 'filter': reason})
-            if len(accepted) == settings['groups_per_update'] * n:
+                for row in group:
+                    log.write(json.dumps(row, ensure_ascii=False) + '\n')
+            if counts['accepted_groups'] == settings['groups_per_update']:
                 return accepted, {'counts': dict(counts), 'groups': groups, 'generation_batches': batch+1}
-    counts['discarded_partial_groups'] = len(accepted) // settings['rollouts_per_group']
+    counts['discarded_partial_groups'] = counts['accepted_groups']
     return [], {'counts': dict(counts), 'groups': groups, 'generation_batches': settings['max_generation_batches']}

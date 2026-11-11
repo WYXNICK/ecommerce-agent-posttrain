@@ -25,6 +25,19 @@ def load_settings(variant='outcome'):
             raise ValueError('invalid stable GRPO KL configuration')
     elif variant == 's0':
         settings.update(json.loads((ROOT / 'configs/grpo_s0.json').read_text()))
+    elif variant == 'sdpo':
+        settings.update(json.loads((ROOT / 'configs/sdpo.json').read_text()))
+        cfg = settings['self_distillation']
+        if not (cfg['divergence'] == 'reverse_kl' and 0 < cfg['teacher_update_rate'] <= 1
+                and cfg['importance_clip'] >= 1 and cfg['logit_chunk_tokens'] > 0
+                and 0 < cfg['feedback_tokens'] < cfg['teacher_context_tokens']
+                and settings['sampling_groups_per_batch'] * settings['rollouts_per_group'] <= 8
+                and settings['max_generation_batches'] * settings['sampling_groups_per_batch'] >= settings['groups_per_update']
+                and settings['temperature'] == settings['top_p'] == 1
+                and settings['kl_coefficient'] == 0
+                and settings['save_every'] == settings['evaluate_every']
+                and settings['updates'] % settings['save_every'] == 0):
+            raise ValueError('invalid SDPO feedback/sampling/objective configuration')
     elif variant != 'outcome':
         raise ValueError('unknown GRPO variant')
     return settings
