@@ -1,0 +1,86 @@
+{
+  "version": "dev-passk-v1",
+  "split": "dev",
+  "tasks": 300,
+  "samples_per_task": 8,
+  "k": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "sampling": {
+    "seed": 20261111,
+    "temperature": 1.0,
+    "top_p": 1.0
+  },
+  "workers_per_model": 8,
+  "infrastructure_passes": 3,
+  "bootstrap_seed": 42,
+  "bootstrap_resamples": 10000,
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227",
+  "models": [
+    {
+      "name": "s0",
+      "registry": "configs/test_comparison.json",
+      "greedy_source": "results/sft/astra-s0/summary.json",
+      "greedy_keys": [
+        "selected",
+        "summary"
+      ]
+    },
+    {
+      "name": "s-repair",
+      "registry": "configs/test_comparison.json",
+      "greedy_source": "results/data-reflow/r1/summary.json",
+      "greedy_keys": [
+        "arms",
+        "repair",
+        "selected",
+        "summary"
+      ]
+    },
+    {
+      "name": "s0-grpo-450",
+      "registry": "configs/s0_grpo_test.json",
+      "greedy_source": "results/grpo/s0/summary.json",
+      "greedy_keys": [
+        "selected",
+        "summary"
+      ]
+    },
+    {
+      "name": "grpo-500",
+      "registry": "configs/test_comparison.json",
+      "greedy_source": "results/grpo/outcome/summary.json",
+      "greedy_keys": [
+        "selected",
+        "summary"
+      ]
+    }
+  ],
+  "comparisons": [
+    [
+      "s0",
+      "s-repair"
+    ],
+    [
+      "s0",
+      "s0-grpo-450"
+    ],
+    [
+      "s-repair",
+      "grpo-500"
+    ]
+  ],
+  "interpretation": "fixed dev diagnostic, no test-based selection or training data reuse",
+  "input_sha256": {
+    "configs/s0_grpo_test.json": "ab78a01c43d6d40e6cdb24c67c0b3db17622bc9274d43eaa7ab1bad4e0f196a4",
+    "configs/test_comparison.json": "ad58b0d4474af9432d2e521e7aaea277f5168c694539d1a51ce502acb65a7ec5",
+    "data/task_pool/dev.jsonl": "b5baa40ac6f10c7061e9d65eef5f8c30be0d923a783ab0c60f35cae520829f10",
+    "results/data-reflow/r1/summary.json": "399cf97ab7c1ac6f65441ae3410e0e0cb21de11814bea99c498659f4b84ed2cf",
+    "results/grpo/outcome/summary.json": "85e207c1972b5d08426d1516c2290e3862f4e1b3f586d5c0d27db5665db7c1ee",
+    "results/grpo/s0/summary.json": "dcff1d0393ff91be1c4434b5510e37134a6731d85333161689e61aa87b39d127",
+    "results/sft/astra-s0/summary.json": "8d1a664d39809245f151efe14bcad33a9501c3b87dd2b4941769074df19b4e2f"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "checked_at": "2026-11-11T04:18:41.834720+00:00",
+  "tests": 7,
+  "test_log": "outputs/passk/validation/tests.log",
+  "worker_model_identity": "all four frozen base/adapter manifests matched on worker1171145",
+  "files_sha256": {
+    "scripts/passk/diagnose.py": "0f1350fa0580cfd6679a04f1c61a821a72f40089ef403ffd4c8de2eba12deb12",
+    "scripts/passk/run.py": "7005545f1b7c9c26abe8c34d093f06c71131d2e5bdefc5431ac030df3ac2006c",
+    "configs/passk.json": "3454aec93f2d47bc28edc2c26625ed52d90fcadfa1fadcbc61f25a5b37cc99da",
+    "tests/test_passk.py": "ea02c7440e81542e76b5262ff877ef80b55c2b85926e24c3a09e992774071212"
+  },
+  "scope": "offline statistics, resume/error semantics and model identity; online completeness requires all 9600 episodes"
+}
