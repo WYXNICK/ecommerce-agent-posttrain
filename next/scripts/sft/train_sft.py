@@ -36,9 +36,18 @@ def masked_loss(logits, targets, num_items_in_batch=None, world_size=1):
     return numerator / num_items_in_batch * world_size
 
 
+def initialize_adapter(model, settings, initial_adapter=None):
+    """Continue the evaluated adapter without BF16 merging or resetting its weights."""
+    from peft import LoraConfig, PeftModel, TaskType, get_peft_model
+    if initial_adapter is not None:
+        return PeftModel.from_pretrained(model, initial_adapter, is_trainable=True)
+    lora = settings['lora']
+    return get_peft_model(model, LoraConfig(task_type=TaskType.CAUSAL_LM, r=lora['r'],
+        lora_alpha=lora['alpha'], lora_dropout=lora['dropout'], bias='none', target_modules=lora['target_modules']))
+
+
 def main():
     import torch
-    from peft import LoraConfig, TaskType, get_peft_model
     from transformers import AutoModelForMultimodalLM, Trainer, TrainerCallback, TrainingArguments, set_seed
 
     parser = argparse.ArgumentParser(description=__doc__)
@@ -47,10 +56,18 @@ def main():
     parser.add_argument("--weights", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--resume", type=Path)
+    parser.add_argument("--initial-adapter", type=Path, help="existing policy adapter; fresh optimizer unless --resume is provided")
     parser.add_argument("--settings", type=Path, default=NEXT / "configs/sft.json")
     args = parser.parse_args()
     validate_execution()
     settings = json.loads(args.settings.read_text())
+    if bool(args.initial_adapter) != bool(settings.get('initial_adapter_files')):
+        raise ValueError('initial adapter and its frozen file manifest must be supplied together')
+    if args.initial_adapter:
+        for directory, files in [(args.model, settings['base_model_weights']),
+                                 (args.initial_adapter, settings['initial_adapter_files'])]:
+            if any(sha256(directory/name) != digest for name, digest in files.items()):
+                raise ValueError('initial policy weights changed')
     config = load_config()
     if int(os.environ.get("WORLD_SIZE", "1")) != settings["world_size"]:
         raise ValueError("launch with the configured two torchrun ranks")
@@ -68,9 +85,7 @@ def main():
                attn_implementation="sdpa", device_map={"": local_rank})
     model.config.use_cache = False
     model.enable_input_require_grads()
-    lora = settings["lora"]
-    model = get_peft_model(model, LoraConfig(task_type=TaskType.CAUSAL_LM, r=lora["r"],
-        lora_alpha=lora["alpha"], lora_dropout=lora["dropout"], bias="none", target_modules=lora["target_modules"]))
+    model = initialize_adapter(model, settings, args.initial_adapter)
     kernels = sorted({m.chunk_gated_delta_rule.__module__ for m in model.modules() if callable(getattr(m, "chunk_gated_delta_rule", None))})
     if local_rank == 0:
         model.print_trainable_parameters()

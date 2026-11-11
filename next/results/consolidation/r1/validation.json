@@ -1,0 +1,43 @@
+{
+  "status": "implementation_verified_not_executed",
+  "verified_at": "2026-11-11T03:34:38.248928+00:00",
+  "checks": {
+    "consolidation": {
+      "tests": 6,
+      "status": "passed",
+      "log": "outputs/consolidation/validation/consolidation.log",
+      "sha256": "cc3fe991e3ba6d3a489b531af399a1dd880fc93e304c6e214bd744dce256e5af"
+    },
+    "reflow": {
+      "tests": 5,
+      "status": "passed",
+      "log": "outputs/consolidation/validation/reflow.log",
+      "sha256": "1f0e3960565b551d335b16b7c12154bc0a24cec4163dc60ad2b054be7872cea7"
+    },
+    "sft": {
+      "tests": 8,
+      "status": "passed",
+      "log": "outputs/consolidation/validation/sft.log",
+      "sha256": "b0205712904cd78b54916da9ba9ee76fc6f6cf498dc354aa7322367ace5c3f85"
+    }
+  },
+  "total_tests": 19,
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227",
+  "initial_policy": {
+    "name": "grpo-500",
+    "actual_base_and_adapter_files": "verified against configs/test_comparison.json"
+  },
+  "entry_points": "both --help and Python compilation passed",
+  "source_files": {
+    "configs/consolidation.json": "76b9dc0f371881c533f3fcbebda7ff4961bb2b6b57b98d49f7d0dee08128d073",
+    "scripts/consolidation/workflow.py": "20d0d3b96fbc28dec26a885c938b33ca97dd6f4757e6cea87df8b9ee9de7ad2c",
+    "scripts/consolidation/run.py": "4b51c9f058fb992d4a82c556879b8080600511fac3f55c1a09601a153441f151",
+    "scripts/sft/train_sft.py": "04d40e94e553b8d86d849abe3447f7275af52512263be111bbb2c69d8b9dccc4",
+    "tests/test_consolidation.py": "3c33e26a3f1358951654ad759ee86cccfa3d79de78c3d3ef8cecf2d33c8d332e"
+  },
+  "limits": [
+    "CPU tests and actual file identity verification only; no full-model GPU forward or throughput validation",
+    "No paid collection, training, model merging or new evaluation executed",
+    "No measured improvement; original terminal GRPO remains the main result"
+  ]
+}

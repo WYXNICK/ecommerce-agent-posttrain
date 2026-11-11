@@ -1,0 +1,16 @@
+{
+  "version": "post-grpo-repair-r1",
+  "model_registry": "configs/test_comparison.json",
+  "initial_policy": "grpo-500",
+  "baseline_result": "results/grpo/outcome/summary.json",
+  "mining_split": "grpo_train",
+  "seed": 42,
+  "repair_target": 200,
+  "minimum_pairs": 100,
+  "workers": 6,
+  "epochs": 2,
+  "learning_rate": 0.000005,
+  "arms": ["replay", "repair"],
+  "selection": "Strict success must increase and Reward v3 must not decrease versus the initial policy; rank by successes, fewer lost successes, reward, fewer actions, earlier step. Otherwise retain the initial policy.",
+  "comparison": "Same initial unmerged adapter, common student/teacher anchors, example count, epochs and optimizer settings; replace one teacher-replay block by verified repair suffixes. Supervised tokens and wall time are reported, not assumed equal."
+}
