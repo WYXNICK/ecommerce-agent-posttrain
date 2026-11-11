@@ -1,0 +1,176 @@
+{
+  "status": "complete",
+  "artifacts": [
+    {
+      "artifact": "grpo/batch-20261110/evidence/dev-450",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/dev-150",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/checkpoints/step-100",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/model-step-500",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/dev-400",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/step-50",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/step-350",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/step-150",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/checkpoints/step-150",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/checkpoints/step-500",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/dev-50",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/step-250",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/dev-300",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/run-source",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/dev-250",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/checkpoints/step-300",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/checkpoints/step-350",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/checkpoints/step-400",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/dev-350",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/step-200",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/dev-500",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/checkpoints/step-250",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/step-450",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/checkpoints/step-50",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/dev-200",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/step-100",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/dev-100",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/final",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/step-400",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/acceptance",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/checkpoints/step-200",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/checkpoints/step-450",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/step-500",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "grpo/batch-20261110/evidence/step-300",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    }
+  ],
+  "retry": "independent archive daemon"
+}
