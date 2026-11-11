@@ -1,0 +1,43 @@
+{
+  "status": "complete",
+  "devbox_root": "/tmp/shopping-next-models/20261104",
+  "hdfs_root": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104",
+  "entries": [
+    {
+      "relative": "passk/dev300-20261111/evaluations/s0",
+      "receipt_key": "fa742528dae22f23c106c8d3b21ff8d318885eb430d5275c74dee8c08b909a14",
+      "receipts": "complete",
+      "hdfs": "complete"
+    },
+    {
+      "relative": "passk/dev300-20261111/source",
+      "receipt_key": "4468976d73846242494f60e06482420e1c7338048266b4b3d5a5d5c684c716bc",
+      "receipts": "complete",
+      "hdfs": "complete"
+    },
+    {
+      "relative": "passk/dev300-20261111/evidence/1794377408768508735",
+      "receipt_key": "a0cf5b3994d2097ed538d803d51072347d2392f45586701eca0d48fb1b18e51c",
+      "receipts": "complete",
+      "hdfs": "complete"
+    },
+    {
+      "relative": "passk/dev300-20261111/evaluations/s-repair",
+      "receipt_key": "c2e05645611c8ae6ba7e7b934211339ee399d3e939e2e9c654f7a9df7cb60881",
+      "receipts": "complete",
+      "hdfs": "complete"
+    },
+    {
+      "relative": "passk/dev300-20261111/evaluations/grpo-500",
+      "receipt_key": "159172c0d460feb5352e1666e3241af557c027464b1ac62bb843d0f9ae5b839d",
+      "receipts": "complete",
+      "hdfs": "complete"
+    },
+    {
+      "relative": "passk/dev300-20261111/evaluations/s0-grpo-450",
+      "receipt_key": "a323a4383e5db46e10354a00ec4d9ee6dbdaa93159b90e6a2d90a0f41cecc75d",
+      "receipts": "complete",
+      "hdfs": "complete"
+    }
+  ]
+}
