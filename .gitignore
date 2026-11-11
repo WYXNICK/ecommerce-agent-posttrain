@@ -21,3 +21,6 @@ models/
 swanlog/
 wandb/
 logs/
+
+# Personal resume materials stay local.
+/next/docs/presentation/
