@@ -1,35 +1,36 @@
 % 插入现有简历的“项目经历”，复用原模板的 \projectsubsection。
 % 第三个参数为项目起止时间，请按实际填写；本片段不改变其他经历。
 \projectsubsection
-{\textbf{购物决策 Agent：失败数据闭环与在线强化学习}}
+{\textbf{电商任务执行 Agent：约束遵循与强化学习优化}}
 {}{}
 
-\noindent 面向商品搜索、规格选择与购买中的多约束决策，针对小模型约束遗漏与无效交互，
-基于 \textbf{ShopSimulator} 构建 \textbf{Qwen3.5-2B} 的
-\textbf{示范学习 $\rightarrow$ 失败纠错 $\rightarrow$ 在线 GRPO} 后训练流程，提升任务完成率与执行效率。
+\noindent 面向将用户预算、规格与商品偏好转化为实际购买操作的任务执行场景，
+在 \textbf{ShopSimulator} 中围绕 \textbf{Qwen3.5-2B} 构建
+\textbf{示范学习 $\rightarrow$ 失败纠错 $\rightarrow$ 在线强化学习} 闭环，
+优化跨步骤约束遵循与执行稳定性，实现任务成功率和交互效率双提升。
 
 \begin{itemize}
-  \item \textbf{数据与纠错闭环：}
+  \item \textbf{失败驱动的数据闭环：}
   筛查 \textbf{2.34 万}原始任务，按商品与近重复需求分组隔离训练、评测数据，
   采集 \textbf{2,000 条}教师成功轨迹完成冷启动 SFT；
   从学生失败中通过\textbf{环境重放、教师接管与终局验收}构建
   \textbf{144 条}纠错轨迹，与原示范按 1:1 混合回放，纠错样本仅监督教师接管后的动作。
 
-  \item \textbf{在线强化学习：}
+  \item \textbf{可验证奖励与在线学习：}
   基于 \textbf{veRL 策略损失与 vLLM} 实现双 H100 \textbf{LoRA GRPO}，
   从 \textbf{2,000 题}训练池在线采样，每题生成 4 条轨迹，完成 \textbf{500 次}有效更新；
   统一训练与评测的执行协议，对齐动作 token 与采样 logprob，使用可验证终局奖励及模型失败负反馈，
   通过\textbf{组级过滤与动态补采}剔除不可验证、等奖励组，保证有效学习信号。
 
-  \item \textbf{任务效果与效率：}
-  在固定 \textbf{1,000 题测试集}上，冷启动 SFT、修复 SFT、GRPO 的严格成功率依次为
-  \textbf{75.0\%、76.6\%、77.8\%}；
-  全流程相对冷启动 SFT 提升 \textbf{2.8 个百分点}，其中 GRPO 贡献 \textbf{1.2 个百分点}；
-  同集平均交互步数由 \textbf{10.00 降至 8.50（减少 15.0\%）}。
+  \item \textbf{策略能力与稳定性分析：}
+  以 \textbf{pass@1/pass@8} 分别衡量单次执行可靠性与多次采样成功覆盖，
+  对 4 个 SFT/GRPO 模型在开发集采集 \textbf{9,600 条}轨迹并进行配对分析；
+  GRPO 将修复 SFT 的随机 \textbf{pass@1 从 69.29\% 提升至 74.83\%（+5.54 个百分点）}，
+  pass@8 从 88.33\% 至 89.33\%，提升已有成功策略的单次执行可靠性。
 
-  \item \textbf{训练效果诊断：}
-  以 \textbf{pass@1/pass@8} 区分成功轨迹覆盖与单次执行可靠性，基于开发集上 4 个固定模型的
-  \textbf{9,600 条}独立采样轨迹开展配对分析；
-  GRPO 相对修复 SFT 的随机 \textbf{pass@1 从 69.29\% 提升至 74.83\%（+5.54 个百分点）}，
-  pass@8 从 88.33\% 至 89.33\%，表明主要收益体现为\textbf{已有成功策略的执行可靠性提升}。
+  \item \textbf{端到端效果：}
+  在固定 \textbf{1,000 题测试集}上，冷启动 SFT、纠错 SFT、GRPO 的严格任务成功率依次达到
+  \textbf{75.0\%、76.6\%、77.8\%}，相对冷启动 SFT 累计提升 \textbf{2.8 个百分点}；
+  GRPO 在纠错 SFT 基础上进一步提升成功率，同时将平均交互步数从
+  \textbf{10.00 降至 8.50，减少 15.0\%}。
 \end{itemize}
