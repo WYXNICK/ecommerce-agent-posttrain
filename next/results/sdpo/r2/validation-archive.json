@@ -1,0 +1,15 @@
+{
+  "status": "complete",
+  "artifacts": [
+    {
+      "artifact": "sdpo/r2-validation/evidence/run-source",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "sdpo/r2-validation/evidence/final",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    }
+  ]
+}

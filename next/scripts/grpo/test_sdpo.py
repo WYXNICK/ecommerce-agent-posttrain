@@ -39,7 +39,8 @@ def trajectory(index, success=False, failure='model'):
     detail = {'reward_version': 'shopsimulator-reward-v3',
               'reward_type': 'gold_purchase' if success else 'wrong_purchase',
               'reward_valid': True, 'purchase_success': success,
-              'termination_reason': 'gold_purchase' if success else 'wrong_purchase'}
+              'termination_reason': 'gold_purchase' if success else 'wrong_purchase',
+              'hard_gates': {} if success else {'budget': {'verifiable': True, 'passed': False, 'required': 100, 'actual': 120}}}
     return {'trajectory_id': str(index), 'task_id': 1, 'status': 'done', 'done': True,
             'terminal_result': {'done': True, 'over': True, 'reward_detail': detail},
             'failure_kind': None if success else failure, 'training_reward': 1. if success else -.65,
@@ -72,6 +73,7 @@ class SDPOTests(unittest.TestCase):
         text = json.dumps(execution_feedback(row))
         self.assertIn('120', text)
         self.assertNotIn('SECRET', text)
+        self.assertNotIn('executed_actions', text)
         self.assertIsNone(execution_feedback(trajectory(1, success=True)))
         for kind in ('infrastructure', 'unverifiable'):
             self.assertIsNone(execution_feedback(trajectory(2, failure=kind)))
@@ -81,16 +83,19 @@ class SDPOTests(unittest.TestCase):
         group = [trajectory(0, True), trajectory(1)]
         before = deepcopy(group)
         rows = prepare_group(group, tok, self.settings, counts)
-        # The only successful trajectory cannot teach itself.
-        self.assertEqual([r['trajectory_id'] for r in rows], ['1'])
-        self.assertEqual(rows[0]['distillation']['demonstration_id'], '0')
+        # Success uses the original context and the frozen SFT, not a demonstration.
+        self.assertEqual([r['trajectory_id'] for r in rows], ['0', '1'])
+        self.assertEqual(rows[0]['distillation']['target'], 'frozen_sft')
+        self.assertIsNone(rows[0]['distillation']['text'])
+        self.assertEqual(rows[0]['rollout_turns'][0]['teacher_prompt_ids'], before[0]['rollout_turns'][0]['prompt_ids'])
+        self.assertEqual(rows[1]['distillation']['demonstration_id'], '0')
         self.assertEqual(tok.messages[2:], normalize_messages_for_chat_template(before[1]['messages'])[2:])
         self.assertNotEqual(tok.messages[1], before[1]['messages'][1])
         for actual, original in zip(group, before):
             self.assertEqual(actual['messages'], original['messages'])
             self.assertEqual(actual['rollout_turns'], original['rollout_turns'])
         for field in ('prompt_ids', 'response_ids', 'old_logprobs'):
-            self.assertEqual(rows[0]['rollout_turns'][0][field], before[1]['rollout_turns'][0][field])
+            self.assertEqual(rows[1]['rollout_turns'][0][field], before[1]['rollout_turns'][0][field])
 
     def test_equal_groups_and_valid_siblings_are_not_discarded(self):
         group = [trajectory(i, True) for i in range(8)]
@@ -98,8 +103,8 @@ class SDPOTests(unittest.TestCase):
         rows = prepare_group(group, Tokenizer(), self.settings, Counter())
         self.assertEqual(len(rows), 7)
         for row in rows:
-            self.assertNotEqual(row['distillation']['demonstration_id'], row['trajectory_id'])
-            self.assertNotEqual(row['distillation']['demonstration_id'], '0')
+            self.assertIsNone(row['distillation']['demonstration_id'])
+            self.assertEqual(row['distillation']['target'], 'frozen_sft')
         failures = [trajectory(i) for i in range(8)]
         rows = prepare_group(failures, Tokenizer(), self.settings, Counter())
         self.assertEqual(len(rows), 8)
@@ -119,7 +124,7 @@ class SDPOTests(unittest.TestCase):
         self.assertEqual(len(rows), 16)
         self.assertEqual(diag['generation_batches'], 2)
         self.assertEqual(diag['counts']['accepted_groups'], 2)
-        self.assertTrue(all(r['distillation']['demonstration_id'] for r in evidence))
+        self.assertTrue(all(r['distillation']['target'] == 'frozen_sft' for r in evidence))
 
     def test_context_overflow_is_masked_not_silently_truncated(self):
         settings = deepcopy(self.settings)
@@ -127,6 +132,18 @@ class SDPOTests(unittest.TestCase):
         counts = Counter()
         self.assertEqual(prepare_group([trajectory(0)], Tokenizer(), settings, counts), [])
         self.assertEqual(counts['sdpo_context_overflow_turns'], 1)
+
+    def test_uninformative_failure_requires_successful_demonstration(self):
+        row = trajectory(0)
+        row['terminal_result']['reward_detail']['hard_gates'] = {}
+        counts = Counter()
+        self.assertEqual(prepare_group([row], Tokenizer(), self.settings, counts), [])
+        self.assertEqual(counts['sdpo_no_feedback_trajectories'], 1)
+        rows = prepare_group([trajectory(1, True), row], Tokenizer(), self.settings, Counter())
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[1]['distillation']['demonstration_id'], '1')
+        row['blocked_tool_calls'] = [{'tool_call': {'function': {'name': 'buy_now'}}, 'reason': 'choose size first'}]
+        self.assertEqual(len(prepare_group([row], Tokenizer(), self.settings, Counter())), 1)
 
     def test_chunked_full_kl_matches_direct_value_and_gradient_with_capped_weights(self):
         torch.manual_seed(6)
@@ -186,12 +203,19 @@ class SDPOTests(unittest.TestCase):
                 if 'lora_B' in name:
                     parameter.fill_(.2)
         student = {n: p.detach().clone() for n, p in teacher.parameters.items()}
-        turn = {'teacher_prompt_ids': [1, 2, 5, 6], 'response_ids': [3, 4]}
+        turn = {'teacher_prompt_ids': [1, 2, 5, 6], 'response_ids': [3, 4], 'sdpo_strict_success': False}
         q = hindsight_logits(model, teacher, turn, 'cpu')
         self.assertEqual(q.shape, (2, 17))
         with teacher.activate(model), torch.no_grad():
             full = model(input_ids=torch.tensor([[1, 2, 5, 6, 3, 4]])).logits[0]
         torch.testing.assert_close(q, full[3:5])
+        # A success anchor must ignore the changed LoRA and EMA entirely.
+        success_turn = {**turn, 'sdpo_strict_success': True}
+        anchored = hindsight_logits(model, teacher, success_turn, 'cpu')
+        with model.disable_adapter(), torch.no_grad():
+            base = model(input_ids=torch.tensor([[1, 2, 5, 6, 3, 4]])).logits[0, 3:5]
+        torch.testing.assert_close(anchored, base)
+        self.assertFalse(anchored.requires_grad)
         self.assertFalse(q.requires_grad)
         self.assertTrue(model.training)
         for name, parameter in teacher.parameters.items():

@@ -28,7 +28,9 @@ def load_settings(variant='outcome'):
     elif variant == 'sdpo':
         settings.update(json.loads((ROOT / 'configs/sdpo.json').read_text()))
         cfg = settings['self_distillation']
-        if not (cfg['divergence'] == 'reverse_kl' and 0 < cfg['teacher_update_rate'] <= 1
+        if not (cfg['success_target'] == 'frozen_sft' and cfg['failure_target'] == 'feedback_ema'
+                and cfg['require_informative_feedback'] is True
+                and cfg['divergence'] == 'reverse_kl' and 0 < cfg['teacher_update_rate'] <= 1
                 and cfg['importance_clip'] >= 1 and cfg['logit_chunk_tokens'] > 0
                 and 0 < cfg['feedback_tokens'] < cfg['teacher_context_tokens']
                 and settings['sampling_groups_per_batch'] * settings['rollouts_per_group'] <= 8

@@ -100,7 +100,7 @@ def main():
                 'resume': str(args.resume) if args.resume else None,
                 'task_pool_sha256': sha256(ROOT/'data/task_pool/grpo_train.jsonl'),
                 'runtime': {p: importlib.metadata.version(p) for p in ('torch', 'transformers', 'peft', 'vllm', 'verl')},
-                'implementation': ('SDPO full-logit reverse KL, feedback-conditioned LoRA EMA teacher'
+                'implementation': ('SDPO full-logit reverse KL; failure feedback EMA teacher, frozen-SFT success anchor'
                     if args.variant == 'sdpo' else 'veRL clipped loss') +
                     '; exact per-turn tokens, synchronous two-rank gradient sum',
                 'test_evaluation': 'not scheduled', 'variant': args.variant,
@@ -215,7 +215,7 @@ def main():
                   'export_note': 'BF16 merged exports are convenience copies, not silently substituted for the evaluated LoRA policy',
                   'limits': 'single-seed development-set selection; this run schedules no test evaluation'}
         write_json(args.output/'summary.json', result)
-        result_relative = 'sdpo/r1' if args.variant == 'sdpo' else f'grpo/{args.variant}'
+        result_relative = f'sdpo/{args.output.name}' if args.variant == 'sdpo' else f'grpo/{args.variant}'
         final = ROOT/'results'/result_relative
         final.mkdir(parents=True, exist_ok=True)
         write_json(final/'summary.json', result)
@@ -229,15 +229,16 @@ def main():
         lines += ['', f"选中 step {selected['step']}；step 0 表示保留原 SFT。开发集用于选模，不能据此宣称测试收益。",
                   '', f'[完整结果与模型身份](../../results/{result_relative}/summary.json)。']
         doc = ROOT/'docs'/('sdpo' if args.variant == 'sdpo' else 'grpo' if args.variant == 'outcome' else 'grpo-'+args.variant)
-        (doc/'results.md').write_text('\n'.join(lines)+'\n')
+        report_name = f'{args.output.name}-results.md' if args.variant == 'sdpo' else 'results.md'
+        (doc/report_name).write_text('\n'.join(lines)+'\n')
         plan = ROOT/'docs/project-completion-plan.md'
         text = plan.read_text()
         if args.variant == 'sdpo':
             text = text.replace('**运行中**；[SDPO 方案](sdpo/README.md)',
-                f"**训练与开发集选模已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](sdpo/results.md)")
+                f"**训练与开发集选模已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](sdpo/{report_name})")
             stage = doc/'README.md'
             stage.write_text(stage.read_text().replace('**状态：运行中。**',
-                '**状态：训练与开发集选模已完成。** 见[结果](results.md)。'))
+                f'**状态：训练与开发集选模已完成。** 见[结果]({report_name})。'))
         if args.variant == 'outcome':
             text = text.replace('**运行中**；[方法与状态](grpo/README.md)',
             f"**已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](grpo/results.md)")

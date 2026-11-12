@@ -1,5 +1,5 @@
 {
-  "version": "shopping-sdpo-v1",
+  "version": "shopping-sdpo-v2",
   "rollouts_per_group": 8,
   "sampling_groups_per_batch": 1,
   "max_generation_batches": 8,
@@ -10,6 +10,10 @@
     "logit_chunk_tokens": 32,
     "feedback_tokens": 4096,
     "teacher_context_tokens": 28672,
-    "reference_commit": "7c457fc1b1f636ae794eb0362ba37d4743b06fbc"
-  }
+    "reference_commit": "7c457fc1b1f636ae794eb0362ba37d4743b06fbc",
+    "success_target": "frozen_sft",
+    "failure_target": "feedback_ema",
+    "require_informative_feedback": true
+  },
+  "updates": 200
 }

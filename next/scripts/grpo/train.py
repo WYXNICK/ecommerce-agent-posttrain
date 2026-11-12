@@ -240,7 +240,7 @@ def main():
         lr = settings['learning_rate'] * min(1.0, (step+1)/settings['warmup_updates'])
         for group in optimizer.param_groups:
             group['lr'] = lr
-        metric = torch.zeros(12, device=rank, dtype=torch.float64)
+        metric = torch.zeros(14, device=rank, dtype=torch.float64)
         partitions, input_tokens_by_rank = balance_turns(rows, settings['world_size'])
         for turn, episode_advantage in partitions[rank]:
             prompt, response = turn['prompt_ids'], turn['response_ids']
@@ -272,7 +272,9 @@ def main():
                 len(response) if sdpo and turn['sdpo_strict_success'] else 0,
                 sdpo_stats['teacher_sampled_logprob_delta']*len(response) if sdpo and turn['sdpo_strict_success'] else 0,
                 len(response) if sdpo and not turn['sdpo_strict_success'] else 0,
-                sdpo_stats['teacher_sampled_logprob_delta']*len(response) if sdpo and not turn['sdpo_strict_success'] else 0], device=rank)
+                sdpo_stats['teacher_sampled_logprob_delta']*len(response) if sdpo and not turn['sdpo_strict_success'] else 0,
+                loss.item()*len(response) if sdpo and turn['sdpo_strict_success'] else 0,
+                loss.item()*len(response) if sdpo and not turn['sdpo_strict_success'] else 0], device=rank)
             del output, loss, objective, kl, entropy, logprob, ref, ids, teacher_logits
         # Each rank accumulated numerator/global_token_count; sum, do not average.
         gradients = [p.grad if p.grad is not None else torch.zeros_like(p) for p in parameters]
@@ -340,6 +342,11 @@ def main():
                     action_entropy=metric[6].item()/token_count,
                     accepted_trajectories=len(rows),
                     accepted_tasks=len({row['task_id'] for row in rows}))
+                result.update(success_anchor_tokens=int(metric[8].item()),
+                              failure_distillation_tokens=int(metric[10].item()))
+                for name, count_index, loss_index in (('success_anchor_kl', 8, 12), ('failure_feedback_kl', 10, 13)):
+                    if metric[count_index].item():
+                        result[name] = metric[loss_index].item()/metric[count_index].item()
                 for name, count_index, delta_index in (('success', 8, 9), ('failure', 10, 11)):
                     if metric[count_index].item():
                         result['teacher_logprob_delta_'+name] = metric[delta_index].item()/metric[count_index].item()

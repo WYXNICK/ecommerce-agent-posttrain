@@ -34,8 +34,7 @@ def execution_feedback(row):
     return {'status': row['status'], 'outcome': detail.get('reward_type'),
             'strict_success': False, 'failed_checks': failures,
             'rejected_actions': [{'action': b['tool_call']['function'], 'reason': b['reason']}
-                                 for b in row['blocked_tool_calls']],
-            'executed_actions': action_trace(row)}
+                                 for b in row['blocked_tool_calls']]}
 
 
 def feedback_text(feedback, demonstration):
@@ -66,44 +65,53 @@ def prepare_group(group, tokenizer, settings, counts):
     successes = [r for r in valid if _is_strict_success(r)]
     prepared = []
     for row in valid:
-        demo = next((r for r in successes if r['trajectory_id'] != row['trajectory_id']), None)
-        feedback = execution_feedback(row)
-        text = feedback_text(feedback, demo)
-        if text is None:
+        success = _is_strict_success(row)
+        # Successful behaviour is anchored to the frozen SFT under the original
+        # context, not rewritten toward another equally valid shopping route.
+        demo = successes[0] if successes and not success else None
+        feedback = execution_feedback(row) if not success else None
+        informative = feedback is not None and bool(feedback['failed_checks'] or feedback['rejected_actions'])
+        if not success and demo is None and not informative:
             counts['sdpo_no_feedback_trajectories'] += 1
             continue
+        text = feedback_text(feedback, demo)
         # Drop whole optional sections, never truncate a JSON value or a live
         # observation. An overlong feedback is explicitly masked and counted.
-        if tokenizer.text_tokens(text) > config['feedback_tokens'] and demo is not None and feedback is not None:
+        if text is not None and tokenizer.text_tokens(text) > config['feedback_tokens'] and demo is not None and informative:
             demo = None
             text = feedback_text(feedback, None)
             counts['sdpo_demo_omitted_for_length'] += 1
-        if tokenizer.text_tokens(text) > config['feedback_tokens']:
+        if text is not None and tokenizer.text_tokens(text) > config['feedback_tokens']:
             counts['sdpo_feedback_overflow_trajectories'] += 1
             continue
         turns = []
         for turn in row['rollout_turns']:
-            messages = deepcopy(turn['messages'])
-            # Initial user request, before the actual interleaved tool history.
-            messages[1]['content'] += text
-            prompt = tokenizer.apply_chat_template(normalize_messages_for_chat_template(messages),
-                tools=SHOP_TOOL_SCHEMAS, tokenize=True, return_dict=False, add_generation_prompt=True)
+            if success:
+                prompt = turn['prompt_ids']
+            else:
+                messages = deepcopy(turn['messages'])
+                # Preserve actual past observations; never disclose the full
+                # future failed action sequence in every teacher prompt.
+                messages[1]['content'] += text
+                prompt = tokenizer.apply_chat_template(normalize_messages_for_chat_template(messages),
+                    tools=SHOP_TOOL_SCHEMAS, tokenize=True, return_dict=False, add_generation_prompt=True)
             if len(prompt) + len(turn['response_ids']) > config['teacher_context_tokens']:
                 counts['sdpo_context_overflow_turns'] += 1
                 continue
             turns.append({**turn, 'teacher_prompt_ids': prompt,
-                          'sdpo_strict_success': _is_strict_success(row)})
+                          'sdpo_strict_success': success})
         if not turns:
             continue
         metadata = {'demonstration_id': demo['trajectory_id'] if demo else None,
                     'environment_feedback': feedback is not None, 'text': text,
-                    'trained_turns': len(turns), 'strict_success': _is_strict_success(row)}
+                    'trained_turns': len(turns), 'strict_success': success,
+                    'target': 'frozen_sft' if success else 'feedback_ema'}
         row['distillation'] = metadata  # Saved with the original, unabridged rollout.
         prepared.append({**row, 'rollout_turns': turns, 'advantage': 0.0})
         counts['sdpo_demonstration_trajectories'] += demo is not None
         counts['sdpo_environment_feedback_trajectories'] += feedback is not None
-        counts['sdpo_success_trajectories'] += _is_strict_success(row)
-        counts['sdpo_failure_trajectories'] += not _is_strict_success(row)
+        counts['sdpo_success_trajectories'] += success
+        counts['sdpo_failure_trajectories'] += not success
         counts['sdpo_action_tokens'] += sum(len(t['response_ids']) for t in turns)
     return prepared
 
@@ -154,9 +162,17 @@ def hindsight_logits(model, teacher, turn, device):
     prompt, response = turn['teacher_prompt_ids'], turn['response_ids']
     ids = torch.tensor([prompt + response], device=device)
     positions = torch.arange(len(prompt)-1, len(prompt)+len(response)-1, device=device)
-    with teacher.activate(model), torch.no_grad():
-        return model(input_ids=ids, attention_mask=torch.ones_like(ids),
-                     logits_to_keep=positions, use_cache=False).logits[0].detach()
+    # The SFT is the frozen base; disabling only the newly trained SDPO LoRA
+    # gives the original policy without allocating a second base model.
+    context = model.disable_adapter() if turn['sdpo_strict_success'] else teacher.activate(model)
+    was_training = model.training
+    with context, torch.no_grad():
+        model.eval()
+        try:
+            return model(input_ids=ids, attention_mask=torch.ones_like(ids),
+                         logits_to_keep=positions, use_cache=False).logits[0].detach()
+        finally:
+            model.train(was_training)
 
 
 def distillation_loss(student_logits, teacher_logits, targets, old_logprobs, config):
