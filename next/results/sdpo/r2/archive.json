@@ -1,0 +1,81 @@
+{
+  "status": "complete",
+  "artifacts": [
+    {
+      "artifact": "sdpo/r2/checkpoints/step-100",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "sdpo/r2/evidence/dev-100",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "sdpo/r2/evidence/step-50",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "sdpo/r2/checkpoints/step-200",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "sdpo/r2/evidence/final",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "sdpo/r2/model-step-200",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "sdpo/r2/evidence/step-150",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "sdpo/r2/evidence/run-source",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "sdpo/r2/evidence/dev-150",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "sdpo/r2/evidence/step-200",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "sdpo/r2/evidence/dev-50",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "sdpo/r2/evidence/dev-200",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "sdpo/r2/checkpoints/step-150",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "sdpo/r2/evidence/step-100",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "sdpo/r2/checkpoints/step-50",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    }
+  ],
+  "retry": "independent archive daemon"
+}
