@@ -1,6 +1,6 @@
 # SDPO：利用真实反馈的在线自蒸馏
 
-**状态：训练与开发集选模已完成。** 见[结果](results.md)。500步完成，选中step150（dev229/300）；测试集尚未评测。原终局 GRPO step500 仍是已完成的主结果，GRPO 后纠错 SFT 继续作为备选。
+**状态：训练、选模和固定候选测试均已完成。** 见[结果](results.md)及[test1000对照](test-results.md)。step150为dev229/300、test756/1000，未超过修复SFT和原终局GRPO；本版保留为探索结果。原终局 GRPO step500 仍是已完成的主结果，GRPO 后纠错 SFT 继续作为备选。
 
 ## 1. 目的与依据
 
@@ -97,6 +97,12 @@ w = min(2, exp(学生采样 token 的 logp − vLLM 原始 logp))
 - 验收：`outputs/sdpo/validation/`；检查清单与结果：`results/sdpo/validation.json`。
 - 保留配置/源码、原始轨迹、反馈来源与原文、训练/评测日志、TensorBoard、LoRA＋优化器＋EMA＋随机状态。每50步先校验备份到开发机，再排队归档 HDFS。
 - 正常结束或可捕获失败恢复双卡保活。worker 强制回收不能靠进程内清理恢复，须依靠已落盘备份。
+
+### 固定候选测试
+
+使用[冻结评测配置](../../configs/sdpo_test.json)，仅评测开发集选中的step150。校验SFT基座和LoRA文件哈希，复用共享评测入口，在同一test1000上按既有单次贪心执行协议评测；严格成功要求完整、可验证的`gold_purchase`。SFT及原终局GRPO沿用已完成且原始证据校验一致的结果。
+
+独立输出为`outputs/evaluation/sdpo-test/`，保留模型服务/环境日志、逐题轨迹和汇总；完整证据校验备份到开发机并归档HDFS。报告严格成功率、Reward v3、动作数和同题新增/退步，不用测试集选模。
 
 ### 日志与结果入口
 

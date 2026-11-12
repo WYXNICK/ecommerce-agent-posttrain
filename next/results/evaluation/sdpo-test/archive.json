@@ -1,0 +1,22 @@
+{
+  "status": "complete",
+  "devbox_root": "/tmp/shopping-next-models/20261104",
+  "hdfs_root": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104",
+  "artifacts": [
+    {
+      "artifact": "evaluation/sdpo-test/evaluations/sdpo-150",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "evaluation/sdpo-test/source",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "evaluation/sdpo-test/evidence/final",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    }
+  ]
+}
