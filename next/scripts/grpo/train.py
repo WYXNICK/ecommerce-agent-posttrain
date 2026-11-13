@@ -5,6 +5,7 @@ GRPO uses group-centered returns; SDPO uses feedback-conditioned token distribut
 Gradients are summed across ranks and normalized by the global action-token count.
 """
 import argparse
+from collections import Counter
 from datetime import timedelta
 from functools import partial
 import gzip
@@ -18,7 +19,8 @@ import time
 from urllib.request import Request, urlopen
 
 from artifacts import persist, inventory
-from rollout import TrainingClient, collect_update
+from rollout import TrainingClient, collect_update, training_signal
+from constraint_reward import constrained_return
 from local_credit import apply_local_credit
 from settings import load_settings, starting_candidate
 from shopping_agent.clients import LocalChatClient, request_json
@@ -108,9 +110,25 @@ def eval_dev(step, name, args, config, tokenizer, fingerprint, adapter, baseline
     output = args.output / 'dev' / f'step-{step}'
     with RunStore(output, spec) as store:
         summary = evaluate(store, tasks=tasks, episode=episode, workers=8)
+    constraint_counts = Counter()
+    if args.variant == 'constraints':
+        settings = load_settings(args.variant)
+        decisions = []
+        for row in store.rows:
+            _, decision = constrained_return(row, training_signal(row, settings['model_failure_reward']),
+                                             settings['constraint_reward'])
+            constraint_counts['violating_purchases'] += decision['decision'] == 'penalized'
+            constraint_counts['restored_model_failures'] += decision['restored_model_failure']
+            constraint_counts.update(v['reason'] for v in decision['violations'])
+            if decision['violations']:
+                decisions.append({'task_id': row['task_id'], **decision})
+        write_json(output/'constraints.json', {'counts': dict(constraint_counts), 'decisions': decisions,
+                                              'note': 'diagnostic only; Reward v3 and selection unchanged'})
     item = {'step': step, 'checkpoint': str(adapter), 'summary': summary,
             'vs_starting_sft': compare_successes(summary, baseline),
             'evidence': {p.name: sha256(p) for p in output.glob('*.json*')}}
+    if args.variant == 'constraints':
+        item['constraint_counts'] = dict(constraint_counts)
     selection_key(item)
     return item
 
@@ -133,7 +151,7 @@ def main():
         parser.add_argument('--' + key, type=Path, required=True)
     parser.add_argument('--resume', type=Path)
     parser.add_argument('--validate-only', action='store_true', help='one SDPO batch, no optimizer step')
-    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0', 'batch', 'sdpo'), default='outcome')
+    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0', 'batch', 'sdpo', 'constraints'), default='outcome')
     parser.add_argument('--model-url', required=True)
     parser.add_argument('--environment-url', required=True)
     args = parser.parse_args()
@@ -325,6 +343,12 @@ def main():
                 'mean_training_reward': sum(r['training_reward'] for r in rows)/len(rows),
                 'strict_success_rate': sum((r['terminal_result'].get('reward_detail') or {}).get('reward_type')=='gold_purchase' for r in rows)/len(rows),
                 'sampling': diagnostic, 'peak_memory_gib_rank0': torch.cuda.max_memory_allocated()/2**30}
+            if settings.get('constraint_reward'):
+                original = [r['original_training_reward'] for r in rows if r['original_training_reward'] is not None]
+                result.update(original_reward_valid_trajectories=len(original),
+                              mean_environment_reward=sum(r['final_reward'] for r in rows)/len(rows))
+                if original:
+                    result['mean_original_training_reward'] = sum(original)/len(original)
             if regularized:
                 result.update(reference_kl_k3=metric[5].item()/token_count,
                     action_entropy=metric[6].item()/token_count,
@@ -407,6 +431,8 @@ def main():
                     writer.add_scalar('dev/'+key, candidate['summary']['reward_type_counts'].get(key, 0), step)
                 for key in ('gained', 'lost'):
                     writer.add_scalar('dev/'+key, candidate['vs_starting_sft'][key], step)
+                for key, value in candidate.get('constraint_counts', {}).items():
+                    writer.add_scalar('dev/constraints/'+key, value, step)
                 writer.flush()
                 dev_evidence = args.work/'evidence'/f'dev-{step}'
                 shutil.copytree(args.output/'dev'/f'step-{step}', dev_evidence)

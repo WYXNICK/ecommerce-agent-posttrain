@@ -1,7 +1,7 @@
 """Baseline recipe with explicit, isolated experimental overlays."""
 import json
 
-from shopping_agent.protocol import ROOT
+from shopping_agent.protocol import REFERENCE_ROOT, ROOT
 
 
 def load_settings(variant='outcome'):
@@ -23,6 +23,11 @@ def load_settings(variant='outcome'):
             raise ValueError('invalid GRPO sampling/checkpoint configuration')
         if variant == 'stable' and not (0 < settings['kl_coefficient'] and settings['kl_estimator'] == 'k3+'):
             raise ValueError('invalid stable GRPO KL configuration')
+    elif variant == 'constraints':
+        settings.update(json.loads((ROOT / 'configs/grpo_constraints.json').read_text()))
+        environment = json.loads((REFERENCE_ROOT /
+            'environments/ShopSimulator/shop_env/configs/environment.json').read_text())
+        settings['constraint_reward']['wrong_purchase_reward'] = environment['reward']['wrong_purchase']
     elif variant == 's0':
         settings.update(json.loads((ROOT / 'configs/grpo_s0.json').read_text()))
     elif variant == 'sdpo':

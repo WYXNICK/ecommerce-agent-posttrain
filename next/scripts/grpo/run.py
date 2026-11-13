@@ -29,7 +29,7 @@ def main():
     for name in ('model', 'work', 'output'):
         parser.add_argument('--'+name, type=Path, required=True)
     parser.add_argument('--resume', type=Path)
-    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0', 'batch', 'sdpo'), default='outcome')
+    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0', 'batch', 'sdpo', 'constraints'), default='outcome')
     parser.add_argument('--validate-only', action='store_true', help='local/SDPO acceptance; no optimizer or model export')
     parser.add_argument('--model-port', type=int, default=8016)
     parser.add_argument('--environment-port', type=int, default=5716)
@@ -79,7 +79,7 @@ def main():
     try:
         publish()
         settings = load_settings(args.variant)
-        if args.variant in ('stable', 's0', 'batch', 'sdpo') and not all(os.environ.get(key) for key in ('SHOP_ARTIFACT_QUEUE', 'SHOP_ARTIFACT_ROOT')):
+        if args.variant in ('stable', 's0', 'batch', 'sdpo', 'constraints') and not all(os.environ.get(key) for key in ('SHOP_ARTIFACT_QUEUE', 'SHOP_ARTIFACT_ROOT')):
             raise ValueError('online training requires the devbox/HDFS artifact queue and worker artifact root')
         fingerprint = validate_execution()
         TaskPool().validate_source()
@@ -220,7 +220,8 @@ def main():
         final.mkdir(parents=True, exist_ok=True)
         write_json(final/'summary.json', result)
         title = {'outcome': '终局奖励 GRPO', 'local': '局部信用 GRPO', 'stable': '稳定终局 GRPO',
-                 's0': 'S0 直接终局奖励 GRPO', 'batch': '4×4 终局奖励 GRPO', 'sdpo': '反馈自蒸馏 SDPO'}[args.variant]
+                 's0': 'S0 直接终局奖励 GRPO', 'batch': '4×4 终局奖励 GRPO', 'sdpo': '反馈自蒸馏 SDPO',
+                 'constraints': '基于证据的约束型终局奖励 GRPO'}[args.variant]
         lines = [f'# {title} 结果', '', '训练与开发集选模已完成；本轮未运行测试集。', '',
                  '| 检查点 | dev300 严格成功 | Reward v3 | 平均动作数 |', '|---|---:|---:|---:|']
         for item in result['candidates']:
@@ -266,6 +267,12 @@ def main():
                 f"**训练已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](grpo-batch/results.md)")
             stage = doc/'README.md'
             stage.write_text(stage.read_text().replace('**状态：运行中。**',
+                '**状态：训练与开发集选模已完成。** 见[结果](results.md)。'))
+        elif args.variant == 'constraints':
+            text = text.replace('**实现与验证已完成，未训练**；[约束奖励方案](grpo-constraints/README.md)',
+                f"**训练已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](grpo-constraints/results.md)")
+            stage = doc/'README.md'
+            stage.write_text(stage.read_text().replace('**状态：实现与验证已完成，未启动训练。**',
                 '**状态：训练与开发集选模已完成。** 见[结果](results.md)。'))
         plan.write_text(text)
         publish(status='complete', selected_step=selected['step'], selected_model=result['selected_model'])

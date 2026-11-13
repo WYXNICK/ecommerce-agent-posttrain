@@ -9,6 +9,7 @@ from pathlib import Path
 import time
 from uuid import uuid4
 
+from constraint_reward import constrained_return
 from shopping_agent.clients import ModelReply, decode_completion, request_json, wire_messages
 from shopping_agent.runtime import run_episode
 from shopping_agent.training.sft.dataset import normalize_messages_for_chat_template
@@ -92,6 +93,9 @@ def collect_update(tasks, *, client_factory, config, tokenizer, env_url, fingerp
         if (row.get('error') or {}).get('type') == 'ValueError':
             raise ValueError(f"execution or token contract violation: {row['error']}")
         reward = training_signal(row, settings['model_failure_reward'])
+        if settings.get('constraint_reward'):
+            row['original_training_reward'] = reward
+            reward, row['constraint_reward'] = constrained_return(row, reward, settings['constraint_reward'])
         row.update(training_reward=reward, policy_generation=generation, rollout_turns=client.turns,
                    sampling_cost=dict(client.cost))
         return row
@@ -113,6 +117,10 @@ def collect_update(tasks, *, client_factory, config, tokenizer, env_url, fingerp
                 counts['model_failures'] += row['failure_kind'] == 'model'
                 counts['infrastructure_failures'] += row['failure_kind'] == 'infrastructure'
                 counts['unverifiable'] += row['failure_kind'] == 'unverifiable'
+                if settings.get('constraint_reward'):
+                    counts['constraint_penalized_trajectories'] += row['constraint_reward']['decision'] == 'penalized'
+                    counts['constraint_restored_model_failures'] += row['constraint_reward']['restored_model_failure']
+                    counts.update('constraint_'+v['reason'] for v in row['constraint_reward']['violations'])
                 for key, value in row['sampling_cost'].items():
                     counts['main_' + key] += value
             n = settings['rollouts_per_group']
@@ -131,6 +139,9 @@ def collect_update(tasks, *, client_factory, config, tokenizer, env_url, fingerp
                     if group_transform is None:
                         for row, advantage in zip(group, group_advantages(rewards)):
                             row['advantage'] = advantage
+                            if settings.get('constraint_reward') and row['constraint_reward']['decision'] == 'penalized':
+                                counts['constraint_accepted_trajectories'] += 1
+                                counts['constraint_positive_advantages'] += advantage > 0
                     accepted.extend(eligible)
                     counts['accepted_groups'] += 1
                 else:

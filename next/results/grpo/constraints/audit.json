@@ -1,0 +1,174 @@
+{
+  "status": "offline_audit_complete",
+  "training_started": false,
+  "scope": "original outcome training rollouts; fixed trajectories, not new-policy results",
+  "recipe": {
+    "version": "constraint-outcome-grpo-v1",
+    "seed": 42,
+    "world_size": 2,
+    "updates": 500,
+    "groups_per_update": 2,
+    "rollouts_per_group": 4,
+    "max_generation_batches": 8,
+    "max_consecutive_skipped_updates": 10,
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "learning_rate": 1e-06,
+    "warmup_updates": 15,
+    "clip_ratio": 0.2,
+    "max_grad_norm": 1.0,
+    "model_failure_reward": -0.65,
+    "advantage_std_normalization": false,
+    "kl_coefficient": 0.0,
+    "save_every": 50,
+    "evaluate_every": 50,
+    "lora_rank": 16,
+    "lora_alpha": 32,
+    "base_weights_sha256": "29a3a288a7b2002f1b0b7157369ebde67da28a94b97eb19057809efeb0428e72",
+    "selection": "dev300 strict successes, mean Reward v3, fewer steps, earlier checkpoint; include starting SFT",
+    "constraint_reward": {
+      "version": "evidence-purchase-constraints-v1",
+      "wrong_purchase_reward": -0.85
+    }
+  },
+  "counts": {
+    "trajectories": 13456,
+    "penalized_trajectories": 1768,
+    "filtered_trajectories": 270,
+    "restored_model_failures": 270,
+    "partial_purchases": 1573,
+    "valid_groups": 3208,
+    "groups_losing_signal": 23,
+    "groups_gaining_signal": 1,
+    "accepted_groups": 1000,
+    "accepted_groups_losing_signal": 22,
+    "accepted_penalized_trajectories": 964,
+    "penalized_positive_before": 277,
+    "penalized_positive_after": 0,
+    "unaffected_failure_positive_before": 49,
+    "unaffected_failure_positive_after": 264,
+    "invalid_groups": 156,
+    "restored_valid_groups": 156,
+    "restored_informative_groups": 125
+  },
+  "penalized_unique_tasks": 651,
+  "violation_reasons": {
+    "purchased_product_lacks_required_option": 673,
+    "wrong_required_option": 842,
+    "omitted_required_option": 326,
+    "wrong_required_model": 31,
+    "wrong_required_brand": 5
+  },
+  "examples": [
+    {
+      "generation": 1,
+      "task_id": 7361,
+      "trajectory_id": "08ca8c04-b623-45dc-961d-3d697f5492ac",
+      "old_reward": -0.2017857142857143,
+      "new_reward": -0.85,
+      "violations": [
+        {
+          "constraint": "key_options",
+          "axis": "specification",
+          "source": "instruction.instruction_options",
+          "source_axis": "规格描述",
+          "required": "酸辣凉拌汁510g",
+          "actual": {
+            "规格描述": "酸辣凉拌汁180g*1瓶"
+          },
+          "reason": "purchased_product_lacks_required_option"
+        }
+      ]
+    },
+    {
+      "generation": 2,
+      "task_id": 15098,
+      "trajectory_id": "8ebe2039-224a-47da-ac73-e2a25c9a538c",
+      "old_reward": 0.04375000000000001,
+      "new_reward": -0.85,
+      "violations": [
+        {
+          "constraint": "key_options",
+          "axis": "color",
+          "source": "instruction.instruction_options",
+          "source_axis": "颜色分类",
+          "required": "驱动板保护壳",
+          "selected": "支架",
+          "reason": "wrong_required_option"
+        }
+      ]
+    },
+    {
+      "generation": 4,
+      "task_id": 5329,
+      "trajectory_id": "6af23939-fc64-44ac-aeb6-d17641b8b89e",
+      "old_reward": 0.03229166666666661,
+      "new_reward": -0.85,
+      "violations": [
+        {
+          "constraint": "key_options",
+          "axis": "款式",
+          "source": "instruction.instruction_options",
+          "source_axis": "款式",
+          "required": "10号",
+          "actual": {
+            "款式": "梨花灼灼戒指",
+            "黄金克重": "2.49g"
+          },
+          "reason": "purchased_product_lacks_required_option"
+        }
+      ]
+    },
+    {
+      "generation": 4,
+      "task_id": 5329,
+      "trajectory_id": "6ddee748-464d-4cbf-8fb0-8d8d13dc97a1",
+      "old_reward": -0.07083333333333333,
+      "new_reward": -0.85,
+      "violations": [
+        {
+          "constraint": "key_options",
+          "axis": "款式",
+          "source": "instruction.instruction_options",
+          "source_axis": "款式",
+          "required": "10号",
+          "actual": {
+            "款式": "金重 2.55g（13号）"
+          },
+          "reason": "purchased_product_lacks_required_option"
+        }
+      ]
+    },
+    {
+      "generation": 4,
+      "task_id": 14681,
+      "trajectory_id": "6f3179f4-1ef1-48ad-9ad9-894b3bdd4eaa",
+      "old_reward": -0.3,
+      "new_reward": -0.85,
+      "violations": [
+        {
+          "constraint": "key_options",
+          "axis": "color",
+          "source": "instruction.instruction_options",
+          "source_axis": "颜色分类",
+          "required": "绿色套装",
+          "actual": {
+            "颜色分类": "3支粉色蝴蝶兰"
+          },
+          "reason": "purchased_product_lacks_required_option"
+        }
+      ]
+    }
+  ],
+  "inputs": {
+    "metrics_sha256": "c619fa1b8ec830c88678f080af419c28598b65026f1e377dc0f8ffdc0f2f0398",
+    "sampling_sha256": "ae9786dea58e0d62d929b858f9c0c16f215847722dfd013f8daa574313de63ed",
+    "rollouts_manifest_sha256": "10269c368ac9e89a79b556797f12f2fa8c43ea3ea31fb5d5d1f50a07c315dc7f",
+    "rollout_files": 507,
+    "training_pool_sha256": "612c8bfd4532c5e94e1b32085f6e93928c45e9cf4c889b377150345e31f5fbc4"
+  },
+  "implementation": {
+    "constraint_reward.py": "8ac814a9c2d4d34d68170914cad81dcb3d4e4816310e25fc35dc5935a5d4f544",
+    "audit_constraints.py": "1def3e551a7705f9d29a76773203333b3865a5ea0a30fc81509718523914fb52"
+  }
+}

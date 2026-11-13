@@ -1,0 +1,53 @@
+{
+  "status": "passed",
+  "scope": "CPU contract tests, full frozen-training replay audit, and unchanged execution contract",
+  "training_started": false,
+  "optimizer_steps": 0,
+  "gpu_training_validation": "not run; actor/loss/kernels unchanged",
+  "tests_run": 62,
+  "new_constraint_tests": 11,
+  "test_log": "outputs/grpo/constraints-validation/tests.log",
+  "test_log_sha256": "c61c469312286c49ef226b296a9c66ad286f51a03ea6132bc3aaa5cd29ba63bb",
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227",
+  "recipe": {
+    "version": "constraint-outcome-grpo-v1",
+    "seed": 42,
+    "world_size": 2,
+    "updates": 500,
+    "groups_per_update": 2,
+    "rollouts_per_group": 4,
+    "max_generation_batches": 8,
+    "max_consecutive_skipped_updates": 10,
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "learning_rate": 1e-06,
+    "warmup_updates": 15,
+    "clip_ratio": 0.2,
+    "max_grad_norm": 1.0,
+    "model_failure_reward": -0.65,
+    "advantage_std_normalization": false,
+    "kl_coefficient": 0.0,
+    "save_every": 50,
+    "evaluate_every": 50,
+    "lora_rank": 16,
+    "lora_alpha": 32,
+    "base_weights_sha256": "29a3a288a7b2002f1b0b7157369ebde67da28a94b97eb19057809efeb0428e72",
+    "selection": "dev300 strict successes, mean Reward v3, fewer steps, earlier checkpoint; include starting SFT",
+    "constraint_reward": {
+      "version": "evidence-purchase-constraints-v1",
+      "wrong_purchase_reward": -0.85
+    }
+  },
+  "files": {
+    "configs/grpo_constraints.json": "4d022fc94d8b3b023aae0d8d0fc3411007da2d2bb66aa48bc88120f647bad5a9",
+    "scripts/grpo/constraint_reward.py": "8ac814a9c2d4d34d68170914cad81dcb3d4e4816310e25fc35dc5935a5d4f544",
+    "scripts/grpo/audit_constraints.py": "1def3e551a7705f9d29a76773203333b3865a5ea0a30fc81509718523914fb52",
+    "scripts/grpo/test_constraints.py": "280d3215909923ef676602ea2c05a559d59d61908938d09a37e99612ea5e18db",
+    "scripts/grpo/rollout.py": "ef0f8d90cb121966f2f648aa7a7e09f8af40f62e96edcbf550d2f58e3eb4a2da",
+    "scripts/grpo/settings.py": "4f29f2d36ad79548d60affcd446f2e0894c9532b5bed989042afa5a6df8e6be9",
+    "scripts/grpo/train.py": "b01bb3fb1e839342aaed08fb86b4c00274468ea75504617da888dd27e261c323",
+    "scripts/grpo/run.py": "c769cc8151ed73d915ca38ba137c500c6631260d95a0bdd04e0e546ab9e8219f"
+  },
+  "audit_sha256": "f357684f2d97a0da0b4cae174b9358710eb20b9e0a702efe16effa88877a3980",
+  "limits": "No new-policy training or dev/test results; offline advantage changes do not establish improved success."
+}
