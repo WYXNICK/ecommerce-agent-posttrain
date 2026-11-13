@@ -1,0 +1,23 @@
+{
+  "status": "startup_verified",
+  "worker_id": 1177417,
+  "started_at": "2026-11-13T12:02:07.529090+00:00",
+  "variant": "constraints",
+  "base_weights_sha256": "29a3a288a7b2002f1b0b7157369ebde67da28a94b97eb19057809efeb0428e72",
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227",
+  "run_manifest_sha256": "4af5fcfb2b8bce425e294e165829af06d5c12a7cdb15f948c9f336f0f44c239e",
+  "logs": "outputs/grpo/constraints/",
+  "devbox_artifact_root": "/tmp/shopping-next-models/20261113",
+  "hdfs_artifact_root": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261113",
+  "run_source_artifact": "grpo/constraints/evidence/run-source",
+  "startup_verification": {
+    "checked_at": "2026-11-13T12:13:54.092736+00:00",
+    "optimizer_update_completed": true,
+    "finite_loss_and_gradient": true,
+    "fla_version": "0.6.0",
+    "detached_session": true,
+    "run_source_devbox_and_hdfs_verified": true
+  },
+  "completion_policy": "500 updates; save and dev300 every 50; select including starting SFT; export, archive, restore both keepers",
+  "limitation": "Startup verification only; no new dev/test result yet. Current state is outputs/grpo/constraints/status.json."
+}

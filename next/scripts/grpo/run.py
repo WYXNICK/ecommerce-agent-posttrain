@@ -269,10 +269,10 @@ def main():
             stage.write_text(stage.read_text().replace('**状态：运行中。**',
                 '**状态：训练与开发集选模已完成。** 见[结果](results.md)。'))
         elif args.variant == 'constraints':
-            text = text.replace('**实现与验证已完成，未训练**；[约束奖励方案](grpo-constraints/README.md)',
+            text = text.replace('**运行中**；[约束奖励方案](grpo-constraints/README.md)',
                 f"**训练已完成**；选中 step {selected['step']}，dev {selected['summary']['strict_successes']}/300；[结果](grpo-constraints/results.md)")
             stage = doc/'README.md'
-            stage.write_text(stage.read_text().replace('**状态：实现与验证已完成，未启动训练。**',
+            stage.write_text(stage.read_text().replace('**状态：运行中。**',
                 '**状态：训练与开发集选模已完成。** 见[结果](results.md)。'))
         plan.write_text(text)
         publish(status='complete', selected_step=selected['step'], selected_model=result['selected_model'])

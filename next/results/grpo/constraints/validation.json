@@ -7,7 +7,7 @@
   "tests_run": 62,
   "new_constraint_tests": 11,
   "test_log": "outputs/grpo/constraints-validation/tests.log",
-  "test_log_sha256": "c61c469312286c49ef226b296a9c66ad286f51a03ea6132bc3aaa5cd29ba63bb",
+  "test_log_sha256": "929f325e9af681ab0d1ca4c8ac23ffcf41647f19d7abd02c7fa426590852fa74",
   "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227",
   "recipe": {
     "version": "constraint-outcome-grpo-v1",
@@ -46,7 +46,7 @@
     "scripts/grpo/rollout.py": "ef0f8d90cb121966f2f648aa7a7e09f8af40f62e96edcbf550d2f58e3eb4a2da",
     "scripts/grpo/settings.py": "4f29f2d36ad79548d60affcd446f2e0894c9532b5bed989042afa5a6df8e6be9",
     "scripts/grpo/train.py": "b01bb3fb1e839342aaed08fb86b4c00274468ea75504617da888dd27e261c323",
-    "scripts/grpo/run.py": "c769cc8151ed73d915ca38ba137c500c6631260d95a0bdd04e0e546ab9e8219f"
+    "scripts/grpo/run.py": "75e98cda7cfa5691eaedcfd1dfdf130217d1787e9dfaccd7faa87cea5e730b93"
   },
   "audit_sha256": "f357684f2d97a0da0b4cae174b9358710eb20b9e0a702efe16effa88877a3980",
   "limits": "No new-policy training or dev/test results; offline advantage changes do not establish improved success."

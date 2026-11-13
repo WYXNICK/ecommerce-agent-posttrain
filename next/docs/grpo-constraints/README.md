@@ -1,6 +1,6 @@
 # 基于证据的约束型终局奖励 GRPO
 
-**状态：实现与验证已完成，未启动训练。** 原终局GRPO step500仍为正式主结果。本阶段验证奖励语义修正，不能预先宣称训练提升或理论最优。
+**状态：运行中。** 原终局GRPO step500仍为正式主结果。本阶段验证奖励语义修正，不能预先宣称训练提升或理论最优。
 
 ## 1. 为什么修改
 
@@ -49,7 +49,7 @@ Reward v3把品类、预算作为硬约束，却把规格、品牌、型号和�
 - 日志与TensorBoard分别记录新奖励、原有效训练奖励及其分母、原环境奖励、惩罚／恢复计数、进入更新的违约样本及其正优势数。
 - dev分数保持不变，单列`constraints.json`及看板计数；同时观察违约、循环和原成功保留，不用诊断分替换选模口径。
 
-配置：[grpo_constraints.json](../../configs/grpo_constraints.json)。后续获得执行授权后使用原入口：
+配置：[grpo_constraints.json](../../configs/grpo_constraints.json)。使用原入口：
 
 ```bash
 next/scripts/grpo/launch.sh --variant constraints \
@@ -57,6 +57,14 @@ next/scripts/grpo/launch.sh --variant constraints \
 ```
 
 输出独立使用`outputs/grpo/constraints/`，沿用`SHOP_RUNTIME`、内核及归档队列环境变量；路径通过参数传入，不写入源码。
+
+### 本轮执行与查看
+
+2026-11-13启动于Worker 1177417（双H100）；已核对起点模型哈希、冻结依赖和62项回归检查。首次真实更新已通过，启动与归档定位见[执行记录](../../results/grpo/constraints/execution.json)。从修复SFT开始，计划完成500次更新；没有按短期reward波动自动早停。异常服务退出或连续10轮无法组成有效更新时停止并恢复保活。正常结束后导出选中模型、归档日志并恢复双卡保活；后台进程独立于SSH会话。
+
+证据统一位于`outputs/grpo/constraints/`：`status.json`看阶段，`progress.json`看更新进度，`metrics.jsonl`／`tensorboard/`看训练指标，`dev/step-*/`看完整开发集评测和约束诊断，`selection.json`看选模。`train.log`、`serve.log`、`environment.log`保留排查证据，`gpu.jsonl`记录GPU/SM采样。
+
+每个检查点经SHA256核对保存至开发机`/tmp`后确认成功，再由`storage/`独立队列上传HDFS；归档失败保留本地副本并记录状态，不能将排队等同于备份完成。训练中启用自适应保活、繁忙时让出计算；保活负载不计作有效训练吞吐。正式提升结论等待开发集评测。
 
 ## 5. 已完成的离线验收
 
