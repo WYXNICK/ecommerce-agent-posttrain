@@ -1,0 +1,106 @@
+{
+  "version": "grpo-constraints-test-v1",
+  "split": "test",
+  "tasks": 1000,
+  "test_sha256": "69de95cd224cb9d1146620354018baedfa6d038da0a8f9a571771291b45a0d34",
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227",
+  "models": [
+    {
+      "name": "grpo-constraints-500",
+      "base": "reflow/repair/epoch-72",
+      "base_files": {
+        "chat_template.jinja": "273d8e0e683b885071fb17e08d71e5f2a5ddfb5309756181681de4f5a1822d80",
+        "config.json": "d2aa2ba0ce0fbabc0900f6e70ecf9b90577581a8812f3dac94566aabea5f929f",
+        "model.safetensors": "29a3a288a7b2002f1b0b7157369ebde67da28a94b97eb19057809efeb0428e72",
+        "tokenizer.json": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+        "tokenizer_config.json": "7488550a894dcf741616126e322ea31d66cf9457b59ec5825f4c7efdced421f8"
+      },
+      "adapter": "grpo/constraints/checkpoints/step-500",
+      "adapter_files": {
+        "adapter_model.safetensors": "174494c8c596454a5fd8e751d8dc25a0a52215f9de1873bac1cdd9260b2c3887",
+        "adapter_config.json": "9ce1d1b0715dd6510f64c1c104c323828ba0d6f607098f7d2bfb35e75e729e90"
+      }
+    }
+  ],
+  "reuse": [
+    {
+      "name": "baseline",
+      "directory": "outputs/baseline-v2/test",
+      "files": {
+        "run.json": "efbde59c284c46091716b3273b63dc330ddde9c6ba530ee3b68814dd14fe8d19",
+        "summary.json": "f65ba7a43b9ebf0d536cd0c422a656c5decdc11f934c650308c2c21be1af8a1b",
+        "raw.jsonl": "b9604a3cb74db9c180634395f6e0e0449111feadb575fce2b0387a757186d750"
+      },
+      "execution_fingerprint": "f089ef1ab12020d4430cfe3f710cf90cb21487459e28bd7b00bd6a6f46595dd4"
+    },
+    {
+      "name": "astra",
+      "directory": "outputs/teacher-evaluation/astra/test",
+      "files": {
+        "run.json": "7870f1d5adf4e6e8ebdbf0e659b252d4d7e5424da411927c63a5c87cab5fa1cb",
+        "summary.json": "ee274445e3ff531db3dc8e263c6c37355a9bc1e9b978e6fc6b056824e442a4e4",
+        "raw.jsonl": "ffd2967dc2aab1ee9b72b8886872143219bede9ec87314d7fb92dd5f374983e4"
+      },
+      "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227"
+    },
+    {
+      "name": "s0",
+      "directory": "outputs/evaluation/test-comparison/s0",
+      "files": {
+        "run.json": "81a4c83f0fd1aa61e81326da460b12fe18996949ea1f8f89da00704c63851bbf",
+        "summary.json": "3c213cfc08c98fdaa4a2e1faba9c902f45b6e9c82a1a2e65664451c8a1a2a7fd",
+        "raw.jsonl": "646e5cb795d96cc7b85f7e24e30375ee3b8a320ae5f6468d7118049de0095e23"
+      },
+      "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227"
+    },
+    {
+      "name": "s-repair",
+      "directory": "outputs/evaluation/test-comparison/s-repair",
+      "files": {
+        "run.json": "cd9c0c93484e5d455714235232851e68b5c73ce61f20de850a1f42b9bac6aa31",
+        "summary.json": "6d8e50937163040b7b07c0860ed23e3aea437c95ba80b8e8e643b1742b0b708e",
+        "raw.jsonl": "978f6d380e0f25b0d8cc220ca6b2b2631283acd512b818485bdde9426228b6fc"
+      },
+      "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227"
+    },
+    {
+      "name": "grpo-500",
+      "directory": "outputs/evaluation/test-comparison/grpo-500",
+      "files": {
+        "run.json": "140f624c53960d267d511bec7cf1922d989f664e8bcc98231cb40b4ceb3e02aa",
+        "summary.json": "d22271622e50eb4fbb0bc010aed8bd2d071a3af2a96ff9a0665cb1509f0725be",
+        "raw.jsonl": "1ca1abfc2c49d37df9774ce87eeb0ee7d0d035ca86c965bf5462423cfd79bb57"
+      },
+      "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227"
+    }
+  ],
+  "primary_grpo": "grpo-constraints-500",
+  "selection_policy": "Step500 selected by dev300 strict success, then Reward v3, before test; only this fixed candidate is evaluated.",
+  "baseline_reuse_audit": {
+    "source_manifest": "outputs/teacher-v2/transport-update-source/before-manifest.json",
+    "source_sha256": "f089ef1ab12020d4430cfe3f710cf90cb21487459e28bd7b00bd6a6f46595dd4",
+    "note": "Environment, reward, observations, tools, task split, student tokenizer and action execution unchanged. Source changes add teacher profiles, collection provenance and transport retries/audit. Baseline has no unresolved infrastructure errors; its valid outcomes are reused."
+  },
+  "pairs": [
+    [
+      "s-repair",
+      "grpo-constraints-500"
+    ],
+    [
+      "grpo-500",
+      "grpo-constraints-500"
+    ]
+  ],
+  "result_directory": "results/evaluation/grpo-constraints-test",
+  "report_path": "docs/grpo-constraints/test-results.md",
+  "readme_path": "docs/grpo-constraints/README.md",
+  "report_title": "# 约束型终局 GRPO step500：冻结 test1000 评测",
+  "selection_note": "Step500由dev300严格成功率优先、Reward v3次优先的规则选定；只评测此固定候选，不根据测试结果更换检查点。测试集已用于此前模型对照，不是全新的盲测集。",
+  "limitations": [
+    "One execution per task/model; no multiple training seeds.",
+    "Step500 was selected on dev300 before test; test does not select another checkpoint.",
+    "The fixed test set has been used in earlier comparisons; this is not a fresh blind test.",
+    "Paired p values are descriptive, unadjusted across multiple comparisons.",
+    "Teacher high reasoning has different inference compute; not a controlled student ablation."
+  ]
+}

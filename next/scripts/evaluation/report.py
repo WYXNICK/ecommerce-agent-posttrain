@@ -60,10 +60,10 @@ def main():
            plan.get('pairs', [('baseline','s0'),('s0','s-repair'),('s-repair','grpo-400'),('s-repair','grpo-500'),('grpo-400','grpo-500')])}
     result={'status':'complete','split':'test','tasks':len(ids),'plan':plan,'summaries':summaries,
             'paired':pairs,'evidence':evidence,
-            'limitations':['One execution per task/model; no multiple training seeds.',
+            'limitations':plan.get('limitations', ['One execution per task/model; no multiple training seeds.',
                           'Both GRPO candidates reported; test does not select the winner.',
                           'Paired p values are descriptive, unadjusted across multiple comparisons.',
-                          'Teacher high reasoning has different inference compute; not a controlled student ablation.']}
+                          'Teacher high reasoning has different inference compute; not a controlled student ablation.'])}
     target=ROOT/plan.get('result_directory','results/evaluation/test-comparison')
     target.mkdir(parents=True,exist_ok=True)
     write_json(target/'summary.json',result)
