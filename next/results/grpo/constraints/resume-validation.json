@@ -1,0 +1,19 @@
+{
+  "scope": "same-run checkpoint resume; unchanged optimizer, reward, sampling and evaluation protocol",
+  "checks": {
+    "resume_tests": 2,
+    "contract_and_constraint_tests": 18,
+    "passed": true
+  },
+  "preserved": [
+    "original run.json",
+    "metrics.jsonl step sequence",
+    "TensorBoard directory",
+    "completed evaluation rows"
+  ],
+  "implementation_sha256": {
+    "next/scripts/grpo/run.py": "32c8e280605d564807b2c6baefaa6314eee426abc740f770fe1ccd5400a1090f",
+    "next/scripts/grpo/train.py": "1d7a72049003e924b3380837d868297d3b318fa566b05507ded9b4d4fec6ebf6",
+    "next/scripts/grpo/test_resume.py": "82d51f8f2c572fcb720d3007eb34184963818287d0a5ea3709f2e4cccab228f6"
+  }
+}

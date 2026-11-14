@@ -133,6 +133,29 @@ def eval_dev(step, name, args, config, tokenizer, fingerprint, adapter, baseline
     return item
 
 
+def record_evaluation(candidate, candidates, args, settings, writer):
+    """Persist selection and curves equally for resumed and uninterrupted evaluation."""
+    step = candidate['step']
+    candidates.append(candidate)
+    best = max(candidates, key=selection_key)
+    report = {'status': 'running' if step < settings['updates'] else 'training_complete',
+              'candidates': candidates, 'selected': best, 'test_evaluation': 'not scheduled'}
+    write_json(args.output/'selection.json', report)
+    writer.add_scalar('dev/strict_success_rate', candidate['summary']['strict_success_rate'], step)
+    writer.add_scalar('dev/mean_final_reward', candidate['summary']['mean_final_reward'], step)
+    writer.add_scalar('dev/average_steps', candidate['summary']['average_steps'], step)
+    for key in ('wrong_purchase', 'repeat_loop'):
+        writer.add_scalar('dev/'+key, candidate['summary']['reward_type_counts'].get(key, 0), step)
+    for key in ('gained', 'lost'):
+        writer.add_scalar('dev/'+key, candidate['vs_starting_sft'][key], step)
+    for key, value in candidate.get('constraint_counts', {}).items():
+        writer.add_scalar('dev/constraints/'+key, value, step)
+    writer.flush()
+    dev_evidence = args.work/'evidence'/f'dev-{step}'
+    shutil.copytree(args.output/'dev'/f'step-{step}', dev_evidence)
+    persist(dev_evidence)
+
+
 def main():
     import torch
     import torch.distributed as dist
@@ -216,9 +239,8 @@ def main():
             candidates = resume['candidates']
         active_name = publish_adapter(model, args.work, args.model_url, step, None)
         if resume and step % settings['evaluate_every'] == 0 and not any(c['step'] == step for c in candidates):
-            candidates.append(eval_dev(step, active_name, args, config, tokenizer, fingerprint, args.resume, candidates[0]['summary']))
-            write_json(args.output/'selection.json', {'candidates': candidates,
-                'selected': max(candidates, key=selection_key), 'test_evaluation': 'not scheduled'})
+            candidate = eval_dev(step, active_name, args, config, tokenizer, fingerprint, args.resume, candidates[0]['summary'])
+            record_evaluation(candidate, candidates, args, settings, writer)
     dist.barrier()
     start_step, skipped = step, 0
     prior_elapsed = json.loads((args.resume/'training.json').read_text())['elapsed_seconds'] if resume else 0.0
@@ -419,24 +441,7 @@ def main():
                     (marker/source.name).touch()
             if step % settings['evaluate_every'] == 0:
                 candidate = eval_dev(step, active_name, args, config, tokenizer, fingerprint, checkpoint, candidates[0]['summary'])
-                candidates.append(candidate)
-                best = max(candidates, key=selection_key)
-                report = {'status': 'running' if step < settings['updates'] else 'training_complete',
-                          'candidates': candidates, 'selected': best, 'test_evaluation': 'not scheduled'}
-                write_json(args.output/'selection.json', report)
-                writer.add_scalar('dev/strict_success_rate', candidate['summary']['strict_success_rate'], step)
-                writer.add_scalar('dev/mean_final_reward', candidate['summary']['mean_final_reward'], step)
-                writer.add_scalar('dev/average_steps', candidate['summary']['average_steps'], step)
-                for key in ('wrong_purchase', 'repeat_loop'):
-                    writer.add_scalar('dev/'+key, candidate['summary']['reward_type_counts'].get(key, 0), step)
-                for key in ('gained', 'lost'):
-                    writer.add_scalar('dev/'+key, candidate['vs_starting_sft'][key], step)
-                for key, value in candidate.get('constraint_counts', {}).items():
-                    writer.add_scalar('dev/constraints/'+key, value, step)
-                writer.flush()
-                dev_evidence = args.work/'evidence'/f'dev-{step}'
-                shutil.copytree(args.output/'dev'/f'step-{step}', dev_evidence)
-                persist(dev_evidence)
+                record_evaluation(candidate, candidates, args, settings, writer)
         dist.barrier()
     if rank == 0:
         writer.close()

@@ -24,6 +24,31 @@ from settings import load_settings, starting_result_path
 HERE = Path(__file__).resolve().parent
 
 
+def record_run(output, spec, resume):
+    """Continue the same contract without replacing its original provenance."""
+    path = output/'run.json'
+    if not path.exists():
+        write_json(path, spec)
+        return 'run-source'
+    if resume is None:
+        raise ValueError('output already has a run; provide its resume checkpoint')
+    original = json.loads(path.read_text())
+    ignored = {'resume', 'entry_files'}
+    if {k: v for k, v in original.items() if k not in ignored} != {
+            k: v for k, v in spec.items() if k not in ignored}:
+        raise ValueError('resume must preserve the original run contract')
+    saved = json.loads((resume/'training.json').read_text())
+    progress = json.loads((output/'progress.json').read_text())
+    if saved != progress:
+        raise ValueError('resume checkpoint does not match the last logged update')
+    if (output/'training-complete.json').exists():
+        raise ValueError('training already completed')
+    name = f'resume-{saved["step"]}-{time.time_ns()}'
+    write_json(output/(name+'.json'), {'original_run_sha256': sha256(path),
+        'checkpoint': str(resume), 'specification': spec})
+    return name
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('model', 'work', 'output'):
@@ -40,7 +65,7 @@ def main():
     args.work.mkdir(parents=True, exist_ok=True)
     lock = (args.output/'.lock').open('a')
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    if (args.output/'run.json').exists():
+    if (args.output/'run.json').exists() and args.resume is None:
         raise ValueError('output already has a run; do not mix training runs')
     state = {'status': 'starting', 'pid': os.getpid(), 'hostname': os.uname().nodename,
              'started_at': datetime.now(timezone.utc).isoformat(), 'work': str(args.work)}
@@ -105,14 +130,14 @@ def main():
                     '; exact per-turn tokens, synchronous two-rank gradient sum',
                 'test_evaluation': 'not scheduled', 'variant': args.variant,
                 'validate_only': args.validate_only}
-        write_json(args.output/'run.json', spec)
-        source = args.work/'evidence'/'run-source'
+        source_name = record_run(args.output, spec, args.resume)
+        source = args.work/'evidence'/source_name
         source.mkdir(parents=True)
         for path in files:
             target = source/path.relative_to(ROOT)
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(path, target)
-        shutil.copy2(args.output/'run.json', source/'run.json')
+        write_json(source/'run.json', spec)
         shutil.copytree(kernel_root/'wheels', source/'kernel-wheels')
         persist(source)
         keep('off')
@@ -286,7 +311,7 @@ def main():
         publish(keepalive='restored on both GPUs')
         # Snapshot logs only after all writers have stopped; archive uses the same
         # verified devbox receipt + independent HDFS retry queue as model saves.
-        evidence = args.work/'evidence'/'final'
+        evidence = args.work/'evidence'/(f'final-resume-{state["pid"]}' if args.resume else 'final')
         if not evidence.exists():
             shutil.copytree(args.output, evidence, ignore=shutil.ignore_patterns('.lock', 'keepalive'))
             persist(evidence)

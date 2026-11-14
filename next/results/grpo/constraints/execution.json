@@ -1,5 +1,5 @@
 {
-  "status": "startup_verified",
+  "status": "resume_verified",
   "worker_id": 1177417,
   "started_at": "2026-11-13T12:02:07.529090+00:00",
   "variant": "constraints",
@@ -19,5 +19,17 @@
     "run_source_devbox_and_hdfs_verified": true
   },
   "completion_policy": "500 updates; save and dev300 every 50; select including starting SFT; export, archive, restore both keepers",
-  "limitation": "Startup verification only; no new dev/test result yet. Current state is outputs/grpo/constraints/status.json."
+  "limitation": "Training ongoing; original main GRPO result unchanged. Live status and metrics are under outputs/grpo/constraints/.",
+  "resume_verification": {
+    "checked_at": "2026-11-14T04:08:10.949367+00:00",
+    "checkpoint_step": 250,
+    "first_resumed_update": 251,
+    "continuous_metric_steps": true,
+    "dev250_completed_tasks": 300,
+    "dev250_strict_successes": 223,
+    "run_source_artifact": "grpo/constraints/evidence/resume-250-1794628800179670807",
+    "validation": "resume-validation.json",
+    "optimizer_reward_sampling_unchanged": true,
+    "entropy_patch_applied": false
+  }
 }
