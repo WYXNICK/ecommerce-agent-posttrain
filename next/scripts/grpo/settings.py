@@ -23,11 +23,16 @@ def load_settings(variant='outcome'):
             raise ValueError('invalid GRPO sampling/checkpoint configuration')
         if variant == 'stable' and not (0 < settings['kl_coefficient'] and settings['kl_estimator'] == 'k3+'):
             raise ValueError('invalid stable GRPO KL configuration')
-    elif variant == 'constraints':
+    elif variant in ('constraints', 'success'):
         settings.update(json.loads((ROOT / 'configs/grpo_constraints.json').read_text()))
         environment = json.loads((REFERENCE_ROOT /
             'environments/ShopSimulator/shop_env/configs/environment.json').read_text())
         settings['constraint_reward']['wrong_purchase_reward'] = environment['reward']['wrong_purchase']
+        if variant == 'success':
+            settings.update(json.loads((ROOT / 'configs/grpo_success.json').read_text()))
+            if (settings['success_objective'] != 'mixed_strict_success_bounded_failure'
+                    or settings['rollouts_per_group'] < 2):
+                raise ValueError('invalid success objective configuration')
     elif variant == 's0':
         settings.update(json.loads((ROOT / 'configs/grpo_s0.json').read_text()))
     elif variant == 'sdpo':

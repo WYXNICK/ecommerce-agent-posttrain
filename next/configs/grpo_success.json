@@ -1,0 +1,4 @@
+{
+  "version": "success-dominant-constraint-grpo-v1",
+  "success_objective": "mixed_strict_success_bounded_failure"
+}

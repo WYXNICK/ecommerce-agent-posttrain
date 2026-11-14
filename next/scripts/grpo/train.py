@@ -24,6 +24,7 @@ from constraint_reward import constrained_return
 from local_credit import apply_local_credit
 from settings import load_settings, starting_candidate
 from shopping_agent.clients import LocalChatClient, request_json
+from shopping_agent.evaluation.summary import _is_strict_success
 from shopping_agent.protocol import ROOT, StudentTokenizer, load_config, sha256, validate_execution
 from shopping_agent.runs import RunStore, evaluate, write_json
 from shopping_agent.runtime import run_episode
@@ -111,7 +112,7 @@ def eval_dev(step, name, args, config, tokenizer, fingerprint, adapter, baseline
     with RunStore(output, spec) as store:
         summary = evaluate(store, tasks=tasks, episode=episode, workers=8)
     constraint_counts = Counter()
-    if args.variant == 'constraints':
+    if args.variant in ('constraints', 'success'):
         settings = load_settings(args.variant)
         decisions = []
         for row in store.rows:
@@ -127,7 +128,7 @@ def eval_dev(step, name, args, config, tokenizer, fingerprint, adapter, baseline
     item = {'step': step, 'checkpoint': str(adapter), 'summary': summary,
             'vs_starting_sft': compare_successes(summary, baseline),
             'evidence': {p.name: sha256(p) for p in output.glob('*.json*')}}
-    if args.variant == 'constraints':
+    if args.variant in ('constraints', 'success'):
         item['constraint_counts'] = dict(constraint_counts)
     selection_key(item)
     return item
@@ -174,7 +175,7 @@ def main():
         parser.add_argument('--' + key, type=Path, required=True)
     parser.add_argument('--resume', type=Path)
     parser.add_argument('--validate-only', action='store_true', help='one SDPO batch, no optimizer step')
-    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0', 'batch', 'sdpo', 'constraints'), default='outcome')
+    parser.add_argument('--variant', choices=('outcome', 'local', 'stable', 's0', 'batch', 'sdpo', 'constraints', 'success'), default='outcome')
     parser.add_argument('--model-url', required=True)
     parser.add_argument('--environment-url', required=True)
     args = parser.parse_args()
@@ -363,7 +364,7 @@ def main():
                 'rollout_actor_kl_estimate': metric[3].item()/token_count,
                 'grad_norm': norm.item(), 'trained_action_tokens': token_count, 'input_tokens_by_rank': input_tokens_by_rank,
                 'mean_training_reward': sum(r['training_reward'] for r in rows)/len(rows),
-                'strict_success_rate': sum((r['terminal_result'].get('reward_detail') or {}).get('reward_type')=='gold_purchase' for r in rows)/len(rows),
+                'strict_success_rate': sum(_is_strict_success(r) for r in rows)/len(rows),
                 'sampling': diagnostic, 'peak_memory_gib_rank0': torch.cuda.max_memory_allocated()/2**30}
             if settings.get('constraint_reward'):
                 original = [r['original_training_reward'] for r in rows if r['original_training_reward'] is not None]
@@ -371,6 +372,8 @@ def main():
                               mean_environment_reward=sum(r['final_reward'] for r in rows)/len(rows))
                 if original:
                     result['mean_original_training_reward'] = sum(original)/len(original)
+            if settings.get('success_objective'):
+                result['mean_constraint_training_reward'] = sum(r['constraint_training_reward'] for r in rows)/len(rows)
             if regularized:
                 result.update(reference_kl_k3=metric[5].item()/token_count,
                     action_entropy=metric[6].item()/token_count,

@@ -1,0 +1,161 @@
+{
+  "status": "offline_audit_complete",
+  "training_started": false,
+  "scope": "fixed constraints-v1 training trajectories only; not a new policy evaluation",
+  "counts": {
+    "generated_groups": 3150,
+    "trajectories": 12600,
+    "new_filter_all_success": 1823,
+    "new_filter_accepted_candidate": 904,
+    "new_candidate_failure_positive_advantages": 0,
+    "new_candidate_success_nonpositive_advantages": 0,
+    "old_updated_groups": 1000,
+    "old_updated_groups_without_success": 177,
+    "old_update_action_tokens": 1501908,
+    "old_positive_success_advantage_token_mass": 341701.0564149302,
+    "old_failure_action_tokens": 980529,
+    "observed_prefix_has_full_new_batch": 358,
+    "new_filter_no_success": 423,
+    "old_positive_failure_trajectories": 361,
+    "old_positive_failure_in_all_failure_group": 354,
+    "old_positive_failure_action_tokens": 209751,
+    "old_positive_failure_advantage_token_mass": 20589.740825320514,
+    "old_positive_failure_in_mixed_group": 7
+  },
+  "positive_failure_types": {
+    "repeat_loop": 110,
+    "response_budget_exhausted": 188,
+    "max_steps": 9,
+    "invalid_action_limit": 13,
+    "partial_alternative_purchase": 25,
+    "assistant_final": 1,
+    "model_output_invalid": 9,
+    "valid_alternative_purchase": 6
+  },
+  "examples": [
+    {
+      "generation": 2,
+      "task_id": 15098,
+      "rewards": [
+        -0.65,
+        -0.65,
+        -0.85,
+        -0.65
+      ],
+      "advantages": [
+        0.04999999999999993,
+        0.04999999999999993,
+        -0.15000000000000002,
+        0.04999999999999993
+      ]
+    },
+    {
+      "generation": 4,
+      "task_id": 5329,
+      "rewards": [
+        -0.65,
+        -0.85,
+        -0.65,
+        -0.85
+      ],
+      "advantages": [
+        0.09999999999999998,
+        -0.09999999999999998,
+        0.09999999999999998,
+        -0.09999999999999998
+      ]
+    },
+    {
+      "generation": 9,
+      "task_id": 2018,
+      "rewards": [
+        -0.85,
+        -0.65,
+        -0.65,
+        -0.65
+      ],
+      "advantages": [
+        -0.15000000000000002,
+        0.04999999999999993,
+        0.04999999999999993,
+        0.04999999999999993
+      ]
+    },
+    {
+      "generation": 12,
+      "task_id": 104,
+      "rewards": [
+        -0.65,
+        -0.85,
+        -0.65,
+        -0.65
+      ],
+      "advantages": [
+        0.04999999999999993,
+        -0.15000000000000002,
+        0.04999999999999993,
+        0.04999999999999993
+      ]
+    },
+    {
+      "generation": 15,
+      "task_id": 11679,
+      "rewards": [
+        -0.85,
+        -0.65,
+        -0.85,
+        -0.85
+      ],
+      "advantages": [
+        -0.04999999999999993,
+        0.15000000000000002,
+        -0.04999999999999993,
+        -0.04999999999999993
+      ]
+    }
+  ],
+  "limits": "Old sampling stops once its own batch is full. Prefix yield is not the new sampler runtime/cost; no improvement claim.",
+  "inputs": {
+    "metrics_sha256": "70e6016f4a0217170a75dfa830ce9961d56212c630e6db3b604f9cc743c9a61f",
+    "sampling_sha256": "47fb437827bec7196cb57b41152fa83ead0b0eaa8effdcb9354a1e4545897afd",
+    "rollouts_manifest_sha256": "b4ee4dcb5c1f0f75721b85f9682da2e0ab660d03aaae683d5fea67b1fc1aefdb",
+    "rollout_files": 508,
+    "training_pool_sha256": "612c8bfd4532c5e94e1b32085f6e93928c45e9cf4c889b377150345e31f5fbc4"
+  },
+  "recipe": {
+    "version": "success-dominant-constraint-grpo-v1",
+    "seed": 42,
+    "world_size": 2,
+    "updates": 500,
+    "groups_per_update": 2,
+    "rollouts_per_group": 4,
+    "max_generation_batches": 8,
+    "max_consecutive_skipped_updates": 10,
+    "temperature": 1.0,
+    "top_p": 1.0,
+    "learning_rate": 1e-06,
+    "warmup_updates": 15,
+    "clip_ratio": 0.2,
+    "max_grad_norm": 1.0,
+    "model_failure_reward": -0.65,
+    "advantage_std_normalization": false,
+    "kl_coefficient": 0.0,
+    "save_every": 50,
+    "evaluate_every": 50,
+    "lora_rank": 16,
+    "lora_alpha": 32,
+    "base_weights_sha256": "29a3a288a7b2002f1b0b7157369ebde67da28a94b97eb19057809efeb0428e72",
+    "selection": "dev300 strict successes, mean Reward v3, fewer steps, earlier checkpoint; include starting SFT",
+    "constraint_reward": {
+      "version": "evidence-purchase-constraints-v1",
+      "wrong_purchase_reward": -0.85
+    },
+    "success_objective": "mixed_strict_success_bounded_failure"
+  },
+  "implementation": {
+    "audit_success.py": "93b53c3f45df9055cb6da259e7f465d808007a4e75fb84c21d0477e916c40f09",
+    "success_reward.py": "c5954e2c954494e92ce47975e43d772e703f29dc396946b4e78e82ac01a70735",
+    "rollout.py": "35430adb0e4c7d473f148c20d90d76acbc554af7deda3f482515affded14a162",
+    "settings.py": "e04c872e8877704cc08757307851743a3386f1b056252d319a482a094273d08c"
+  }
+}

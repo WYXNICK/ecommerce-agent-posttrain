@@ -1,0 +1,26 @@
+{
+  "status": "implementation_and_offline_validation_passed",
+  "training_started": false,
+  "formal_evaluation_started": false,
+  "tests": {
+    "passed": 26,
+    "command": "python -m unittest next/scripts/grpo/test_success.py next/scripts/grpo/test_constraints.py next/scripts/grpo/test_contract.py next/scripts/grpo/test_resume.py",
+    "log": "next/outputs/grpo/success/control/tests.log",
+    "log_sha256": "df3c2fb3e42393f9226316488b23428be5c2b48bfd68632617acf626820a0257"
+  },
+  "audit": {
+    "path": "next/results/grpo/success/audit.json",
+    "sha256": "c3f572191276e317d8a6b8fa1cd1cfb4c3dff9bed180044dc8fcdc95fe27bdb4"
+  },
+  "implementation_sha256": {
+    "next/configs/grpo_success.json": "6daa0b84bdb541f7efeebdc49277a3f9cc44d8b663ce5da999cfdee1d9532445",
+    "next/scripts/grpo/success_reward.py": "c5954e2c954494e92ce47975e43d772e703f29dc396946b4e78e82ac01a70735",
+    "next/scripts/grpo/audit_success.py": "93b53c3f45df9055cb6da259e7f465d808007a4e75fb84c21d0477e916c40f09",
+    "next/scripts/grpo/test_success.py": "d47c5e20c949fd405456ec9d8a3876a56c1fd01169ac66599693d99e5706856e",
+    "next/scripts/grpo/settings.py": "e04c872e8877704cc08757307851743a3386f1b056252d319a482a094273d08c",
+    "next/scripts/grpo/rollout.py": "35430adb0e4c7d473f148c20d90d76acbc554af7deda3f482515affded14a162",
+    "next/scripts/grpo/train.py": "83e2801e074dda72fc3d991b3c6761554c22a97a331a1f02a465b3ae19f90bf9",
+    "next/scripts/grpo/run.py": "f635f447d28cc2549e98142c958e541559b929e3e8a4e01053ab5a373203a1c2"
+  },
+  "limits": "Validates eligibility, reward/advantage signs and frozen contract only. No new training outcome or improvement claim."
+}
