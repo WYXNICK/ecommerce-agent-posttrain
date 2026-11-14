@@ -29,3 +29,5 @@
 - **后续备用 HDFS：** `hdfs://harunava/home/byte_tiktok_feed_quality/wangyuxuan/shopping-grpo-longhorizon/next/`。用户已授权使用；当前访问返回 `GDPR permission denied / DirectAccessControl`，尚未在此完成备份。权限可用后按运行标识分目录归档；切换时使用独立目标回执，不能把旧目录成功回执当作新目录成功。
 
 仓库保存实现、冻结配置和结果摘要，大权重与完整日志留在归档。既有备份不删除；当前归档服务继续写已验证可用的旧 HDFS，避免因新目录权限问题中断保护。
+
+存储维护后部分非必要合并导出仅保留 HDFS 副本；关键基座与原始 adapter 未删，见[存储与恢复](../storage/README.md)。

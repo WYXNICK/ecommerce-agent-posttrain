@@ -1,0 +1,164 @@
+{
+  "date": "2026-11-14",
+  "legacy_sft": {
+    "hdfs": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/storage/legacy-sft-20261114",
+    "archive_sha256": "1d5f9f1bf23b0f7d74dd39656f30b352c39f45e1936cfb0feb1726d713577676",
+    "bytes": 5140736000,
+    "readback_verified": true,
+    "local_weights_removed": [
+      {
+        "path": "outputs/models/sft-lora/adapter_model.safetensors",
+        "bytes": 67332688
+      },
+      {
+        "path": "outputs/models/sft-lora/checkpoint-100/adapter_model.safetensors",
+        "bytes": 67332688
+      },
+      {
+        "path": "outputs/models/sft-lora/checkpoint-100/optimizer.pt",
+        "bytes": 134871871
+      },
+      {
+        "path": "outputs/models/sft-lora/checkpoint-100/rng_state.pth",
+        "bytes": 14645
+      },
+      {
+        "path": "outputs/models/sft-lora/checkpoint-100/scheduler.pt",
+        "bytes": 1465
+      },
+      {
+        "path": "outputs/models/sft-lora/checkpoint-100/training_args.bin",
+        "bytes": 5265
+      },
+      {
+        "path": "outputs/models/sft-lora/checkpoint-200/adapter_model.safetensors",
+        "bytes": 67332688
+      },
+      {
+        "path": "outputs/models/sft-lora/checkpoint-200/optimizer.pt",
+        "bytes": 134871871
+      },
+      {
+        "path": "outputs/models/sft-lora/checkpoint-200/rng_state.pth",
+        "bytes": 14645
+      },
+      {
+        "path": "outputs/models/sft-lora/checkpoint-200/scheduler.pt",
+        "bytes": 1465
+      },
+      {
+        "path": "outputs/models/sft-lora/checkpoint-200/training_args.bin",
+        "bytes": 5265
+      },
+      {
+        "path": "outputs/models/sft-lora/checkpoint-300/adapter_model.safetensors",
+        "bytes": 67332688
+      },
+      {
+        "path": "outputs/models/sft-lora/checkpoint-300/optimizer.pt",
+        "bytes": 134871871
+      },
+      {
+        "path": "outputs/models/sft-lora/checkpoint-300/rng_state.pth",
+        "bytes": 14645
+      },
+      {
+        "path": "outputs/models/sft-lora/checkpoint-300/scheduler.pt",
+        "bytes": 1465
+      },
+      {
+        "path": "outputs/models/sft-lora/checkpoint-300/training_args.bin",
+        "bytes": 5265
+      },
+      {
+        "path": "outputs/models/sft-lora/training_args.bin",
+        "bytes": 5265
+      },
+      {
+        "path": "outputs/models/sft-merged/model.safetensors",
+        "bytes": 4426558864
+      }
+    ]
+  },
+  "archived_model_exports_removed": [
+    {
+      "manifest": "/tmp/shopping-next-models/20261104/.manifests/85f416f347e2ac85c0bf6f61507b51f084a5d973210deb70ddba87335ac3efdb.json",
+      "relative": "grpo/stable-worker1166824/model-step-225",
+      "path": "/tmp/shopping-next-models/20261104/grpo/stable-worker1166824/model-step-225",
+      "hdfs": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104/grpo/stable-worker1166824/model-step-225",
+      "bytes_freed": 4446562057,
+      "status": "local_removed_hdfs_verified"
+    },
+    {
+      "manifest": "/tmp/shopping-next-models/20261104/.manifests/6a4dbce9d02512319fbec4ecc52f637c35efd3bf33edf9bd1525107d55a5d630.json",
+      "relative": "s0/epoch-500",
+      "path": "/tmp/shopping-next-models/20261104/s0/epoch-500",
+      "hdfs": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104/s0/epoch-500",
+      "bytes_freed": 4446562022,
+      "status": "local_removed_hdfs_verified"
+    },
+    {
+      "manifest": "/tmp/shopping-next-models/20261104/.manifests/17d2c15f76b07967c1bbc7632b9fad85a5e4271da986ed153f050d8844f7f47a.json",
+      "relative": "grpo/local-20261106/model-step-500",
+      "path": "/tmp/shopping-next-models/20261104/grpo/local-20261106/model-step-500",
+      "hdfs": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104/grpo/local-20261106/model-step-500",
+      "bytes_freed": 4446562051,
+      "status": "local_removed_hdfs_verified"
+    },
+    {
+      "manifest": "/tmp/shopping-next-models/20261104/.manifests/f767c6e07e684ac90d06958ffbc5adf559d238ac4f0961d5dbdd437c9a4d4156.json",
+      "relative": "reflow/repair/epoch-36",
+      "path": "/tmp/shopping-next-models/20261104/reflow/repair/epoch-36",
+      "hdfs": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104/reflow/repair/epoch-36",
+      "bytes_freed": 4446562040,
+      "status": "local_removed_hdfs_verified"
+    },
+    {
+      "manifest": "/tmp/shopping-next-models/20261104/.manifests/26b53a44a34d146e2a81ab37afee82e7eb7af144630a2aaee63158aa12e10a93.json",
+      "relative": "reflow/general/epoch-36",
+      "path": "/tmp/shopping-next-models/20261104/reflow/general/epoch-36",
+      "hdfs": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104/reflow/general/epoch-36",
+      "bytes_freed": 4446562041,
+      "status": "local_removed_hdfs_verified"
+    },
+    {
+      "manifest": "/tmp/shopping-next-models/20261104/.manifests/17ee4396c9ae0b01c6822bada5cda8dc522bf0484e59f69cc72d5bab0be91aa4.json",
+      "relative": "s0/epoch-250",
+      "path": "/tmp/shopping-next-models/20261104/s0/epoch-250",
+      "hdfs": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104/s0/epoch-250",
+      "bytes_freed": 4446562022,
+      "status": "local_removed_hdfs_verified"
+    },
+    {
+      "manifest": "/tmp/shopping-next-models/20261104/.manifests/abc695deb02f21a9963ec82c2df7487d4dc60e75894ec3b16793aae9c0b6ca02.json",
+      "relative": "grpo/s0/model-step-500",
+      "path": "/tmp/shopping-next-models/20261104/grpo/s0/model-step-500",
+      "hdfs": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104/grpo/s0/model-step-500",
+      "bytes_freed": 4446562029,
+      "status": "local_removed_hdfs_verified"
+    },
+    {
+      "manifest": "/tmp/shopping-next-models/20261104/.manifests/826ad718ac367a5030e76017e46a7357df2009679b5e453c42238faa4319374f.json",
+      "relative": "grpo/s0/model-step-450",
+      "path": "/tmp/shopping-next-models/20261104/grpo/s0/model-step-450",
+      "hdfs": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104/grpo/s0/model-step-450",
+      "bytes_freed": 4446562029,
+      "status": "local_removed_hdfs_verified"
+    },
+    {
+      "manifest": "/tmp/shopping-next-models/20261104/.manifests/9fc47b7474f581731639b0f63c6c34e5e27cb0c153e4b5e84b227b441d664a3c.json",
+      "relative": "grpo/stable-worker1166824/model-step-250",
+      "path": "/tmp/shopping-next-models/20261104/grpo/stable-worker1166824/model-step-250",
+      "hdfs": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/next/20261104/grpo/stable-worker1166824/model-step-250",
+      "bytes_freed": 4446562057,
+      "status": "local_removed_hdfs_verified"
+    }
+  ],
+  "retained": "Primary bases, LoRA checkpoints, original logs/trajectories, code, results, current environments and other projects",
+  "after": {
+    "system_available": "17 GiB",
+    "system_usage": "88%",
+    "tmp_available": "164 GiB",
+    "tmp_usage": "96%"
+  }
+}
