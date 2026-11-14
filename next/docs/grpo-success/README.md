@@ -1,6 +1,6 @@
 # 严格成功优先的约束型 GRPO
 
-**状态：实现与离线验证已完成；尚未启动训练。** 本版继承约束奖励的证据判定，改进奖励目标和更新组选择。原终局 GRPO 仍为正式主结果。
+**状态：运行中。** 北京时间2026年11月15日00:30，在Worker 1177417的双H100上从修复SFT step72启动。 本版继承约束奖励的证据判定，改进奖励目标和更新组选择。原终局 GRPO 仍为正式主结果。
 
 ## 1. 当前结果说明了什么
 
@@ -70,7 +70,7 @@ next/scripts/grpo/launch.sh --variant success \
   --model "$S_REPAIR_MODEL" --work "$SUCCESS_WORK" --output "$SUCCESS_OUTPUT"
 ```
 
-复用已配置的运行环境、内核、归档队列和保活变量。[配置](../../configs/grpo_success.json) · [实现](../../scripts/grpo/success_reward.py) · [验证](../../results/grpo/success/validation.json)。本次未启动GPU训练、模型合并或正式评测。
+复用已配置的运行环境、内核、归档队列和保活变量。[配置](../../configs/grpo_success.json) · [实现](../../scripts/grpo/success_reward.py) · [验证](../../results/grpo/success/validation.json)。训练与每50步dev300评测已启动；正式test1000不在本轮自动执行范围。实时状态见[status.json](../../outputs/grpo/success/status.json)，更新指标见[progress.json](../../outputs/grpo/success/progress.json)，完整日志、轨迹和TensorBoard保存在同目录。正常完成或可捕获异常退出后自动恢复双卡空闲保活。
 
 ## 5. 方法依据与边界
 
