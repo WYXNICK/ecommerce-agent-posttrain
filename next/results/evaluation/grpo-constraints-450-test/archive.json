@@ -1,0 +1,21 @@
+{
+  "status": "complete",
+  "artifacts": [
+    {
+      "artifact": "evaluation/grpo-constraints-450-test/evaluations/grpo-constraints-450",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "evaluation/grpo-constraints-450-test/evidence/final",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "evaluation/grpo-constraints-450-test/source",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    }
+  ],
+  "retry": "independent archive daemon"
+}
