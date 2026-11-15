@@ -1,6 +1,6 @@
 # Evaluation Report Automation Implementation Plan
 
-**Goal:** Make every Shopping GRPO evaluation directory produce a reusable, model-agnostic HTML report from its `summary.json` and `trajectories.jsonl`.
+**Goal:** Make every E-Commerce Agent evaluation directory produce a reusable, model-agnostic HTML report from its `summary.json` and `trajectories.jsonl`.
 
 **Architecture:** Parameterize the existing self-contained report builder with `--run-dir` and derive the model/protocol labels from `summary.json`. Keep task-level aggregation in Python, embed only compact data in the HTML, and invoke the builder after the normal evaluation command completes. An explicit report command remains available for historical runs.
 

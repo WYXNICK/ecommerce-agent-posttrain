@@ -1,10 +1,16 @@
-# Repository contract
+# E-Commerce Agent repository contract
 
 This repository supports one workflow only:
 
 ```text
 Baseline → SFT → GRPO → Evaluation
 ```
+
+Current training and evaluation entry points live in `next/`. Project navigation is
+`docs/README.md`; headline results are in `docs/results.md`, and exploratory
+methods are indexed separately in `docs/experiments.md`. Preserve frozen runtime
+paths, source provenance, model identities and archived evidence when editing
+presentation. Do not mix the historical 200-task protocol into test1000 results.
 
 The runtime contract is ShopSimulator Environment v2.1, Reward v3, observation
 v2 and tool schema v2. Do not add compatibility launchers, historical datasets,

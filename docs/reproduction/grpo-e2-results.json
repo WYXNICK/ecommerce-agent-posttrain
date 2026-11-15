@@ -1440,7 +1440,7 @@
   "artifacts": {
     "local_evidence": "outputs/reproduction/grpo-e2-20261004",
     "hdfs_root": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/grpo-e2-20261004",
-    "archive_complete": false,
+    "archive_complete": true,
     "hdfs_complete_checkpoint_steps": [
       10,
       20,
@@ -1467,16 +1467,24 @@
       230,
       240,
       250,
-      260
+      260,
+      500
     ],
-    "hdfs_pending": [
-      "selected checkpoint 500",
-      "E2 merged model",
-      "final run logs and results"
-    ],
-    "reason": "team byte_data_tt_poi SATA quota exceeded at final upload probe; local results complete",
+    "hdfs_pending": [],
     "status_at_completion": "completed_local_archive_pending",
-    "gpu_keep_both_running_at_completion": true
+    "gpu_keep_both_running_at_completion": true,
+    "initial_archive_failure_reason": "team byte_data_tt_poi SATA quota exceeded at final upload probe; local results complete",
+    "archive_completed_at_utc": "2026-10-09T03:20:10.699661+00:00",
+    "current_archive_status": "completed",
+    "archive_verification_hdfs": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/grpo-e2-20261004/archive-verification.json",
+    "archive_scope": "selected complete checkpoint, merged model, full evidence",
+    "all_artifacts_readback_verified": true,
+    "intermediate_checkpoint_deletion_executed": false,
+    "hdfs_unverified_nonselected_steps": [
+      270
+    ],
+    "evidence_bundle": "hdfs://harunava/home/byte_data_tt_poi/user/wangyuxuan/shopping-grpo-longhorizon/grpo-e2-20261004/logs/final-evidence-20261009.tar.gz",
+    "evidence_bundle_sha256": "cc511d19a99ce99c525f0c05aa1fbc7654937ec50b71362e295bac4f983a3331"
   },
   "limitations": [
     "One training seed and one final pass per model; no statistically significant E2 strict-success improvement.",

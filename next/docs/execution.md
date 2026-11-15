@@ -1,6 +1,6 @@
-# 新版执行入口
+# 共享执行协议与入口
 
-本页是采集、评测与共享执行循环的操作参考。整体顺序见[项目计划](project-completion-plan.md)，已完成结果见 [Baseline 总结](baseline/README.md)与[教师采集总结](teacher-collection/README.md)。新版 SFT 执行入口见 [SFT 阶段说明](sft/README.md)；以下命令用于复现或续跑，不代表需要重复执行已完成阶段。
+本页是采集、评测与共享执行循环的操作参考。整体顺序见[项目计划](project-completion-plan.md)，已完成结果见 [Baseline 总结](baseline/README.md)与[教师采集总结](teacher-collection/README.md)。当前 SFT 执行入口见 [SFT 阶段说明](sft/README.md)；以下命令用于复现或续跑，不代表需要重复执行已完成阶段。
 
 ## 1. 冻结协议
 

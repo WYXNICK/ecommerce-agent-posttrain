@@ -70,7 +70,7 @@ next/scripts/grpo/launch.sh --variant success \
   --model "$S_REPAIR_MODEL" --work "$SUCCESS_WORK" --output "$SUCCESS_OUTPUT"
 ```
 
-复用已配置的运行环境、内核、归档队列和保活变量。[配置](../../configs/grpo_success.json) · [实现](../../scripts/grpo/success_reward.py) · [验证](../../results/grpo/success/validation.json)。训练与每50步dev300评测已完成，选中Step50；Step50单独执行完整test1000评测；按开发集选定该模型，不按测试结果重新选模。最新评测状态与结果见[test-results.md](test-results.md)。实时状态见[status.json](../../outputs/grpo/success/status.json)，更新指标见[progress.json](../../outputs/grpo/success/progress.json)，完整日志、轨迹和TensorBoard保存在同目录。正常完成或可捕获异常退出后自动恢复双卡空闲保活。
+复用已配置的运行环境、内核、归档队列和保活变量。[配置](../../configs/grpo_success.json) · [实现](../../scripts/grpo/success_reward.py) · [验证](../../results/grpo/success/validation.json)。训练与每50步dev300评测已完成，选中Step50；Step50单独执行完整test1000评测；按开发集选定该模型，不按测试结果重新选模。最新评测状态与结果见[test-results.md](test-results.md)。实时状态见本地 `outputs/grpo/success/status.json`，更新指标见本地 `outputs/grpo/success/progress.json`，完整日志、轨迹和TensorBoard保存在同目录。正常完成或可捕获异常退出后自动恢复双卡空闲保活。
 
 ## 5. 方法依据与边界
 

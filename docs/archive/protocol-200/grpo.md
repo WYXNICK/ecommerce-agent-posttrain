@@ -31,7 +31,7 @@ unknown veRL version.
 - Environment: ShopSimulator Environment v2.1
 - Reward: Reward v3
 
-Hashes are recorded in [`data/grpo/metadata.json`](../data/grpo/metadata.json).
+Hashes are recorded in [`data/grpo/metadata.json`](../../../data/grpo/metadata.json).
 
 ## Run
 
@@ -75,7 +75,7 @@ including entropy, PPO KL, clip fractions, response lengths and effective-group
 rates. `skipped_update` records make zero-signal attempts visible even though
 they do not advance the optimizer step.
 
-The canonical configuration is [`configs/grpo.yaml`](../configs/grpo.yaml).
+The canonical configuration is [`configs/grpo.yaml`](../../../configs/grpo.yaml).
 Advanced overrides may be appended after `--`:
 
 ```bash

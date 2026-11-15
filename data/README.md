@@ -1,6 +1,6 @@
-# Data
+# Historical data and shared environment contract
 
-Only the datasets used by the tutorial are kept here.
+Current training and test1000 data live in [next/data](../next/data/). This directory retains early task splits for historical recovery and leakage exclusion. `environment.json` remains a shared execution contract. The counts below describe the earlier 200-task protocol, not current training.
 
 | Stage | Files | Rows |
 |---|---|---:|

@@ -1,6 +1,6 @@
-# Package layout
+# Historical execution package
 
-The package follows the tutorial pipeline:
+The current runtime is [next/src/shopping_agent](../../next/src/shopping_agent/). This package remains available for restoring early 200-task experiments; its import and CLI names are preserved. Historical layout:
 
 ```text
 environment/       connect to ShopSimulator and enforce the action contract

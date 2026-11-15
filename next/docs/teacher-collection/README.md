@@ -41,5 +41,3 @@ Sol 于北京时间 **2026-10-28 22:01** 完成，Astra 于 **2026-10-30 03:54**
 ## 教师正式评测如何安排
 
 两位教师的正式 1,000 题评测均已完成，Sol **80.4%**、Astra **80.9%**，详见[评测阶段](../teacher-evaluation/README.md)。采集成功率与测试成绩分开，不根据测试失败改题或回流测试轨迹，也不把教师成绩称为学生的理论上限。
-
-原项目曾报告 DeepSeek V4 Flash 的历史 Final-200 结果 139/200（69.5%），后来的 75.96% 是删题后的分母重算；与新版测试或 Sol 采集成功率均不可直接比较。[原项目审计](https://github.com/YYHDBL/shopping-grpo-longhorizon/blob/main/docs/evaluation-updates.md)

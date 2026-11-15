@@ -1,10 +1,10 @@
-# TRACE 用于 Shopping GRPO 的可行性研究
+# TRACE 用于 E-Commerce Agent 的可行性研究
 
 ## 结论
 
 可以做实验，但不建议现在直接把现有 GRPO 全量替换成 TRACE。更稳妥的定位是：**保留现有终局 Reward v3 和 GRPO 更新，只增加一个 turn-level 辅助 advantage，先做小规模严格配对实验**。
 
-结构上，这个项目是合适的：它有最长 35 步的多轮工具轨迹、稀疏终局奖励和明确的 assistant/tool 边界，正是 TRACE 要解决的长程 credit assignment 场景（见本项目的 [GRPO 文档](../grpo.md) 与 [Reward v3](../reward-v3.md)）。但语义上不是即插即用：TRACE 的论文实验依赖**短、唯一、可验证的 gold answer**，购物任务的目标却是结构化购买决策，而且 Reward v3 接受满足约束的替代商品。论文也明确把长结构化、多解或开放目标列为当前方法的适用边界。[论文 §6](https://arxiv.org/pdf/2607.13988v1#page=12)
+结构上，这个项目是合适的：它有最长 35 步的多轮工具轨迹、稀疏终局奖励和明确的 assistant/tool 边界，正是 TRACE 要解决的长程 credit assignment 场景（见本项目的 [GRPO 文档](../grpo.md) 与 [Reward v3](../../../reward-v3.md)）。但语义上不是即插即用：TRACE 的论文实验依赖**短、唯一、可验证的 gold answer**，购物任务的目标却是结构化购买决策，而且 Reward v3 接受满足约束的替代商品。论文也明确把长结构化、多解或开放目标列为当前方法的适用边界。[论文 §6](https://arxiv.org/pdf/2607.13988v1#page=12)
 
 因此，是否值得继续实现取决于一个先验诊断：冻结参考模型对“gold 购买目标”的 prefix log-prob，是否真的随有效购物进度上升，并与 Reward v3 终局结果正相关。若这个 proxy 不成立，照搬 TRACE 公式只会给 GRPO 加噪声。
 
@@ -86,7 +86,7 @@ TRACE 训练至少需要以下信息：[论文 Algorithm 1](https://arxiv.org/pd
 4. 同一 prompt 仍需多个 rollout 来计算 GRPO 的终局 group-relative advantage。论文使用 \(G=8\)；TRACE 的 dense credit 则是单轨迹内部信号，不做跨 rollout 标准化。[训练超参表](https://arxiv.org/pdf/2607.13988v1#page=19)
 5. 一个冻结 reference checkpoint。论文发现初始化 checkpoint 已足够，换成 step-200 checkpoint 只从 35.6 变为 36.1，不需要额外强 teacher。[参考模型消融](https://arxiv.org/pdf/2607.13988v1#page=10)
 
-现有 Shopping GRPO 已有多轮 tool transcript、终局 Reward v3、每 prompt 4 个 rollout，并启用了 raw chat 返回，因此轨迹侧的大部分前提已经具备。[现有 GRPO 配置](../../configs/grpo.yaml) 真正缺少的是：一个与 Reward v3 目标一致、可由 reference model 稳定评分的 canonical gold target，以及训练期的 prefix log-prob scorer。
+现有 E-Commerce Agent 已有多轮 tool transcript、终局 Reward v3、每 prompt 4 个 rollout，并启用了 raw chat 返回，因此轨迹侧的大部分前提已经具备。[现有 GRPO 配置](../../../../configs/grpo.yaml) 真正缺少的是：一个与 Reward v3 目标一致、可由 reference model 稳定评分的 canonical gold target，以及训练期的 prefix log-prob scorer。
 
 ## 关键超参
 
@@ -149,11 +149,11 @@ credit 形式消融中，BrowseComp-Plus 从 GRPO 30.0 提升到 raw delta 32.4�
 
 它的 exact-checkpoint 配对结果是 TRACE 6.25% vs outcome-only 9.38%，没有复现论文的成功率收益；Instruct 配对也没有成功率收益。由于实验规模和 optimizer 都不同，这既不能证伪论文，也提醒我们必须先做本项目自己的严格对照。[第三方 README 结论](https://github.com/alphaXiv/trace-turn-level-reward-assignment-via-credit-es#trace-turn-level-reward-reproduction)
 
-## 对 Shopping GRPO 的具体判断
+## 对 E-Commerce Agent 的具体判断
 
 ### 合适的部分
 
-1. 现有任务最长 35 步，搜索、打开商品、检查详情、选择规格到最终购买之间存在明显延迟 credit；这比短推理更符合 TRACE 的动机。[Reward v3 终止规则](../reward-v3.md)
+1. 现有任务最长 35 步，搜索、打开商品、检查详情、选择规格到最终购买之间存在明显延迟 credit；这比短推理更符合 TRACE 的动机。[Reward v3 终止规则](../../../reward-v3.md)
 2. 现有 GRPO 只把终局 Reward v3 传播给整条 rollout。一个失败轨迹仍可能包含正确搜索和候选排查，TRACE 有机会避免把这些有效 turn 与最后一次错误购买一起惩罚。这正是论文定义的问题。[论文引言](https://arxiv.org/pdf/2607.13988v1#page=2)
 3. 项目已有 4 rollouts/prompt、完整生成诊断、工具序列和 reward breakdown，适合做 matched A/B 与离线 prefix-credit 审计。[现有 GRPO 文档](../grpo.md)
 4. 现有 frozen reference 路径和 policy checkpoint 概念与 TRACE 接近；无需再引入一个可训练 critic。
@@ -161,8 +161,8 @@ credit 形式消融中，BrowseComp-Plus 从 GRPO 30.0 提升到 raw delta 32.4�
 ### 不直接合适的部分
 
 1. Reward v3 的成功不是一个短文本答案，而是环境中的结构化购买终局；模型通常通过 `buy_now` tool call 完成，而不是输出论文式 `<answer>`。
-2. Reward v3 同时接受 exact `gold_purchase` 和 `valid_alternative_purchase`。若把唯一 gold ASIN/option 串作为 \(y^*\)，reference scorer 会天然偏向 exact target，即使另一商品完全满足约束并获得正终局奖励。这会让 turn credit 与现有 verifier 冲突。[Reward v3 的成功定义](../reward-v3.md)
-3. 轨迹中的 observation 很长，现有最大模型长度 24,576；对每个 tool boundary 重复构造 prefix 会显著增加 scorer token-volume 和显存压力。[现有 GRPO 配置](../../configs/grpo.yaml)
+2. Reward v3 同时接受 exact `gold_purchase` 和 `valid_alternative_purchase`。若把唯一 gold ASIN/option 串作为 \(y^*\)，reference scorer 会天然偏向 exact target，即使另一商品完全满足约束并获得正终局奖励。这会让 turn credit 与现有 verifier 冲突。[Reward v3 的成功定义](../../../reward-v3.md)
+3. 轨迹中的 observation 很长，现有最大模型长度 24,576；对每个 tool boundary 重复构造 prefix 会显著增加 scorer token-volume 和显存压力。[现有 GRPO 配置](../../../../configs/grpo.yaml)
 4. 现有 rollout group size 是 4，不是论文的 8。可以先保持 4 做严格 matched 实验，但不能预期复现论文绝对数值。
 
 ## 最小实验方案
