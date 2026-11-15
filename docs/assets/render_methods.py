@@ -17,41 +17,39 @@ def canvas(width, height):
     return fig, ax
 
 
-def box(ax, x, y, w, h, title, body="", color=BLUE, fill="#FFFFFF", size=10):
+def section(ax, y, letter, title, right=""):
+    ax.text(0.25, y, letter, fontsize=10, color=GRAY, va="center")
+    ax.text(0.56, y, title, fontsize=12, va="center")
+    ax.plot([0.25, 11.55], [y - 0.20, y - 0.20], color="#D7DBDE", lw=0.6)
+    if right:
+        ax.text(11.55, y, right, fontsize=9, color=GRAY, ha="right", va="center")
+
+
+def box(ax, x, y, w, h, title, body, color=GRAY):
     ax.add_patch(
         FancyBboxPatch(
             (x, y),
             w,
             h,
-            boxstyle="round,pad=0.035,rounding_size=0.07",
-            linewidth=0.8,
-            edgecolor=color,
-            facecolor=fill,
+            boxstyle="round,pad=0,rounding_size=0.04",
+            linewidth=0.65,
+            edgecolor="#CDD2D6",
+            facecolor="white",
             zorder=2,
         )
     )
+    ax.plot([x + 0.14, x + 0.52], [y + h, y + h], color=color, lw=2.0, zorder=3)
+    ax.text(x + 0.14, y + h - 0.25, title, va="center", fontsize=10.5, weight="bold", zorder=3)
     ax.text(
-        x + w / 2,
-        y + h - 0.23,
-        title,
-        ha="center",
-        va="center",
-        weight="bold",
-        fontsize=size,
+        x + 0.14,
+        y + h - 0.53,
+        body,
+        va="top",
+        fontsize=9.5,
+        color="#454B51",
+        linespacing=1.45,
         zorder=3,
     )
-    if body:
-        ax.text(
-            x + w / 2,
-            y + (h - 0.40) / 2,
-            body,
-            ha="center",
-            va="center",
-            fontsize=size - 0.5,
-            linespacing=1.4,
-            color="#40464D",
-            zorder=3,
-        )
 
 
 def arrow(ax, start, end, color=GRAY, dashed=False):
@@ -70,122 +68,91 @@ def arrow(ax, start, end, color=GRAY, dashed=False):
 
 
 def architecture():
-    fig, ax = canvas(12, 5.8)
-    ax.text(0.14, 5.53, "(a) Post-training pipeline", fontsize=12)
+    fig, ax = canvas(11.8, 5.7)
+    section(ax, 5.38, "a", "Post-training pipeline", "Qwen3.5-2B  /  LoRA")
     nodes = [
-        (
-            "Teacher demonstrations",
-            "Astra · environment-verified\n2,000 train / 200 validation",
-            GRAY,
-        ),
-        ("Cold-start SFT", "Qwen3.5-2B · action-only CE\nSuccessful demonstrations", BLUE),
+        ("Demonstrations", "Astra · verified in environment\n2,000 train / 200 validation", GRAY),
+        ("Cold-start SFT", "Successful demonstrations\nAction-only cross-entropy", BLUE),
         ("Corrective SFT", "144 corrections + 144 replay\nTeacher suffix supervision", GOLD),
-        ("Terminal-reward GRPO", "2 tasks × 4 rollouts / update\nLoRA · 500 updates", GREEN),
+        ("Terminal GRPO", "2 tasks × 4 rollouts / update\n500 policy updates", GREEN),
         ("Evaluation", "dev300 selection · test1000\nIndependent pass@k diagnosis", GRAY),
     ]
     for i, (title, body, color) in enumerate(nodes):
-        x = 0.17 + i * 2.4
-        box(ax, x, 4.14, 2.05, 1.06, title, body, color, size=10)
+        x = 0.25 + i * 2.32
+        box(ax, x, 3.93, 2.02, 1.02, title, body, color)
         if i < 4:
-            arrow(ax, (x + 2.10, 4.67), (x + 2.35, 4.67))
+            arrow(ax, (x + 2.06, 4.42), (x + 2.27, 4.42))
     ax.text(
-        4.99,
-        3.87,
+        4.89,
+        3.69,
         "Failure replay → teacher takeover → verified correction",
         ha="center",
         fontsize=9,
-        color=GOLD,
+        color="#9A6E35",
     )
-    ax.text(0.14, 3.39, "(b) Shared interaction protocol", fontsize=12)
-    ax.add_patch(
-        FancyBboxPatch(
-            (0.16, 1.53),
-            11.65,
-            1.55,
-            boxstyle="round,pad=0.035,rounding_size=0.08",
-            facecolor="#F7F8FA",
-            edgecolor="#D2D7DC",
-            linewidth=0.8,
-            zorder=0,
-        )
-    )
-    box(ax, 0.36, 1.97, 1.75, 0.84, "Task + history", "Frozen split / budget", GRAY, size=10)
-    box(ax, 2.73, 1.97, 2.05, 0.84, "Policy", "Teacher API / student vLLM", BLUE, size=10)
-    box(ax, 5.42, 1.97, 2.08, 0.84, "Action Guard", "Parse · legal target · limits", GOLD, size=10)
-    box(
+
+    section(
         ax,
-        8.15,
-        1.97,
-        3.28,
-        0.84,
-        "ShopSimulator",
-        "Search → inspect → select → buy",
-        GREEN,
-        size=10,
-    )
-    for start, end in [(2.15, 2.67), (4.82, 5.36), (7.54, 8.09)]:
-        arrow(ax, (start, 2.39), (end, 2.39))
-    ax.plot([9.79, 9.79, 3.76], [1.92, 1.72, 1.72], color=GRAY, lw=0.9, zorder=1)
-    arrow(ax, (3.76, 1.72), (3.76, 1.93))
-    ax.text(
-        6.75,
-        1.76,
-        "Structured observation + execution feedback",
-        ha="center",
-        va="bottom",
-        fontsize=9,
-        bbox={"facecolor": "#F7F8FA", "edgecolor": "none", "pad": 1},
-    )
-    ax.text(
-        11.70,
-        3.37,
+        3.25,
+        "b",
+        "Shared interaction protocol",
         "Collection · correction · rollout · evaluation",
-        ha="right",
-        fontsize=9,
-        color=GRAY,
     )
-    ax.text(0.14, 1.15, "(c) Learning signals and evidence", fontsize=12)
+    box(ax, 0.25, 1.85, 1.85, 1.04, "Task + history", "Frozen task split\nExecution budget", GRAY)
+    box(ax, 2.65, 1.85, 2.25, 1.04, "Policy", "Teacher API\nor student vLLM", BLUE)
     box(
         ax,
-        0.17,
-        0.10,
-        3.57,
-        0.78,
-        "SFT targets",
-        "Verified actions; observations are masked",
-        BLUE,
-        size=10,
+        5.48,
+        1.85,
+        2.25,
+        1.04,
+        "Action Guard",
+        "Parse · check legal targets\nApply execution limits",
+        GOLD,
     )
     box(
         ax,
-        4.19,
-        0.10,
-        3.57,
-        0.78,
-        "GRPO returns",
-        "Terminal reward; model failures retained",
+        8.31,
+        1.85,
+        3.24,
+        1.04,
+        "ShopSimulator",
+        "Search → inspect → select → buy\nStructured state and terminal evidence",
         GREEN,
-        size=10,
     )
-    box(
-        ax,
-        8.21,
-        0.10,
-        3.57,
-        0.78,
-        "Reproducible evidence",
-        "Task traces · metrics · checkpoint hashes",
-        GRAY,
-        size=10,
+    for start, end in [(2.14, 2.60), (4.94, 5.43), (7.77, 8.26)]:
+        arrow(ax, (start, 2.37), (end, 2.37))
+    ax.plot([9.93, 9.93, 3.77], [1.85, 1.47, 1.47], color=GRAY, lw=0.9)
+    arrow(ax, (3.77, 1.47), (3.77, 1.81))
+    ax.text(
+        6.87,
+        1.48,
+        "Observation + execution feedback",
+        ha="center",
+        va="center",
+        fontsize=9,
+        bbox={"facecolor": "white", "edgecolor": "none", "pad": 4},
     )
+
+    section(ax, 1.01, "c", "Learning signals and evidence")
+    columns = [
+        (0.25, "SFT targets", "Verified actions; observations masked", BLUE),
+        (4.17, "GRPO returns", "Terminal reward; model failures retained", GREEN),
+        (8.09, "Evidence", "Task traces · metrics · checkpoint hashes", GRAY),
+    ]
+    for x, title, body, color in columns:
+        ax.plot([x, x], [0.12, 0.62], color=color, lw=1.5)
+        ax.text(x + 0.13, 0.53, title, fontsize=10.5, weight="bold")
+        ax.text(x + 0.13, 0.20, body, fontsize=9.5, color="#454B51")
     save(fig, "system-architecture")
 
 
 def data_flow(metadata):
-    fig, ax = canvas(11.8, 5.5)
-    ax.text(0.15, 5.20, "(a) Task qualification and isolation", fontsize=12)
+    fig, ax = canvas(11.8, 5.2)
+    section(ax, 4.90, "a", "Task qualification", "Counts refer to tasks, not accepted trajectories")
+    source = metadata["source_task_count"]
     stages = [
-        ("Source tasks", metadata["source_task_count"], "Product / instruction records"),
+        ("Source tasks", source, "Product / instruction records"),
         ("Quality-qualified", metadata["quality_pass_count"], "Price, options, valid target"),
         ("History-isolated", metadata["fresh_quality_pass_count"], "Exclude prior-exposed groups"),
         (
@@ -195,55 +162,71 @@ def data_flow(metadata):
         ),
     ]
     for i, (title, count, note) in enumerate(stages):
-        x = 0.18 + i * 2.96
-        box(ax, x, 3.96, 2.53, 0.95, title, f"{count:,}\n{note}", GRAY, size=10)
-        if i < 3:
-            arrow(ax, (x + 2.58, 4.44), (x + 2.89, 4.44))
-    ax.text(0.15, 3.51, "(b) Frozen, disjoint partitions", fontsize=12)
-    ax.add_patch(
-        Rectangle((0.17, 0.85), 5.52, 2.36, facecolor="#F1F6FA", edgecolor="#CBD7E1", lw=0.8)
-    )
-    ax.add_patch(
-        Rectangle((6.11, 0.85), 5.52, 2.36, facecolor="#F5F4F8", edgecolor="#D4D1DC", lw=0.8)
-    )
-    ax.text(0.37, 2.91, "Training-side tasks", fontsize=11, color=BLUE, weight="bold")
-    ax.text(
-        6.31, 2.91, "Held out from parameter updates", fontsize=11, color="#766786", weight="bold"
-    )
-    groups = [
-        (0.37, 2.25, "teacher_candidates", "Teacher / correction candidates", BLUE),
-        (0.37, 1.70, "grpo_train", "Online GRPO task pool", BLUE),
-        (0.37, 1.15, "train_reserve", "Training reserve", BLUE),
-        (6.31, 2.25, "sft_validation_candidates", "SFT validation candidates", GRAY),
-        (6.31, 1.70, "dev", "Development / checkpoint selection", GRAY),
-        (6.31, 1.15, "test", "Fixed test comparison", GRAY),
-    ]
-    for x, y, key, label, color in groups:
-        count = metadata["splits"][key]["tasks"]
-        ax.text(x, y, label, fontsize=10.5, va="center")
-        ax.text(
-            x + 4.90,
-            y,
-            f"{count:,}",
-            fontsize=12,
-            va="center",
-            ha="right",
-            weight="bold",
-            color=color,
+        x = 0.25 + i * 2.93
+        ax.text(x, 4.37, title, fontsize=10.5, weight="bold")
+        ax.text(x, 3.89, f"{count:,}", fontsize=24, color=INK)
+        ax.text(x, 3.61, note, fontsize=9, color=GRAY)
+        ax.add_patch(Rectangle((x, 3.36), 2.50, 0.065, facecolor="#E6E9EC", edgecolor="none"))
+        ax.add_patch(
+            Rectangle(
+                (x, 3.36),
+                2.50 * count / source,
+                0.065,
+                facecolor=BLUE if i == 3 else "#9BA7B2",
+                edgecolor="none",
+            )
         )
-    ax.plot([5.90, 5.90], [0.78, 3.26], color="#A8A0B5", lw=1, ls=(0, (4, 3)))
+        if i < 3:
+            arrow(ax, (x + 2.53, 4.06), (x + 2.83, 4.06))
     ax.text(
-        5.90,
-        0.48,
-        "Split by task and duplicate group before collection or training.",
-        ha="center",
-        fontsize=10,
+        11.55, 3.12, "Bar lengths relative to the source pool", ha="right", fontsize=8.5, color=GRAY
     )
+    section(
+        ax, 2.78, "b", "Frozen partitions", "Split by task and duplicate group before collection"
+    )
+    sides = [
+        (
+            0.25,
+            "Training-side tasks",
+            BLUE,
+            [
+                ("teacher_candidates", "Teacher / correction candidates"),
+                ("grpo_train", "Online GRPO task pool"),
+                ("train_reserve", "Training reserve"),
+            ],
+        ),
+        (
+            6.35,
+            "Held out from parameter updates",
+            "#766786",
+            [
+                ("sft_validation_candidates", "SFT validation candidates"),
+                ("dev", "Development / checkpoint selection"),
+                ("test", "Fixed test comparison"),
+            ],
+        ),
+    ]
+    for x, title, color, rows in sides:
+        ax.text(x, 2.20, title, fontsize=11, color=color, weight="bold")
+        ax.text(x + 5.20, 2.20, "TASKS", ha="right", fontsize=8, color=GRAY)
+        for i, (key, label) in enumerate(rows):
+            y = 1.78 - i * 0.51
+            ax.text(x, y, label, fontsize=10.5, va="center")
+            ax.text(
+                x + 5.20,
+                y,
+                f"{metadata['splits'][key]['tasks']:,}",
+                ha="right",
+                va="center",
+                fontsize=13,
+                color=color,
+            )
+            ax.plot([x, x + 5.20], [y - 0.22, y - 0.22], color="#E0E3E6", lw=0.55)
+    ax.plot([5.95, 5.95], [0.50, 2.23], color="#BAC2C9", lw=0.7, ls=(0, (3, 4)))
     ax.text(
-        5.90,
-        0.15,
-        "Teacher pilot (100) and dev smoke (50) are subsets, not additional tasks.",
-        ha="center",
+        0.25,
+        0.16,
+        "Teacher pilot (100) ⊂ teacher candidates; dev smoke (50) ⊂ dev. Subsets are not counted twice.",
         fontsize=9,
         color=GRAY,
     )
@@ -251,107 +234,122 @@ def data_flow(metadata):
 
 
 def correction_case(case):
-    fig, ax = canvas(11.8, 5.1)
-    ax.text(
-        0.15,
-        4.83,
-        f"Task {case['task_id']} · One verified correction from the training data",
-        fontsize=12,
-    )
-    box(
-        ax,
-        0.20,
-        3.79,
-        11.38,
-        0.70,
-        "Request",
-        "Khaki summer suit · waistcoat + striped short-sleeve shirt + shorts + plain khaki tie · 90 cm · under CNY 300",
-        GRAY,
-        size=10,
-    )
-    xvals = [0.20, 4.16, 8.12]
-    headers = ["(a) Student decision", "(b) Teacher intervention", "(c) Environment verification"]
-    fills = ["#FBF5ED", "#F0F5FA", "#EDF6F2"]
-    colors = [GOLD, BLUE, GREEN]
-    for x, title, fill, color in zip(xvals, headers, fills, colors):
-        box(ax, x, 1.39, 3.46, 2.04, title, color=color, fill=fill, size=11)
+    fig, ax = canvas(11.8, 5.4)
     student, teacher = case["student_terminal"], case["teacher_terminal"]
     prefix_actions = case["shared_prefix_actions"]
     teacher_actions = case["supervised_teacher_actions"]
     budget = teacher["reward_detail"]["hard_gates"]["budget"]["required"]
+    section(ax, 5.09, "a", "A verified correction", f"Training task {case['task_id']}")
+    ax.text(0.25, 4.59, "REQUEST", fontsize=8.5, color=GRAY)
     ax.text(
-        0.43,
-        2.84,
-        "Selected: khaki waistcoat + shorts + tie\nSize: 90 cm\nMissing: striped short-sleeve shirt",
-        va="top",
-        fontsize=10,
-        linespacing=1.45,
+        1.25,
+        4.60,
+        "Khaki summer suit: waistcoat, striped short-sleeve shirt, shorts and plain khaki tie.",
+        fontsize=11,
     )
+    ax.text(1.25, 4.30, "Size 90 cm  ·  Budget under CNY 300", fontsize=10, color="#454B51")
+
+    columns = [
+        (0.25, "Student decision", "#A5793D"),
+        (4.19, "Teacher intervention", BLUE),
+        (8.13, "Verified outcome", GREEN),
+    ]
+    for i, (x, title, color) in enumerate(columns):
+        ax.plot([x, x + 3.42], [3.94, 3.94], color=color, lw=1.2)
+        ax.text(x, 3.66, title, fontsize=12, weight="bold")
+        if i < 2:
+            arrow(ax, (x + 3.49, 3.71), (x + 3.85, 3.71))
     ax.text(
-        0.43,
-        1.92,
-        f"buy_now() → partial purchase\nCNY {student['purchase']['price']:.0f} · Reward v3 = {student['reward']:.4f}",
+        0.25,
+        3.24,
+        "Waistcoat + shorts + tie\nSize: 90 cm",
+        fontsize=10.5,
         va="top",
-        fontsize=10,
-        color="#9A6528",
         linespacing=1.5,
     )
     ax.text(
-        4.39,
-        2.84,
-        f"Replay {prefix_actions} actions; intervene before buy.\n1. select_option(full khaki outfit)\n2. buy_now()",
-        va="top",
-        fontsize=10,
-        linespacing=1.45,
+        0.25,
+        2.56,
+        "Missing: striped short-sleeve shirt",
+        fontsize=10.5,
+        color="#93622E",
+        bbox={"facecolor": "#FAF2E6", "edgecolor": "none", "pad": 4},
     )
     ax.text(
-        4.39,
-        1.92,
-        "Same product; retain the 90 cm size.\nOnly the teacher suffix is supervised.",
+        0.25, 2.16, f"CNY {student['purchase']['price']:.0f}  ·  Partial purchase", fontsize=10.5
+    )
+    ax.text(0.25, 1.81, f"Reward v3  {student['reward']:.4f}", fontsize=11, color="#93622E")
+
+    ax.text(
+        4.19,
+        3.24,
+        f"Replay {prefix_actions} actions; intervene before buy.\nSame product and 90 cm size.",
+        fontsize=10.5,
         va="top",
-        fontsize=10,
-        color=BLUE,
+        linespacing=1.5,
+    )
+    for y, number, text in [
+        (2.54, "1", "Select the full outfit option"),
+        (2.16, "2", "Execute buy_now()"),
+    ]:
+        ax.text(4.19, y, number, color=BLUE, fontsize=10.5, weight="bold")
+        ax.text(4.46, y, text, fontsize=10.5)
+    ax.text(4.19, 1.81, "Only the teacher suffix is supervised", fontsize=10, color=BLUE)
+
+    ax.text(
+        8.13,
+        3.24,
+        "All requested garments present\nSize: 90 cm",
+        fontsize=10.5,
+        va="top",
         linespacing=1.5,
     )
     ax.text(
-        8.35,
-        2.84,
-        f"All requested garments present\nSize: 90 cm\nCNY {teacher['purchase']['price']:.0f} < CNY {budget:.0f} budget",
-        va="top",
-        fontsize=10,
-        linespacing=1.45,
+        8.13,
+        2.56,
+        f"CNY {teacher['purchase']['price']:.0f} < CNY {budget:.0f} budget",
+        fontsize=10.5,
     )
-    ax.text(
-        8.35,
-        1.92,
-        f"gold_purchase · reward_valid = true\nReward v3 = {teacher['reward']:.1f}",
-        va="top",
-        fontsize=10,
-        color=GREEN,
-        linespacing=1.5,
-    )
-    arrow(ax, (3.72, 2.42), (4.09, 2.42), BLUE)
-    arrow(ax, (7.68, 2.42), (8.05, 2.42), GREEN)
-    ax.text(0.22, 0.93, "Supervision mask", fontsize=10.5, weight="bold")
+    ax.text(8.13, 2.16, "gold_purchase · reward_valid = true", fontsize=10, color=GREEN)
+    ax.text(8.13, 1.81, f"Reward v3  {teacher['reward']:.1f}", fontsize=11, color=GREEN)
+
+    ax.plot([0.25, 11.55], [1.53, 1.53], color="#D7DBDE", lw=0.6)
+    ax.text(0.25, 1.17, "b", fontsize=10, color=GRAY)
+    ax.text(0.56, 1.17, "Supervision mask", fontsize=11)
+    start, pitch, width, y = 3.05, 0.69, 0.57, 1.04
     for i in range(prefix_actions + teacher_actions):
-        x = 2.15 + i * 0.64
+        x = start + i * pitch
+        is_teacher = i >= prefix_actions
         ax.add_patch(
             Rectangle(
-                (x, 0.67),
-                0.51,
-                0.44,
-                facecolor="#E4E7EB" if i < prefix_actions else "#D4E8DF",
-                edgecolor="#ABB3BB" if i < prefix_actions else GREEN,
-                lw=0.7,
+                (x, y),
+                width,
+                0.31,
+                facecolor="#D4E8DF" if is_teacher else "#EDF0F2",
+                edgecolor=GREEN if is_teacher else "#C5CCD1",
+                lw=0.65,
             )
         )
-        ax.text(x + 0.255, 0.89, str(i + 1), ha="center", va="center", fontsize=9)
-    ax.text(4.65, 0.40, "Student prefix: context only", ha="center", fontsize=9, color=GRAY)
-    ax.text(8.00, 0.40, "Teacher actions: CE loss", ha="center", fontsize=9, color=GREEN)
+        ax.text(
+            x + width / 2,
+            y + 0.155,
+            str(i + 1),
+            ha="center",
+            va="center",
+            fontsize=8.5,
+            color=GREEN if is_teacher else "#606972",
+        )
+    for first, count, label, color in [
+        (0, prefix_actions, "Student prefix · context only", GRAY),
+        (prefix_actions, teacher_actions, "Teacher actions · CE loss", GREEN),
+    ]:
+        left, right = start + first * pitch, start + (first + count - 1) * pitch + width
+        ax.plot([left, left, right, right], [0.97, 0.88, 0.88, 0.97], color=color, lw=0.6)
+        ax.text((left + right) / 2, 0.62, label, ha="center", fontsize=9, color=color)
     ax.text(
-        0.22,
-        0.06,
-        "English paraphrase of the recorded Chinese task and options; this is teacher repair, not a post-training student result.",
+        0.25,
+        0.17,
+        "English paraphrase of the recorded Chinese task. Teacher repair example; not a post-training student comparison.",
         fontsize=9,
         color=GRAY,
     )
