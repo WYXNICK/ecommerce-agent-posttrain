@@ -2,17 +2,9 @@
 
 ## 一条共享的交互链路
 
-```mermaid
-flowchart TD
-    T[冻结任务与用户需求] --> P[提示词与学生模板]
-    P --> M[教师 API / 学生 vLLM]
-    M --> A[动作解析与 Action Guard]
-    A --> E[ShopSimulator]
-    E --> O[结构化观察与 token 预算]
-    O --> P
-    E --> R[可验证终局与 Reward v3]
-    R --> S[SFT 成品验收 / GRPO 回报 / 评测汇总]
-```
+![训练流程、共享交互与学习信号](assets/system-architecture.svg)
+
+上层为训练主线，中层为各阶段共享的执行循环，下层区分监督目标、强化学习回报与可追溯证据。
 
 教师采集、学生评测和 GRPO rollout 共用 `next/src/shopping_agent/runtime.py`。每轮一个动作，只允许当前页目标；非法动作返回统一反馈，连续失败按协议结束。每步输入、输出、工具结果和终止原因保留，避免训练与评测使用不同执行规则。
 

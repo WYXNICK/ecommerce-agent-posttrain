@@ -1,0 +1,779 @@
+{
+  "task_id": 19141,
+  "product_id": "937352910780",
+  "scope": "Verified training-data correction; not a post-training student evaluation.",
+  "sources": {
+    "student": {
+      "source": "next/outputs/history/20261103/reflow-r1/mine/raw.jsonl",
+      "trajectory_id": "ce4c33f2-ea80-4764-ac0e-74612ca506aa",
+      "record_sha256": "169a9483d612599cedff3b4858e540e2c5377ad5ec301569c1ee502296a562f3"
+    },
+    "teacher": {
+      "source": "next/outputs/history/20261103/reflow-r1/repair/raw.jsonl",
+      "trajectory_id": "4c5b0814-28ca-4e7b-843b-d0e2956b3759",
+      "record_sha256": "f3b9658315d19f6098e72e37ee2a3f23280dca692a13bad0e238958e65b65ecb"
+    }
+  },
+  "accepted_dataset": "next/data/reflow/r1/repair.jsonl.gz",
+  "accepted_trajectory_id": "4c5b0814-28ca-4e7b-843b-d0e2956b3759",
+  "source_student_trajectory_id": "ce4c33f2-ea80-4764-ac0e-74612ca506aa",
+  "instruction": "请推荐一款适合幼儿园小朋友演出时穿的卡其色西装套装，要包含马甲，条纹短袖衬衫，短裤和卡其纯色领带，要有低调奢华质感，适合身高90厘米的小孩在夏天穿，价格在300元以下。",
+  "intervention": {
+    "message_index": 18,
+    "reason": "before_failed_purchase",
+    "prefix_actions": 8
+  },
+  "supervise_from_message": 18,
+  "replay_verified": true,
+  "shared_prefix_actions": 8,
+  "supervised_teacher_actions": 2,
+  "prefix_last_observation": "[SHOPPING_OBSERVATION_V2]\npage_type: product_detail\nasin: 937352910780\ntitle: 主持人礼服男童轻奢小众儿童西装套装夏新款幼儿园男孩钢琴演出服\nbrand: 初茵媛童装\ncategory: 童装/婴儿装/亲子装›外套/夹克/大衣›西服/小西装\nprice: 216.0\nkey_attributes: 幼儿园, 儿童, 演出服, 轻奢, 夏天\nselected_options: {\"参考身高\": \"90cm\", \"颜色分类\": \"卡其色（马甲+短裤）+卡其纯色领带\"}\navailable_options: {\"参考身高\": [\"130cm\", \"90cm\", \"150cm\", \"120cm\", \"110cm\", \"160cm\", \"140cm\", \"100cm\"], \"颜色分类\": [\"黑色（马甲+短裤）+黑色领带\", \"卡其色（马甲+长裤）+卡其纯色领带\", \"黑色（马甲+条纹短袖衬衫+长裤）+黑色领带\", \"卡其色（马甲+条纹短袖衬衫+长裤）+卡其纯色领带\", \"咖啡色（马甲+条纹短袖衬衫+短裤）+咖啡色斜条纹领带\", \"卡其色（马甲+短裤）+卡其纯色领带\", \"黑色（马甲+条纹长袖衬衫+长裤）+黑色领带\", \"咖啡色（马甲+长裤）+咖啡色斜条纹领带\", \"黑色（马甲+条纹短袖衬衫+短裤）+黑色领带\", \"卡其色（马甲+条纹长袖衬衫+长裤）+卡其纯色领带\", \"咖啡色（马甲+条纹短袖衬衫+长裤）+咖啡色斜条纹领带\", \"黑色（马甲+长裤）+黑色领带\", \"咖啡色（马甲+条纹长袖衬衫+长裤）+咖啡色斜条纹领带\", \"咖啡色（马甲+短裤）+咖啡色斜条纹领带\", \"卡其色（马甲+条纹短袖衬衫+短裤）+卡其纯色领带\"]}\n\n搜索功能是否可用: False\n可点击的按钮: [\"back to search\", \"< prev\", \"description\", \"features\", \"reviews\", \"buy now\", \"黑色（马甲+短裤）+黑色领带\", \"卡其色（马甲+长裤）+卡其纯色领带\", \"黑色（马甲+条纹短袖衬衫+长裤）+黑色领带\", \"卡其色（马甲+条纹短袖衬衫+长裤）+卡其纯色领带\", \"咖啡色（马甲+条纹短袖衬衫+短裤）+咖啡色斜条纹领带\", \"卡其色（马甲+短裤）+卡其纯色领带\", \"黑色（马甲+条纹长袖衬衫+长裤）+黑色领带\", \"咖啡色（马甲+长裤）+咖啡色斜条纹领带\", \"黑色（马甲+条纹短袖衬衫+短裤）+黑色领带\", \"卡其色（马甲+条纹长袖衬衫+长裤）+卡其纯色领带\", \"咖啡色（马甲+条纹短袖衬衫+长裤）+咖啡色斜条纹领带\", \"黑色（马甲+长裤）+黑色领带\", \"咖啡色（马甲+条纹长袖衬衫+长裤）+咖啡色斜条纹领带\", \"咖啡色（马甲+短裤）+咖啡色斜条纹领带\", \"卡其色（马甲+条纹短袖衬衫+短裤）+卡其纯色领带\", \"130cm\", \"90cm\", \"150cm\", \"120cm\", \"110cm\", \"160cm\", \"140cm\", \"100cm\"]",
+  "teacher_suffix": [
+    {
+      "tool_calls": [
+        {
+          "function": {
+            "arguments": "{\"value\": \"卡其色（马甲+条纹短袖衬衫+短裤）+卡其纯色领带\"}",
+            "name": "select_option"
+          },
+          "type": "function",
+          "id": "call_2f41ceca1f2a40378c706198144d84b7"
+        }
+      ],
+      "content": null,
+      "role": "assistant"
+    },
+    {
+      "tool_call_id": "call_2f41ceca1f2a40378c706198144d84b7",
+      "name": "select_option",
+      "content": "[SHOPPING_OBSERVATION_V2]\npage_type: product_detail\nasin: 937352910780\ntitle: 主持人礼服男童轻奢小众儿童西装套装夏新款幼儿园男孩钢琴演出服\nbrand: 初茵媛童装\ncategory: 童装/婴儿装/亲子装›外套/夹克/大衣›西服/小西装\nprice: 296.0\nkey_attributes: 幼儿园, 儿童, 演出服, 轻奢, 夏天\nselected_options: {\"参考身高\": \"90cm\", \"颜色分类\": \"卡其色（马甲+条纹短袖衬衫+短裤）+卡其纯色领带\"}\navailable_options: {\"参考身高\": [\"130cm\", \"90cm\", \"150cm\", \"120cm\", \"110cm\", \"160cm\", \"140cm\", \"100cm\"], \"颜色分类\": [\"黑色（马甲+短裤）+黑色领带\", \"卡其色（马甲+长裤）+卡其纯色领带\", \"黑色（马甲+条纹短袖衬衫+长裤）+黑色领带\", \"卡其色（马甲+条纹短袖衬衫+长裤）+卡其纯色领带\", \"咖啡色（马甲+条纹短袖衬衫+短裤）+咖啡色斜条纹领带\", \"卡其色（马甲+短裤）+卡其纯色领带\", \"黑色（马甲+条纹长袖衬衫+长裤）+黑色领带\", \"咖啡色（马甲+长裤）+咖啡色斜条纹领带\", \"黑色（马甲+条纹短袖衬衫+短裤）+黑色领带\", \"卡其色（马甲+条纹长袖衬衫+长裤）+卡其纯色领带\", \"咖啡色（马甲+条纹短袖衬衫+长裤）+咖啡色斜条纹领带\", \"黑色（马甲+长裤）+黑色领带\", \"咖啡色（马甲+条纹长袖衬衫+长裤）+咖啡色斜条纹领带\", \"咖啡色（马甲+短裤）+咖啡色斜条纹领带\", \"卡其色（马甲+条纹短袖衬衫+短裤）+卡其纯色领带\"]}\n\n搜索功能是否可用: False\n可点击的按钮: [\"back to search\", \"< prev\", \"description\", \"features\", \"reviews\", \"buy now\", \"黑色（马甲+短裤）+黑色领带\", \"卡其色（马甲+长裤）+卡其纯色领带\", \"黑色（马甲+条纹短袖衬衫+长裤）+黑色领带\", \"卡其色（马甲+条纹短袖衬衫+长裤）+卡其纯色领带\", \"咖啡色（马甲+条纹短袖衬衫+短裤）+咖啡色斜条纹领带\", \"卡其色（马甲+短裤）+卡其纯色领带\", \"黑色（马甲+条纹长袖衬衫+长裤）+黑色领带\", \"咖啡色（马甲+长裤）+咖啡色斜条纹领带\", \"黑色（马甲+条纹短袖衬衫+短裤）+黑色领带\", \"卡其色（马甲+条纹长袖衬衫+长裤）+卡其纯色领带\", \"咖啡色（马甲+条纹短袖衬衫+长裤）+咖啡色斜条纹领带\", \"黑色（马甲+长裤）+黑色领带\", \"咖啡色（马甲+条纹长袖衬衫+长裤）+咖啡色斜条纹领带\", \"咖啡色（马甲+短裤）+咖啡色斜条纹领带\", \"卡其色（马甲+条纹短袖衬衫+短裤）+卡其纯色领带\", \"130cm\", \"90cm\", \"150cm\", \"120cm\", \"110cm\", \"160cm\", \"140cm\", \"100cm\"]",
+      "role": "tool"
+    },
+    {
+      "tool_calls": [
+        {
+          "function": {
+            "arguments": "{}",
+            "name": "buy_now"
+          },
+          "type": "function",
+          "id": "call_6adc80545e5f4f8a8893004d3131e69a"
+        }
+      ],
+      "content": null,
+      "role": "assistant"
+    },
+    {
+      "tool_call_id": "call_6adc80545e5f4f8a8893004d3131e69a",
+      "name": "buy_now",
+      "content": "购买已完成。",
+      "role": "tool"
+    }
+  ],
+  "student_terminal": {
+    "done": true,
+    "purchase": {
+      "asin": "937352910780",
+      "attributes": [
+        "幼儿园",
+        "儿童",
+        "演出服",
+        "轻奢",
+        "夏天"
+      ],
+      "category": "童装/婴儿装/亲子装›外套/夹克/大衣›西服/小西装",
+      "instruction_text": "请推荐一款适合幼儿园小朋友演出时穿的卡其色西装套装，要包含马甲，条纹短袖衬衫，短裤和卡其纯色领带，要有低调奢华质感，适合身高90厘米的小孩在夏天穿，价格在300元以下。",
+      "name": "主持人礼服男童轻奢小众儿童西装套装夏新款幼儿园男孩钢琴演出服",
+      "options": {
+        "参考身高": "90cm",
+        "颜色分类": "卡其色（马甲+短裤）+卡其纯色领带"
+      },
+      "price": 216.0,
+      "product_category": "",
+      "query": ""
+    },
+    "reward": 0.14687500000000003,
+    "reward_valid": true,
+    "termination_reason": "partial_alternative_purchase",
+    "reward_detail": {
+      "dimension_scores": {
+        "brand": 0.0,
+        "core_functions": 1.0,
+        "key_options": 0.5,
+        "model": 0.0
+      },
+      "evidence": {
+        "comparator_version": "shopping-comparators-v1",
+        "expected_reward_feature_version": "shopping-reward-features-v1",
+        "preference_scoring": {
+          "active_weight": 0.4,
+          "all_satisfied": false,
+          "dimensions": {
+            "brand": {
+              "active": false,
+              "coverage": 0.0,
+              "passed_count": 0,
+              "required_count": 0,
+              "results": [],
+              "score": 0.0,
+              "verifiable_count": 0
+            },
+            "core_functions": {
+              "active": true,
+              "coverage": 1.0,
+              "passed_count": 5,
+              "required_count": 5,
+              "results": [
+                {
+                  "actual": [
+                    "幼儿园",
+                    "儿童",
+                    "演出服",
+                    "轻奢",
+                    "夏天"
+                  ],
+                  "comparator": "structured_attribute_with_polarity_fallback",
+                  "evidence": {
+                    "matched": [
+                      {
+                        "source": "attribute",
+                        "value": "幼儿园"
+                      }
+                    ],
+                    "missing": [],
+                    "negated": []
+                  },
+                  "passed": true,
+                  "required": [
+                    "幼儿园"
+                  ],
+                  "source_field": "attribute|description",
+                  "status": "pass",
+                  "verifiable": true
+                },
+                {
+                  "actual": [
+                    "幼儿园",
+                    "儿童",
+                    "演出服",
+                    "轻奢",
+                    "夏天"
+                  ],
+                  "comparator": "structured_attribute_with_polarity_fallback",
+                  "evidence": {
+                    "matched": [
+                      {
+                        "source": "attribute",
+                        "value": "儿童"
+                      }
+                    ],
+                    "missing": [],
+                    "negated": []
+                  },
+                  "passed": true,
+                  "required": [
+                    "儿童"
+                  ],
+                  "source_field": "attribute|description",
+                  "status": "pass",
+                  "verifiable": true
+                },
+                {
+                  "actual": [
+                    "幼儿园",
+                    "儿童",
+                    "演出服",
+                    "轻奢",
+                    "夏天"
+                  ],
+                  "comparator": "structured_attribute_with_polarity_fallback",
+                  "evidence": {
+                    "matched": [
+                      {
+                        "source": "attribute",
+                        "value": "演出服"
+                      }
+                    ],
+                    "missing": [],
+                    "negated": []
+                  },
+                  "passed": true,
+                  "required": [
+                    "演出服"
+                  ],
+                  "source_field": "attribute|description",
+                  "status": "pass",
+                  "verifiable": true
+                },
+                {
+                  "actual": [
+                    "幼儿园",
+                    "儿童",
+                    "演出服",
+                    "轻奢",
+                    "夏天"
+                  ],
+                  "comparator": "structured_attribute_with_polarity_fallback",
+                  "evidence": {
+                    "matched": [
+                      {
+                        "source": "attribute",
+                        "value": "轻奢"
+                      }
+                    ],
+                    "missing": [],
+                    "negated": []
+                  },
+                  "passed": true,
+                  "required": [
+                    "轻奢"
+                  ],
+                  "source_field": "attribute|description",
+                  "status": "pass",
+                  "verifiable": true
+                },
+                {
+                  "actual": [
+                    "幼儿园",
+                    "儿童",
+                    "演出服",
+                    "轻奢",
+                    "夏天"
+                  ],
+                  "comparator": "structured_attribute_with_polarity_fallback",
+                  "evidence": {
+                    "matched": [
+                      {
+                        "source": "attribute",
+                        "value": "夏天"
+                      }
+                    ],
+                    "missing": [],
+                    "negated": []
+                  },
+                  "passed": true,
+                  "required": [
+                    "夏天"
+                  ],
+                  "source_field": "attribute|description",
+                  "status": "pass",
+                  "verifiable": true
+                }
+              ],
+              "score": 1.0,
+              "verifiable_count": 5
+            },
+            "key_options": {
+              "active": true,
+              "coverage": 1.0,
+              "passed_count": 1,
+              "required_count": 2,
+              "results": [
+                {
+                  "actual": {
+                    "参考身高": "90cm",
+                    "颜色分类": "卡其色（马甲+短裤）+卡其纯色领带"
+                  },
+                  "comparator": "option_key_value_v1",
+                  "evidence": {
+                    "axis_version": "option-axis-v1",
+                    "matched": [],
+                    "missing_axes": [],
+                    "unavailable_values": [],
+                    "wrong_values": [
+                      {
+                        "axis": "color",
+                        "required": "卡其色（马甲+条纹短袖衬衫+短裤）+卡其纯色领带",
+                        "selected": "卡其色（马甲+短裤）+卡其纯色领带"
+                      }
+                    ]
+                  },
+                  "passed": false,
+                  "required": {
+                    "color": {
+                      "source": "instruction.instruction_options",
+                      "source_axis": "颜色分类",
+                      "value": "卡其色（马甲+条纹短袖衬衫+短裤）+卡其纯色领带"
+                    }
+                  },
+                  "source_field": "customization_options",
+                  "status": "fail",
+                  "verifiable": true
+                },
+                {
+                  "actual": {
+                    "参考身高": "90cm",
+                    "颜色分类": "卡其色（马甲+短裤）+卡其纯色领带"
+                  },
+                  "comparator": "option_key_value_v1",
+                  "evidence": {
+                    "axis_version": "option-axis-v1",
+                    "matched": [
+                      {
+                        "axis": "参考身高",
+                        "source_axis": "参考身高",
+                        "value": "90cm"
+                      }
+                    ],
+                    "missing_axes": [],
+                    "unavailable_values": [],
+                    "wrong_values": []
+                  },
+                  "passed": true,
+                  "required": {
+                    "参考身高": {
+                      "source": "instruction.instruction_options",
+                      "source_axis": "参考身高",
+                      "value": "90cm"
+                    }
+                  },
+                  "source_field": "customization_options",
+                  "status": "pass",
+                  "verifiable": true
+                }
+              ],
+              "score": 0.5,
+              "verifiable_count": 2
+            },
+            "model": {
+              "active": false,
+              "coverage": 0.0,
+              "passed_count": 0,
+              "required_count": 0,
+              "results": [],
+              "score": 0.0,
+              "verifiable_count": 0
+            }
+          },
+          "evidence_coverage": 1.0,
+          "match_score": 0.8125,
+          "weights": {
+            "brand": 0.35,
+            "core_functions": 0.25,
+            "key_options": 0.15,
+            "model": 0.25
+          }
+        },
+        "price_resolution": {
+          "evidence": {
+            "effective_price_axis": "color"
+          },
+          "method": "unique_effective_price_axis",
+          "price": 216.0,
+          "status": "pass",
+          "version": "variant-price-v1"
+        },
+        "reward_feature_version": "shopping-reward-features-v1",
+        "variant_price_version": "variant-price-v1"
+      },
+      "evidence_coverage": 1.0,
+      "hard_gates": {
+        "budget": {
+          "actual": 216.0,
+          "comparator": "variant_price_budget_v1",
+          "evidence": {
+            "evidence": {
+              "effective_price_axis": "color"
+            },
+            "method": "unique_effective_price_axis",
+            "price": 216.0,
+            "status": "pass",
+            "version": "variant-price-v1"
+          },
+          "passed": true,
+          "required": 300.0,
+          "source_field": "variant_price",
+          "status": "pass",
+          "verifiable": true
+        },
+        "category": {
+          "actual": "童装/婴儿装/亲子装›外套/夹克/大衣›西服/小西装",
+          "comparator": "category_leaf_ancestor_chain",
+          "evidence": {
+            "comparisons": [
+              {
+                "ancestor_match": true,
+                "leaf_match": true,
+                "required": [
+                  "童装/婴儿装/亲子装",
+                  "外套/夹克/大衣",
+                  "西服/小西装"
+                ]
+              }
+            ]
+          },
+          "passed": true,
+          "required": [
+            "童装/婴儿装/亲子装›外套/夹克/大衣›西服/小西装"
+          ],
+          "source_field": "category",
+          "status": "pass",
+          "verifiable": true
+        }
+      },
+      "purchase_success": false,
+      "reward": 0.14687500000000003,
+      "reward_type": "partial_alternative_purchase",
+      "reward_valid": true,
+      "reward_version": "shopsimulator-reward-v3",
+      "sampling_invalid": false,
+      "target_asin_match": true,
+      "terminal_utility": 0.14687500000000003,
+      "termination_reason": "partial_alternative_purchase",
+      "weighted_score": 0.8125
+    }
+  },
+  "teacher_terminal": {
+    "done": true,
+    "purchase": {
+      "asin": "937352910780",
+      "attributes": [
+        "幼儿园",
+        "儿童",
+        "演出服",
+        "轻奢",
+        "夏天"
+      ],
+      "category": "童装/婴儿装/亲子装›外套/夹克/大衣›西服/小西装",
+      "instruction_text": "请推荐一款适合幼儿园小朋友演出时穿的卡其色西装套装，要包含马甲，条纹短袖衬衫，短裤和卡其纯色领带，要有低调奢华质感，适合身高90厘米的小孩在夏天穿，价格在300元以下。",
+      "name": "主持人礼服男童轻奢小众儿童西装套装夏新款幼儿园男孩钢琴演出服",
+      "options": {
+        "参考身高": "90cm",
+        "颜色分类": "卡其色（马甲+条纹短袖衬衫+短裤）+卡其纯色领带"
+      },
+      "price": 296.0,
+      "product_category": "",
+      "query": ""
+    },
+    "reward": 1.0,
+    "reward_valid": true,
+    "termination_reason": "gold_purchase",
+    "reward_detail": {
+      "dimension_scores": {
+        "brand": 0.0,
+        "core_functions": 1.0,
+        "key_options": 1.0,
+        "model": 0.0
+      },
+      "evidence": {
+        "comparator_version": "shopping-comparators-v1",
+        "expected_reward_feature_version": "shopping-reward-features-v1",
+        "preference_scoring": {
+          "active_weight": 0.4,
+          "all_satisfied": true,
+          "dimensions": {
+            "brand": {
+              "active": false,
+              "coverage": 0.0,
+              "passed_count": 0,
+              "required_count": 0,
+              "results": [],
+              "score": 0.0,
+              "verifiable_count": 0
+            },
+            "core_functions": {
+              "active": true,
+              "coverage": 1.0,
+              "passed_count": 5,
+              "required_count": 5,
+              "results": [
+                {
+                  "actual": [
+                    "幼儿园",
+                    "儿童",
+                    "演出服",
+                    "轻奢",
+                    "夏天"
+                  ],
+                  "comparator": "structured_attribute_with_polarity_fallback",
+                  "evidence": {
+                    "matched": [
+                      {
+                        "source": "attribute",
+                        "value": "幼儿园"
+                      }
+                    ],
+                    "missing": [],
+                    "negated": []
+                  },
+                  "passed": true,
+                  "required": [
+                    "幼儿园"
+                  ],
+                  "source_field": "attribute|description",
+                  "status": "pass",
+                  "verifiable": true
+                },
+                {
+                  "actual": [
+                    "幼儿园",
+                    "儿童",
+                    "演出服",
+                    "轻奢",
+                    "夏天"
+                  ],
+                  "comparator": "structured_attribute_with_polarity_fallback",
+                  "evidence": {
+                    "matched": [
+                      {
+                        "source": "attribute",
+                        "value": "儿童"
+                      }
+                    ],
+                    "missing": [],
+                    "negated": []
+                  },
+                  "passed": true,
+                  "required": [
+                    "儿童"
+                  ],
+                  "source_field": "attribute|description",
+                  "status": "pass",
+                  "verifiable": true
+                },
+                {
+                  "actual": [
+                    "幼儿园",
+                    "儿童",
+                    "演出服",
+                    "轻奢",
+                    "夏天"
+                  ],
+                  "comparator": "structured_attribute_with_polarity_fallback",
+                  "evidence": {
+                    "matched": [
+                      {
+                        "source": "attribute",
+                        "value": "演出服"
+                      }
+                    ],
+                    "missing": [],
+                    "negated": []
+                  },
+                  "passed": true,
+                  "required": [
+                    "演出服"
+                  ],
+                  "source_field": "attribute|description",
+                  "status": "pass",
+                  "verifiable": true
+                },
+                {
+                  "actual": [
+                    "幼儿园",
+                    "儿童",
+                    "演出服",
+                    "轻奢",
+                    "夏天"
+                  ],
+                  "comparator": "structured_attribute_with_polarity_fallback",
+                  "evidence": {
+                    "matched": [
+                      {
+                        "source": "attribute",
+                        "value": "轻奢"
+                      }
+                    ],
+                    "missing": [],
+                    "negated": []
+                  },
+                  "passed": true,
+                  "required": [
+                    "轻奢"
+                  ],
+                  "source_field": "attribute|description",
+                  "status": "pass",
+                  "verifiable": true
+                },
+                {
+                  "actual": [
+                    "幼儿园",
+                    "儿童",
+                    "演出服",
+                    "轻奢",
+                    "夏天"
+                  ],
+                  "comparator": "structured_attribute_with_polarity_fallback",
+                  "evidence": {
+                    "matched": [
+                      {
+                        "source": "attribute",
+                        "value": "夏天"
+                      }
+                    ],
+                    "missing": [],
+                    "negated": []
+                  },
+                  "passed": true,
+                  "required": [
+                    "夏天"
+                  ],
+                  "source_field": "attribute|description",
+                  "status": "pass",
+                  "verifiable": true
+                }
+              ],
+              "score": 1.0,
+              "verifiable_count": 5
+            },
+            "key_options": {
+              "active": true,
+              "coverage": 1.0,
+              "passed_count": 2,
+              "required_count": 2,
+              "results": [
+                {
+                  "actual": {
+                    "参考身高": "90cm",
+                    "颜色分类": "卡其色（马甲+条纹短袖衬衫+短裤）+卡其纯色领带"
+                  },
+                  "comparator": "option_key_value_v1",
+                  "evidence": {
+                    "axis_version": "option-axis-v1",
+                    "matched": [
+                      {
+                        "axis": "color",
+                        "source_axis": "颜色分类",
+                        "value": "卡其色（马甲+条纹短袖衬衫+短裤）+卡其纯色领带"
+                      }
+                    ],
+                    "missing_axes": [],
+                    "unavailable_values": [],
+                    "wrong_values": []
+                  },
+                  "passed": true,
+                  "required": {
+                    "color": {
+                      "source": "instruction.instruction_options",
+                      "source_axis": "颜色分类",
+                      "value": "卡其色（马甲+条纹短袖衬衫+短裤）+卡其纯色领带"
+                    }
+                  },
+                  "source_field": "customization_options",
+                  "status": "pass",
+                  "verifiable": true
+                },
+                {
+                  "actual": {
+                    "参考身高": "90cm",
+                    "颜色分类": "卡其色（马甲+条纹短袖衬衫+短裤）+卡其纯色领带"
+                  },
+                  "comparator": "option_key_value_v1",
+                  "evidence": {
+                    "axis_version": "option-axis-v1",
+                    "matched": [
+                      {
+                        "axis": "参考身高",
+                        "source_axis": "参考身高",
+                        "value": "90cm"
+                      }
+                    ],
+                    "missing_axes": [],
+                    "unavailable_values": [],
+                    "wrong_values": []
+                  },
+                  "passed": true,
+                  "required": {
+                    "参考身高": {
+                      "source": "instruction.instruction_options",
+                      "source_axis": "参考身高",
+                      "value": "90cm"
+                    }
+                  },
+                  "source_field": "customization_options",
+                  "status": "pass",
+                  "verifiable": true
+                }
+              ],
+              "score": 1.0,
+              "verifiable_count": 2
+            },
+            "model": {
+              "active": false,
+              "coverage": 0.0,
+              "passed_count": 0,
+              "required_count": 0,
+              "results": [],
+              "score": 0.0,
+              "verifiable_count": 0
+            }
+          },
+          "evidence_coverage": 1.0,
+          "match_score": 1.0,
+          "weights": {
+            "brand": 0.35,
+            "core_functions": 0.25,
+            "key_options": 0.15,
+            "model": 0.25
+          }
+        },
+        "price_resolution": {
+          "evidence": {
+            "effective_price_axis": "color"
+          },
+          "method": "unique_effective_price_axis",
+          "price": 296.0,
+          "status": "pass",
+          "version": "variant-price-v1"
+        },
+        "reward_feature_version": "shopping-reward-features-v1",
+        "variant_price_version": "variant-price-v1"
+      },
+      "evidence_coverage": 1.0,
+      "hard_gates": {
+        "budget": {
+          "actual": 296.0,
+          "comparator": "variant_price_budget_v1",
+          "evidence": {
+            "evidence": {
+              "effective_price_axis": "color"
+            },
+            "method": "unique_effective_price_axis",
+            "price": 296.0,
+            "status": "pass",
+            "version": "variant-price-v1"
+          },
+          "passed": true,
+          "required": 300.0,
+          "source_field": "variant_price",
+          "status": "pass",
+          "verifiable": true
+        },
+        "category": {
+          "actual": "童装/婴儿装/亲子装›外套/夹克/大衣›西服/小西装",
+          "comparator": "category_leaf_ancestor_chain",
+          "evidence": {
+            "comparisons": [
+              {
+                "ancestor_match": true,
+                "leaf_match": true,
+                "required": [
+                  "童装/婴儿装/亲子装",
+                  "外套/夹克/大衣",
+                  "西服/小西装"
+                ]
+              }
+            ]
+          },
+          "passed": true,
+          "required": [
+            "童装/婴儿装/亲子装›外套/夹克/大衣›西服/小西装"
+          ],
+          "source_field": "category",
+          "status": "pass",
+          "verifiable": true
+        }
+      },
+      "purchase_success": true,
+      "reward": 1.0,
+      "reward_type": "gold_purchase",
+      "reward_valid": true,
+      "reward_version": "shopsimulator-reward-v3",
+      "sampling_invalid": false,
+      "target_asin_match": true,
+      "terminal_utility": 1.0,
+      "termination_reason": "gold_purchase",
+      "weighted_score": 1.0
+    }
+  }
+}

@@ -12,20 +12,20 @@
 
 在预算、品牌、功能和规格等约束下，购物 Agent 需要连续完成搜索、商品核验、规格选择和购买。本项目基于 **Qwen3.5-2B** 与 **ShopSimulator**，构建从教师示范、学生纠错到在线 GRPO 的训练流程，研究小模型的任务完成率与交互效率。
 
+<details>
+<summary>任务环境：ShopSimulator</summary>
+
 ![ShopSimulator 的购物需求、工具交互与环境反馈示意](docs/assets/shopsimulator-overview.png)
 
 <sub>ShopSimulator 环境示意，来源见<a href="THIRD_PARTY_NOTICES.md">依赖与来源</a>。本项目使用固定购物任务，执行协议见<a href="docs/architecture.md">系统架构</a>。</sub>
 
+</details>
+
 ## 训练流程
 
-```mermaid
-flowchart LR
-    A[教师轨迹] --> B[冷启动 SFT]
-    B --> C[失败回放与教师纠错]
-    C --> D[纠错 SFT]
-    D --> E[终局奖励 GRPO]
-    E --> F[统一评测]
-```
+![训练流程、共享执行循环与学习信号](docs/assets/system-architecture.svg)
+
+训练流程、共享交互循环与学习信号。教师采集、训练采样和评测使用同一执行协议；SFT 监督动作，GRPO 使用终局回报。
 
 | 环节 | 实现 |
 |---|---|
@@ -73,6 +73,14 @@ GRPO 相对纠错 SFT 的 pass@1 提升 **5.54 个百分点**，任务配对 boo
 
 **结果范围。** 当前为单训练种子；test1000 的 +1.2 个百分点未达配对显著性（`p=0.2242`），错误购买从 12 增至 26。步数统计包含失败任务，pass@8 也不代表部署成功率。测试集已用于多轮实验报告，详细得失与统计说明见[完整结果](docs/results.md)。
 
+## 一个真实的纠错样本
+
+学生找到了正确商品和尺码，却选了不含条纹衬衫的套餐。教师重放前 8 个动作，补齐套餐后在预算内完成购买；只有接管后的 2 个教师动作进入纠错监督。
+
+![真实纠错案例：遗漏衬衫、教师接管、环境验收与后缀监督](docs/assets/correction-case.svg)
+
+这是实际进入训练的数据案例，不是训练前后学生表现对照。[案例详解](next/docs/data-reflow/case-study.md)保留原始需求、规格选项、终局证据和监督边界。
+
 ## 文档与复现
 
 | 内容 | 入口 |
@@ -97,4 +105,4 @@ next/
 
 训练环境为两张 H100 80GB，软件版本与模型 revision 固定。已有教师数据可直接复用；重新采集需要教师 API。模型权重与大体积日志存于外部归档，恢复需要相应存储权限，具体步骤见[运行指南](docs/reproduce.md)。
 
-图表由[绘图脚本](docs/assets/render_results.py)从归档结果生成。[测试数据](next/results/evaluation/test-comparison/summary.json) · [pass@k 数据](next/results/passk/dev300/summary.json) · [依赖与来源](THIRD_PARTY_NOTICES.md)
+图表来源、矢量下载与复现命令见[图表索引](docs/assets/README.md)。[测试数据](next/results/evaluation/test-comparison/summary.json) · [pass@k 数据](next/results/passk/dev300/summary.json) · [依赖与来源](THIRD_PARTY_NOTICES.md)

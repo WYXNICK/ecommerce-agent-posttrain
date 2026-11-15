@@ -16,11 +16,13 @@
 | 领域 Baseline | [初始评测](../next/docs/baseline/README.md) |
 | 教师示范与教师参考成绩 | [采集](../next/docs/teacher-collection/README.md)、[评测](../next/docs/teacher-evaluation/README.md) |
 | 冷启动 SFT | [方法](../next/docs/sft/README.md)、[结果](../next/docs/sft/results.md) |
-| 失败回流与纠错 SFT | [方法](../next/docs/data-reflow/README.md)、[结果](../next/docs/data-reflow/results.md) |
+| 失败回流与纠错 SFT | [方法](../next/docs/data-reflow/README.md)、[结果](../next/docs/data-reflow/results.md)、[真实案例](../next/docs/data-reflow/case-study.md) |
 | 终局 GRPO | [方法](../next/docs/grpo/README.md)、[训练结果](../next/docs/grpo/results.md) |
 | 测试与多次采样诊断 | [统一测试](../next/docs/evaluation/results.md)、[pass@k](../next/docs/passk/results.md) |
 
 ## 复盘与维护
+
+- [图表索引](assets/README.md)：架构、数据划分、纠错案例与结果图的来源、下载和复现。
 
 - [实验档案](experiments.md)：全部主线、消融、未增益方案和暂停项目。
 - [工件与日志](artifacts.md)：机读结果、训练证据、归档回执与恢复方式。

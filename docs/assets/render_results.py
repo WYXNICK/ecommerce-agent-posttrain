@@ -134,7 +134,7 @@ def sampling_results(summary):
     save(fig, "sampling-results")
 
 
-if __name__ == "__main__":
+def configure_style():
     plt.rcParams.update({
         "font.family": "serif", "font.serif": ["STIXGeneral"], "mathtext.fontset": "stix",
         "font.size": 10, "axes.titlesize": 11, "axes.titleweight": "normal",
@@ -144,5 +144,9 @@ if __name__ == "__main__":
         "pdf.fonttype": 42, "ps.fonttype": 42, "svg.fonttype": "path",
         "svg.hashsalt": "ecommerce-agent-results",
     })
+
+
+if __name__ == "__main__":
+    configure_style()
     test_results(load("next/results/evaluation/test-comparison/summary.json"))
     sampling_results(load("next/results/passk/dev300/summary.json"))

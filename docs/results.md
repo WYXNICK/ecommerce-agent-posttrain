@@ -59,13 +59,24 @@
 
 证据：[完整计数与区间](../next/results/passk/dev300/summary.json)、[方法](../next/docs/passk/README.md)、[归档](../next/results/passk/dev300/archive.json)。区间按任务 bootstrap，不代表多训练种子，也未作多重比较校正。
 
-## 3. 结果复用规则
+## 3. 训练与选模
+
+![终局 GRPO 的开发集检查点曲线](assets/grpo-checkpoints.svg)
+
+图 3 · 同一终局 GRPO 运行，每 50 次更新评测 dev300。虚线为纠错 SFT 起点；曲线为原始检查点评测，未平滑，不是训练批次奖励。按严格成功数优先的固定规则选择 step500（228/300），step400 的平均 Reward v3 更高。训练存在明显波动，不能解释为单调改善。完整数值与行为得失见[GRPO 结果](../next/docs/grpo/results.md)。
+
+## 4. 结果复用规则
 
 主展示使用上方固定主线；GRPO step400、S0 直接 RL、Reward 改进、SDPO 等列入[实验表](experiments.md)，不删除未增益结果。主要候选的基座、adapter、文件哈希见[模型清单](../next/results/evaluation/final-candidates/manifest.json)。用精确基座＋adapter 复评；未经验证的 BF16 合并权重不能自动当作相同策略。
 
 ## 图表复现
 
-安装 Matplotlib 后，在仓库根目录运行 `python docs/assets/render_results.py`。脚本直接读取上述两份汇总 JSON，生成 SVG、PDF 与 300 DPI PNG；不重新运行模型或修改评测数据。
+安装 Matplotlib 后，在仓库根目录运行以下命令；从归档 JSON 生成 SVG、PDF 与 300 DPI PNG，不运行模型。完整来源与下载见[图表索引](assets/README.md)。
+
+```bash
+python docs/assets/render_results.py
+python docs/assets/render_methods.py
+```
 
 图表使用 STIX 衬线字体及统一数学字体，曲线以颜色、标记和线型共同区分。
 

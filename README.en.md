@@ -12,20 +12,20 @@
 
 A shopping agent must search, inspect products, select options, and purchase while respecting budget, brand, feature, and specification constraints. This project trains **Qwen3.5-2B** in **ShopSimulator**, connecting teacher demonstrations, student failure correction, and online GRPO to study task success and interaction efficiency.
 
+<details>
+<summary>Task environment: ShopSimulator</summary>
+
 ![ShopSimulator: shopping requirements, tool interactions, and environment feedback](docs/assets/shopsimulator-overview.png)
 
 <sub>ShopSimulator environment illustration; see <a href="THIRD_PARTY_NOTICES.md">sources</a>. This project uses fixed shopping tasks under the shared <a href="docs/architecture.md">execution protocol</a>.</sub>
 
+</details>
+
 ## Training pipeline
 
-```mermaid
-flowchart LR
-    A[Teacher trajectories] --> B[Cold-start SFT]
-    B --> C[Failure replay and teacher correction]
-    C --> D[Corrective SFT]
-    D --> E[Terminal-reward GRPO]
-    E --> F[Shared evaluation]
-```
+![Post-training architecture](docs/assets/system-architecture.svg)
+
+The post-training pipeline, shared interaction loop, and learning signals. Collection, training rollouts, and evaluation use the same execution protocol.
 
 | Stage | Implementation |
 |---|---|
@@ -73,6 +73,14 @@ GRPO improves pass@1 over corrective SFT by **5.54 points**, with a paired task-
 
 **Scope.** These are single-training-seed results. The +1.2-point test gain is not significant in the paired test (`p=0.2242`), and wrong purchases increase from 12 to 26. Mean steps include failed tasks; pass@8 is oracle-verified coverage, not deployment success. The fixed test set has been inspected across multiple experiments. See the [full results](docs/results.md) for paired outcomes and limitations.
 
+## A verified correction
+
+A student selected the right product and size but omitted the requested striped shirt from the outfit. The teacher replayed the eight-action prefix, changed the outfit option, and completed a verified purchase within budget. Only the two teacher actions become correction targets.
+
+![Verified teacher correction and suffix supervision](docs/assets/correction-case.svg)
+
+This is a real training-data example, not a before/after student evaluation. The [case study](next/docs/data-reflow/case-study.md) includes the original Chinese request, exact option values, terminal evidence, and supervision boundary.
+
 ## Documentation and reproduction
 
 | Topic | Guide |
@@ -97,4 +105,4 @@ next/
 
 Training uses two H100 80GB GPUs with fixed software versions and model revisions. Existing teacher data can be reused; fresh collection requires teacher API access. Weights and large logs are externally archived and require storage access. See the [execution guide](docs/reproduce.md) for setup and recovery.
 
-Figures are generated from archived summaries by the [plotting script](docs/assets/render_results.py). [Test data](next/results/evaluation/test-comparison/summary.json) · [pass@k data](next/results/passk/dev300/summary.json) · [Dependencies and provenance](THIRD_PARTY_NOTICES.md)
+Figure sources, vector downloads, and reproduction commands are listed in the [figure index](docs/assets/README.md). [Test data](next/results/evaluation/test-comparison/summary.json) · [pass@k data](next/results/passk/dev300/summary.json) · [Dependencies and provenance](THIRD_PARTY_NOTICES.md)
