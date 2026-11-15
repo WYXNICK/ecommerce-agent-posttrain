@@ -18,6 +18,8 @@
 
 ![固定测试集成功率与交互步数](assets/test-results.svg)
 
+图 1 · 同一 test1000、相同执行预算。教师为参考模型；平均步数包含失败任务。
+
 ### 同题得失
 
 | 比较 | 新增成功 | 原成功退化 | 净增成功 | McNemar p |
@@ -43,6 +45,8 @@
 
 ![四模型 pass@k 与配对增益](assets/sampling-results.svg)
 
+图 2 · dev300、每题 8 次独立采样，temperature=1、top_p=1。右图误差线为任务配对 bootstrap 的 95% 区间，不表示多训练种子的波动。
+
 对每题的 `n=8` 次采样、`c` 次成功，使用 `pass@k = 1 − C(n−c,k) / C(n,k)`，再按任务平均。pass@1 是全部采样的单次成功率估计，不是只取第一条，也不等于贪心成功率。
 
 | 配对比较 | Δpass@1，95% CI | Δpass@8，95% CI |
@@ -61,4 +65,8 @@
 
 ## 图表复现
 
-安装 Matplotlib 后，在仓库根目录运行 `python docs/assets/render_results.py`。脚本直接读取上述两份汇总 JSON，生成 SVG 与 PNG；不重新运行模型或修改评测数据。
+安装 Matplotlib 后，在仓库根目录运行 `python docs/assets/render_results.py`。脚本直接读取上述两份汇总 JSON，生成 SVG、PDF 与 300 DPI PNG；不重新运行模型或修改评测数据。
+
+图表使用 STIX 衬线字体及统一数学字体，曲线以颜色、标记和线型共同区分。
+
+下载：[测试结果 PDF](assets/test-results.pdf) · [采样诊断 PDF](assets/sampling-results.pdf) · [测试结果 PNG](assets/test-results.png) · [采样诊断 PNG](assets/sampling-results.png)。

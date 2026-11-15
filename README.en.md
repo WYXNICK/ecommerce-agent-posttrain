@@ -42,6 +42,8 @@ Strict success requires a complete, verifiable `gold_purchase` with `reward_vali
 
 ![Strict task success and mean interaction steps on the fixed test set](docs/assets/test-results.svg)
 
+Figure 1. Strict success and mean interaction length on test1000. The teacher is a reference. Steps include all tasks, including early failures, and do not measure successful-task latency.
+
 | Model | Strict success | Mean Reward v3 | Mean steps |
 |---|---:|---:|---:|
 | Qwen3.5-2B, before domain training | 1.5% | −0.1039 | 5.748 |
@@ -57,6 +59,8 @@ Correction and GRPO together improve on cold-start SFT by **2.8 percentage point
 Eight independent executions per task, with `temperature=1, top_p=1`. pass@1 estimates single-sample success; pass@8 measures success coverage within eight attempts.
 
 ![Four-model pass@k curves and paired GRPO gains over corrective SFT with confidence intervals](docs/assets/sampling-results.svg)
+
+Figure 2. Eight independent samples per task on dev300 (temperature=1, top_p=1). Left: pass@k for four fixed models. Right: terminal GRPO gains over corrective SFT, with 95% paired task-bootstrap intervals.
 
 | Model | pass@1 | pass@8 |
 |---|---:|---:|

@@ -1,4 +1,4 @@
-"""Render README figures from archived summaries. Requires matplotlib."""
+"""Render publication figures from archived summaries. Requires matplotlib."""
 
 import json
 from pathlib import Path
@@ -7,15 +7,19 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.ticker import PercentFormatter
+from matplotlib.ticker import FixedLocator, ScalarFormatter
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = Path(__file__).resolve().parent
-COLORS = {"baseline": "#A6B0BC", "s0": "#4977AB", "s-repair": "#CA8C36",
-          "grpo-500": "#168275", "astra": "#7A718F", "s0-grpo-450": "#9B8BAB"}
-LABELS = {"baseline": "Domain baseline", "s0": "Cold-start SFT",
-          "s-repair": "Corrective SFT", "grpo-500": "Terminal GRPO",
-          "astra": "Astra teacher", "s0-grpo-450": "S0 → GRPO"}
+COLORS = {
+    "baseline": "#B4BBC3", "s0": "#4878A8", "s-repair": "#D18F3A",
+    "grpo-500": "#21856B", "astra": "#95929F", "s0-grpo-450": "#9976A5",
+}
+LABELS = {
+    "baseline": "Domain baseline", "s0": "Cold-start SFT",
+    "s-repair": "Corrective SFT", "grpo-500": "Terminal GRPO",
+    "astra": "Astra teacher", "s0-grpo-450": "S0 → GRPO",
+}
 
 
 def load(relative):
@@ -24,17 +28,20 @@ def load(relative):
 
 def style(ax, grid_axis="x"):
     ax.set_axisbelow(True)
-    ax.grid(axis=grid_axis, color="#E8EDF2", linewidth=0.8)
-    for spine in ax.spines.values():
-        spine.set_visible(False)
-    ax.tick_params(length=0, pad=8, colors="#526175")
+    ax.grid(axis=grid_axis, color="#D9DDE1", linewidth=0.5, linestyle=(0, (2, 3)))
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.spines["bottom"].set_color("#747474")
+    ax.spines["left"].set_color("#747474")
+    ax.tick_params(direction="out", length=3, width=0.6, pad=5)
 
 
 def save(fig, name):
-    for suffix in ("svg", "png"):
+    for suffix in ("svg", "pdf", "png"):
         metadata = {"Date": None} if suffix == "svg" else {}
+        if suffix == "pdf":
+            metadata = {"CreationDate": None, "ModDate": None, "Title": name.replace("-", " ")}
         target = OUT / f"{name}.{suffix}"
-        fig.savefig(target, dpi=180, facecolor="white", metadata=metadata)
+        fig.savefig(target, dpi=300, facecolor="white", metadata=metadata)
         if suffix == "svg":
             target.write_text("\n".join(line.rstrip() for line in target.read_text().splitlines()) + "\n")
     plt.close(fig)
@@ -42,65 +49,65 @@ def save(fig, name):
 
 def test_results(summary):
     scores = summary["summaries"]
-    fig, axes = plt.subplots(1, 2, figsize=(13.6, 5.4), gridspec_kw={"width_ratios": [1.3, 1]})
-    fig.subplots_adjust(left=0.145, right=0.95, bottom=0.20, top=0.72, wspace=0.48)
-    fig.text(0.04, 0.92, "Shopping task performance", fontsize=21, weight="bold", color="#172B42")
-    fig.text(0.04, 0.85, f"{summary['tasks']:,} fixed test tasks · Shared execution budget · Reward v3",
-             fontsize=11, color="#526175")
-
-    ax = axes[0]
     names = ["baseline", "s0", "s-repair", "grpo-500", "astra"]
-    values = [scores[name]["strict_success_rate"] * 100 for name in names]
-    ax.barh(range(len(names)), values, height=0.55, color=[COLORS[n] for n in names])
-    ax.set_yticks(range(len(names)), [LABELS[n] for n in names])
-    ax.invert_yaxis()
-    ax.set_xlim(0, 100)
-    ax.xaxis.set_major_formatter(PercentFormatter())
-    ax.set_title("Strict task success ↑", loc="left", pad=18, weight="bold")
-    for y, value in enumerate(values):
-        ax.text(value + 1.5, y, f"{value:.1f}%", va="center", weight="bold", color="#172B42")
-    style(ax)
+    positions = [0, 1, 2, 3, 4.3]
+    fig, axes = plt.subplots(1, 2, figsize=(9.2, 3.25), sharey=True)
+    fig.subplots_adjust(left=0.18, right=0.97, bottom=0.19, top=0.86, wspace=0.22)
 
-    ax = axes[1]
-    names = ["s0", "s-repair", "grpo-500"]
-    values = [scores[name]["average_steps"] for name in names]
-    ax.barh(range(len(names)), values, height=0.45, color=[COLORS[n] for n in names])
-    ax.set_yticks(range(len(names)), [LABELS[n] for n in names])
-    ax.invert_yaxis()
-    ax.set_xlim(0, 12)
-    ax.set_xticks([0, 4, 8, 12])
-    ax.set_title("Mean interaction steps ↓", loc="left", pad=18, weight="bold")
-    for y, value in enumerate(values):
-        ax.text(value + 0.2, y, f"{value:.2f}", va="center", weight="bold", color="#172B42")
-    style(ax)
-    delta = 100 * (scores["grpo-500"]["strict_success_rate"] - scores["s-repair"]["strict_success_rate"])
-    reduction = 100 * (1 - scores["grpo-500"]["average_steps"] / scores["s-repair"]["average_steps"])
-    fig.text(0.04, 0.085, f"GRPO vs. corrective SFT: +{delta:.1f} percentage points success · {reduction:.1f}% fewer mean steps",
-             fontsize=11, color=COLORS["grpo-500"], weight="bold")
-    fig.text(0.04, 0.035, "Success gain is not statistically significant. Steps include failed tasks; they are not latency measurements.",
-             fontsize=9, color="#526175")
+    for ax, metric, scale, limit, ticks, title, label in (
+        (axes[0], "strict_success_rate", 100, 100, [0, 20, 40, 60, 80, 100],
+         "(a) Strict task success", "Success rate (%)"),
+        (axes[1], "average_steps", 1, 12, [0, 3, 6, 9, 12],
+         "(b) Interaction length", "Mean steps per task"),
+    ):
+        for y, name in zip(positions, names):
+            value = scores[name][metric] * scale
+            reference = name in ("baseline", "astra")
+            ax.barh(y, value, height=0.52, color=COLORS[name], alpha=0.65 if reference else 0.90,
+                    edgecolor=COLORS[name], linewidth=0.6, hatch="///" if name == "astra" else None)
+            number = f"{value:.1f}" if metric == "strict_success_rate" else f"{value:.2f}"
+            ax.text(value + limit * 0.018, y, number, va="center", fontsize=10,
+                    weight="bold" if name == "grpo-500" else "normal")
+        ax.set_xlim(0, limit)
+        ax.set_xticks(ticks)
+        ax.set_xlabel(label, labelpad=8)
+        ax.set_title(title, loc="left", pad=13)
+        style(ax)
+        ax.spines["left"].set_visible(False)
+        ax.tick_params(axis="y", length=0)
+        ax.axhline(3.7, color="#D1D4D8", linewidth=0.6, linestyle=(0, (3, 4)))
+    axes[0].set_yticks(positions, [LABELS[name] for name in names])
+    axes[0].set_ylim(4.85, -0.6)
+    axes[0].get_yticklabels()[3].set_fontweight("bold")
     save(fig, "test-results")
 
 
 def sampling_results(summary):
-    fig, axes = plt.subplots(1, 2, figsize=(13.6, 5.9), gridspec_kw={"width_ratios": [1.1, 1]})
-    fig.subplots_adjust(left=0.075, right=0.95, bottom=0.27, top=0.72, wspace=0.34)
-    fig.text(0.04, 0.92, "Single-sample reliability and success coverage", fontsize=21, weight="bold", color="#172B42")
-    fig.text(0.04, 0.85, f"dev{summary['tasks']} · {summary['samples_per_task']} independent executions per task · Temperature 1.0 · top-p 1.0",
-             fontsize=11, color="#526175")
+    fig, axes = plt.subplots(1, 2, figsize=(9.2, 3.65), gridspec_kw={"width_ratios": [1.15, 1]})
+    fig.subplots_adjust(left=0.08, right=0.97, bottom=0.29, top=0.86, wspace=0.40)
     ax = axes[0]
     ks = [1, 2, 4, 8]
-    for name in ("s0", "s-repair", "s0-grpo-450", "grpo-500"):
+    for name, marker, line in (
+        ("s0", "o", "-"), ("s-repair", "^", "--"),
+        ("s0-grpo-450", "D", "-."), ("grpo-500", "s", "-"),
+    ):
         values = [100 * summary["models"][name]["pass_at_k"][str(k)]["estimate"] for k in ks]
-        ax.plot(range(4), values, marker="o", markersize=5, linewidth=2.3 if name == "grpo-500" else 1.7,
-                color=COLORS[name], label=LABELS[name], linestyle="--" if name == "s0-grpo-450" else "-")
-    ax.set_xticks(range(4), [f"pass@{k}" for k in ks])
+        ax.plot(ks, values, marker=marker, markersize=4.7,
+                markerfacecolor=COLORS[name] if name == "grpo-500" else "white",
+                markeredgewidth=1.1, linewidth=1.7 if name == "grpo-500" else 1.3,
+                color=COLORS[name], label=LABELS[name], linestyle=line, zorder=3 if name == "grpo-500" else 2)
+    ax.set_xscale("log", base=2)
+    ax.set_xlim(0.88, 9.1)
+    ax.xaxis.set_major_locator(FixedLocator(ks))
+    ax.xaxis.set_major_formatter(ScalarFormatter())
     ax.set_ylim(65, 95)
-    ax.set_yticks([65, 75, 85, 95])
-    ax.yaxis.set_major_formatter(PercentFormatter())
-    ax.set_title("Success within k independent attempts", loc="left", pad=18, weight="bold")
+    ax.set_yticks([65, 70, 75, 80, 85, 90, 95])
+    ax.set_ylabel(r"pass@$k$ (%)", labelpad=8)
+    ax.set_xlabel(r"Number of independent attempts, $k$", labelpad=8)
+    ax.set_title("(a) Sampling reliability and coverage", loc="left", pad=13)
     style(ax, "y")
-    ax.legend(loc="upper left", bbox_to_anchor=(-0.02, -0.19), ncol=2, frameon=False, fontsize=9.5)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.50, -0.28), ncol=2,
+              frameon=False, handlelength=2.5, columnspacing=1.4, fontsize=9)
 
     ax = axes[1]
     comparisons = summary["comparisons"]["s-repair__grpo-500"]["delta_pass_at_k"]
@@ -109,24 +116,33 @@ def sampling_results(summary):
         estimate = item["estimate"] * 100
         low, high = [v * 100 for v in item["ci95_task_bootstrap"]]
         ax.errorbar(estimate, y, xerr=[[estimate - low], [high - estimate]], fmt="o",
-                    color=COLORS["grpo-500"], markersize=8, capsize=5, linewidth=2.3)
-        ax.text(estimate, y + 0.20, f"{estimate:+.2f}  [{low:+.2f}, {high:+.2f}]", ha="center", fontsize=10, color="#172B42")
-    ax.axvline(0, color="#A6B0BC", linewidth=1, linestyle="--")
-    ax.set_yticks([0, 1], ["Δpass@1", "Δpass@8"])
-    ax.set_ylim(1.55, -0.45)
-    ax.set_xlim(-4, 10)
-    ax.set_xticks([-4, 0, 4, 8])
-    ax.set_xlabel("Percentage points · 95% paired bootstrap CI", labelpad=12)
-    ax.set_title("GRPO gain over corrective SFT", loc="left", pad=18, weight="bold")
+                    color=COLORS["grpo-500"], markersize=5.5, capsize=4, linewidth=1.4, capthick=1)
+        ax.text(estimate, y + 0.22, f"{estimate:+.2f}  [{low:+.2f}, {high:+.2f}]",
+                ha="center", va="top", fontsize=9.5)
+    ax.axvline(0, color="#818181", linewidth=0.8, linestyle=(0, (4, 3)))
+    ax.set_yticks([0, 1], [r"$\Delta$pass@1", r"$\Delta$pass@8"])
+    ax.set_ylim(1.55, -0.55)
+    ax.set_xlim(-4, 9.5)
+    ax.set_xticks([-4, -2, 0, 2, 4, 6, 8])
+    ax.set_xlabel("Change (percentage points)", labelpad=8)
+    ax.set_title("(b) GRPO − corrective SFT", loc="left", pad=13)
+    ax.text(0.5, -0.34, "95% paired task-bootstrap confidence intervals",
+            transform=ax.transAxes, ha="center", fontsize=9)
     style(ax)
-    fig.text(0.04, 0.035, "pass@8 measures oracle-verified coverage, not deployment success. Intervals resample tasks, not training seeds.",
-             fontsize=9, color="#526175")
+    ax.spines["left"].set_visible(False)
+    ax.tick_params(axis="y", length=0)
     save(fig, "sampling-results")
 
 
 if __name__ == "__main__":
-    plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 10.5,
-                         "axes.labelcolor": "#526175", "text.color": "#172B42",
-                         "svg.hashsalt": "ecommerce-agent-results"})
+    plt.rcParams.update({
+        "font.family": "serif", "font.serif": ["STIXGeneral"], "mathtext.fontset": "stix",
+        "font.size": 10, "axes.titlesize": 11, "axes.titleweight": "normal",
+        "axes.labelsize": 10, "xtick.labelsize": 9.5, "ytick.labelsize": 10,
+        "text.color": "#222222", "axes.labelcolor": "#222222",
+        "xtick.color": "#333333", "ytick.color": "#333333", "axes.linewidth": 0.6,
+        "pdf.fonttype": 42, "ps.fonttype": 42, "svg.fonttype": "path",
+        "svg.hashsalt": "ecommerce-agent-results",
+    })
     test_results(load("next/results/evaluation/test-comparison/summary.json"))
     sampling_results(load("next/results/passk/dev300/summary.json"))

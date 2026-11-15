@@ -42,6 +42,8 @@ flowchart LR
 
 ![固定测试集上的严格成功率与平均交互步数对比](docs/assets/test-results.svg)
 
+图 1 · test1000 上的严格成功率与平均交互步数。教师作为参考；步数按全部任务统计，包含失败提前结束，不等同于完成任务所需的延迟。
+
 | 模型 | 严格成功率 | 平均 Reward v3 | 平均交互步数 |
 |---|---:|---:|---:|
 | Qwen3.5-2B，领域训练前 | 1.5% | −0.1039 | 5.748 |
@@ -57,6 +59,8 @@ flowchart LR
 每题独立执行 8 次，`temperature=1, top_p=1`。pass@1 衡量单次随机执行成功率，pass@8 衡量八次尝试中至少成功一次的覆盖率。
 
 ![四个固定模型的 pass@k 曲线，以及 GRPO 相对纠错 SFT 的配对增益与置信区间](docs/assets/sampling-results.svg)
+
+图 2 · dev300 上每题 8 次独立采样，temperature=1、top_p=1。左：四个固定模型的 pass@k；右：终局 GRPO 相对纠错 SFT 的增益及 95% 任务配对 bootstrap 区间。
 
 | 模型 | pass@1 | pass@8 |
 |---|---:|---:|
