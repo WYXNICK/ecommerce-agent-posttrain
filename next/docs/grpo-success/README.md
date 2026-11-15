@@ -1,6 +1,6 @@
 # 严格成功优先的约束型 GRPO
 
-**状态：运行中。** 北京时间2026年11月15日00:30，在Worker 1177417的双H100上从修复SFT step72启动。 本版继承约束奖励的证据判定，改进奖励目标和更新组选择。原终局 GRPO 仍为正式主结果。
+**状态：训练与开发集选模已完成。** 见[结果](results.md)。 北京时间2026年11月15日00:30，在Worker 1177417的双H100上从修复SFT step72启动。 本版继承约束奖励的证据判定，改进奖励目标和更新组选择。原终局 GRPO 仍为正式主结果。
 
 ## 1. 当前结果说明了什么
 
@@ -57,7 +57,7 @@
 
 已通过26项相关测试。覆盖：真实环境比较器案例、严格成功边界、失败排序、不同组大小的最不利奖励组合、实际采样入口的过滤与补采、不可验证样本处理、日志与优势一致、旧配方和续训隔离。新旧原始Reward v3均保留，训练日志新增全失败过滤数、接受组成功/失败数及失败正优势计数，后者预期为0。
 
-## 4. 下一次训练怎么做
+## 4. 本轮训练配方
 
 - 从**同一修复SFT step72**重新开始；不接续已经改变奖励目标的约束版step450/500。
 - 保持2题×4条、LR1e−6、500次更新、每50步dev300评测与HDFS备份；原执行协议、数据划分、LoRA、双卡计算和保活入口不变。
@@ -70,7 +70,7 @@ next/scripts/grpo/launch.sh --variant success \
   --model "$S_REPAIR_MODEL" --work "$SUCCESS_WORK" --output "$SUCCESS_OUTPUT"
 ```
 
-复用已配置的运行环境、内核、归档队列和保活变量。[配置](../../configs/grpo_success.json) · [实现](../../scripts/grpo/success_reward.py) · [验证](../../results/grpo/success/validation.json)。训练与每50步dev300评测已启动；正式test1000不在本轮自动执行范围。实时状态见[status.json](../../outputs/grpo/success/status.json)，更新指标见[progress.json](../../outputs/grpo/success/progress.json)，完整日志、轨迹和TensorBoard保存在同目录。正常完成或可捕获异常退出后自动恢复双卡空闲保活。
+复用已配置的运行环境、内核、归档队列和保活变量。[配置](../../configs/grpo_success.json) · [实现](../../scripts/grpo/success_reward.py) · [验证](../../results/grpo/success/validation.json)。训练与每50步dev300评测已完成，选中Step50；本轮未运行正式test1000。实时状态见[status.json](../../outputs/grpo/success/status.json)，更新指标见[progress.json](../../outputs/grpo/success/progress.json)，完整日志、轨迹和TensorBoard保存在同目录。正常完成或可捕获异常退出后自动恢复双卡空闲保活。
 
 ## 5. 方法依据与边界
 
