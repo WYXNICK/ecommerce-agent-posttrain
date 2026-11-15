@@ -13,4 +13,4 @@
 
 `src/` 存共享执行器，`scripts/` 存各阶段入口，`configs/` 存固定配方，`data/` 存成品，`results/` 存机读结果，`docs/<阶段>/` 存方法与总结。大体积原始日志和轨迹放在 `outputs/` 并外部归档，不提交 Git。
 
-环境只读复用仓库的 `environments/ShopSimulator/shop_env/`；任务准备配置中的来源路径相对仓库根目录。内部路径是执行契约的一部分，不因展示名称变化而移动。根目录的早期执行栈与200题结果仅作历史恢复，当前任务请使用本目录入口。
+环境位于 `environments/ShopSimulator/shop_env/`，数据来源路径相对仓库根目录。训练与评测使用本目录入口。

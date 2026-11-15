@@ -1,60 +1,96 @@
-# E-Commerce Agent: Constraint-Aware Post-Training with SFT & GRPO
+<h1 align="center">E-Commerce Agent:<br>Constraint-Aware Post-Training with SFT &amp; GRPO</h1>
 
-**Trajectory distillation, corrective fine-tuning, and online reinforcement learning for multi-constraint shopping decisions.**
+<p align="center"><strong>Post-training for multi-constraint shopping decisions</strong><br>Trajectory distillation · Corrective fine-tuning · Online reinforcement learning</p>
 
-[中文](README.md) · [Results](docs/results.md) · [Design](next/docs/project-completion-plan.md) · [Reproduction](docs/reproduce.md) · [Experiments](docs/experiments.md)
+<p align="center">
+  <a href="README.md">中文</a> ·
+  <a href="docs/results.md">Results</a> ·
+  <a href="next/docs/project-completion-plan.md">Design</a> ·
+  <a href="docs/reproduce.md">Reproduction</a> ·
+  <a href="docs/README.md">Documentation</a>
+</p>
 
-This project trains Qwen3.5-2B to search products, verify requirements, select options, and complete purchases in ShopSimulator. A shared execution protocol connects teacher collection, student rollouts, and evaluation.
+A shopping agent must search, inspect products, select options, and purchase while respecting budget, brand, feature, and specification constraints. This project trains **Qwen3.5-2B** in **ShopSimulator**, connecting teacher demonstrations, student failure correction, and online GRPO to study task success and interaction efficiency.
 
-## Pipeline
+![ShopSimulator: shopping requirements, tool interactions, and environment feedback](docs/assets/shopsimulator-overview.png)
 
-1. Audit 23,421 source tasks and freeze 12,077 independent tasks after quality filtering and product/near-duplicate grouping.
-2. Collect 2,000 verified successful teacher trajectories and 200 validation trajectories with Astra.
-3. Train action-only SFT, then apply corrective SFT with 144 verified correction trajectories and 144 replay demonstrations. Only the teacher continuation is supervised for corrections.
-4. Run terminal-reward LoRA GRPO on two H100 80GB GPUs: two effective task groups per update, four trajectories per task, 500 updates. Use veRL's clipped policy loss, vLLM sampling, consistent reward-based group filtering, and exact per-turn action tokens.
-5. Select checkpoints on dev300, compare fixed candidates on test1000, and diagnose stochastic reliability with eight independent executions per dev task.
+<sub>ShopSimulator environment illustration; see <a href="THIRD_PARTY_NOTICES.md">sources</a>. This project uses fixed shopping tasks under the shared <a href="docs/architecture.md">execution protocol</a>.</sub>
+
+## Training pipeline
+
+```mermaid
+flowchart LR
+    A[Teacher trajectories] --> B[Cold-start SFT]
+    B --> C[Failure replay and teacher correction]
+    C --> D[Corrective SFT]
+    D --> E[Terminal-reward GRPO]
+    E --> F[Shared evaluation]
+```
+
+| Stage | Implementation |
+|---|---|
+| **Data and demonstrations** | Audit 23,421 source tasks; isolate splits by product and near-duplicate requirements. Collect **2,000 verified successful training trajectories** and 200 validation trajectories from Astra interacting with the environment. |
+| **SFT and failure correction** | Supervise assistant actions. Replay student failure prefixes and verify teacher continuations in the environment. Train on **144 corrections + 144 replay demonstrations**, masking the student prefix in correction examples. |
+| **Online GRPO** | Two H100 80GB GPUs, LoRA, veRL policy loss, and vLLM sampling. A 2,000-task pool, **2 tasks × 4 trajectories** per update, 500 updates. Retain model-failure penalties; filter infrastructure failures and unverifiable outcomes; resample informative groups. |
+| **Evaluation** | Shared action guards, observations, and execution budgets. Select on dev300, compare on test1000, and diagnose stochastic reliability. Retain per-task trajectories, checkpoint identities, and training logs. |
 
 ## Main results
 
-Same test1000 tasks and execution budget; strict success requires a complete, verifiable `gold_purchase`.
+### Fixed test set · 1,000 tasks
+
+Strict success requires a complete, verifiable `gold_purchase` with `reward_valid=true` and `purchase_success=true`. All models share the same tasks and execution budget.
+
+![Strict task success and mean interaction steps on the fixed test set](docs/assets/test-results.svg)
 
 | Model | Strict success | Mean Reward v3 | Mean steps |
 |---|---:|---:|---:|
-| Domain baseline | 1.5% | −0.1039 | 5.748 |
-| Cold-start SFT | 75.0% | 0.7034 | 8.800 |
+| Qwen3.5-2B, before domain training | 1.5% | −0.1039 | 5.748 |
+| Cold-start SFT (S0) | 75.0% | 0.7034 | 8.800 |
 | Corrective SFT | 76.6% | 0.7229 | 10.000 |
-| **Terminal GRPO, step500** | **77.8%** | **0.7364** | **8.498** |
+| **Terminal GRPO (step500)** | **77.8%** | **0.7364** | **8.498** |
 | Astra teacher reference | 80.9% | 0.7837 | 10.390 |
 
-The complete pipeline improves on cold-start SFT by **2.8 percentage points**. GRPO adds **1.2 points** over corrective SFT and reduces mean steps by **15.0%**. The success-rate difference is not statistically significant in the paired test (`p=0.2242`). Steps are averaged over all tasks, including failures; they do not establish a matched-success latency improvement. Wrong purchases increase from 12 to 26, so this is not an across-the-board behavioral improvement.
+Correction and GRPO together improve on cold-start SFT by **2.8 percentage points**. GRPO adds **1.2 points** over corrective SFT and reduces mean steps across all tasks by **15.0%**.
 
-### Stochastic diagnostics — dev300, temperature 1
+### Sampling diagnostics · dev300
+
+Eight independent executions per task, with `temperature=1, top_p=1`. pass@1 estimates single-sample success; pass@8 measures success coverage within eight attempts.
+
+![Four-model pass@k curves and paired GRPO gains over corrective SFT with confidence intervals](docs/assets/sampling-results.svg)
 
 | Model | pass@1 | pass@8 |
 |---|---:|---:|
 | Cold-start SFT | 71.79% | 86.67% |
 | Corrective SFT | 69.29% | 88.33% |
-| **Terminal GRPO** | **74.83%** | **89.33%** |
+| S0 → GRPO (step450) | 73.12% | 88.00% |
+| **Corrective SFT → terminal GRPO** | **74.83%** | **89.33%** |
 
-GRPO improves pass@1 over corrective SFT by **5.54 points**, with a paired task-bootstrap 95% interval of **[3.92, 7.21]**. The pass@8 change is +1.00 point with an interval crossing zero. This supports improved single-sample reliability in this diagnostic, not a demonstrated expansion of capability or multi-seed robustness. pass@8 is oracle-verified coverage, not deployment success.
+GRPO improves pass@1 over corrective SFT by **5.54 points**, with a paired task-bootstrap 95% interval of **[3.92, 7.21]**. The diagnostic supports improved single-sample reliability; the pass@8 gain is not statistically significant.
 
-[All four models and confidence intervals](next/docs/passk/results.md) · [Machine-readable test results](next/results/evaluation/test-comparison/summary.json)
+**Scope.** These are single-training-seed results. The +1.2-point test gain is not significant in the paired test (`p=0.2242`), and wrong purchases increase from 12 to 26. Mean steps include failed tasks; pass@8 is oracle-verified coverage, not deployment success. The fixed test set has been inspected across multiple experiments. See the [full results](docs/results.md) for paired outcomes and limitations.
 
-## Repository guide
+## Documentation and reproduction
 
-- `next/src/`: shared execution, collection, and evaluation protocol.
-- `next/scripts/`: training, evaluation, diagnostics, and artifact handling.
-- `next/configs/`, `next/data/`: experiment recipes and frozen data products.
-- `next/results/`, `next/docs/`: machine-readable evidence and phase summaries.
-- `environments/`: embedded shopping environment.
-- `docs/`: project architecture, main results, experiment and artifact indexes.
+| Topic | Guide |
+|---|---|
+| Method and system design | [Plan](next/docs/project-completion-plan.md) · [Architecture](docs/architecture.md) |
+| Data, teachers, SFT, correction, and GRPO | [Stage documentation](docs/README.md) |
+| Setup, training, evaluation, and reward extensions | [Execution guide](docs/reproduce.md) |
+| Ablations and negative results | [Experiments](docs/experiments.md) |
+| Models, logs, trajectories, and resource use | [Artifacts](docs/artifacts.md) · [Resource accounting](next/docs/resource-usage.md) |
 
-The current runnable pipeline remains under `next/` to preserve frozen paths and recovery contracts. Earlier execution code and 200-task experiments are historical assets, not part of the current headline comparison.
+The current implementation lives in `next/`:
 
-## Reproduction and scope
+```text
+next/
+├── src/shopping_agent/   Shared interaction and evaluation protocol
+├── scripts/             Collection, training, evaluation, and archiving
+├── configs/             Execution protocol and experiment recipes
+├── data/                Task splits, demonstrations, and corrections
+├── results/             Metrics, model manifests, and archive indexes
+└── docs/                Methods and results by stage
+```
 
-Use the [execution guide](docs/reproduce.md) and exact model/configuration hashes. Checkpoints, raw trajectories, and long logs are externally archived; Git contains code, data products, recipes, and compact evidence. Teacher collection uses a private gateway, and HDFS artifacts require access. Existing teacher products can be reused without fresh collection. This is not an infrastructure-free one-command reproduction.
+Training uses two H100 80GB GPUs with fixed software versions and model revisions. Existing teacher data can be reused; fresh collection requires teacher API access. Weights and large logs are externally archived and require storage access. See the [execution guide](docs/reproduce.md) for setup and recovery.
 
-Local-credit GRPO, larger batches, KL regularization, SDPO, and evidence-constrained rewards remain in the [experiment archive](docs/experiments.md), including negative findings. All reported training results are single-seed; repeated inspection of the fixed test set limits claims of untouched final evaluation. Independent holdouts and multiple training seeds remain future work.
-
-See [third-party sources and licensing status](THIRD_PARTY_NOTICES.md).
+Figures are generated from archived summaries by the [plotting script](docs/assets/render_results.py). [Test data](next/results/evaluation/test-comparison/summary.json) · [pass@k data](next/results/passk/dev300/summary.json) · [Dependencies and provenance](THIRD_PARTY_NOTICES.md)

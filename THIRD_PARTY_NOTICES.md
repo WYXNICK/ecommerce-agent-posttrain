@@ -4,7 +4,7 @@ The project-specific contribution is the data preparation, shared agent executio
 
 | Component | Source / identity | Use |
 |---|---|---|
-| ShopSimulator | [ShopAgent-Team/ShopSimulator](https://github.com/ShopAgent-Team/ShopSimulator); exact embedded revision in [EMBEDDED_SOURCE.json](environments/ShopSimulator/EMBEDDED_SOURCE.json) | Environment, product data, tools and Reward v3 |
+| ShopSimulator | [ShopAgent-Team/ShopSimulator](https://github.com/ShopAgent-Team/ShopSimulator); exact embedded revision in [EMBEDDED_SOURCE.json](environments/ShopSimulator/EMBEDDED_SOURCE.json) | Environment, product data, tools, Reward v3, and the ShopSimulator overview illustration in `docs/assets/` |
 | Initial shopping training scaffold | [YYHDBL/shopping-grpo-longhorizon](https://github.com/YYHDBL/shopping-grpo-longhorizon) | Earlier code/data lineage; retained source history and 200-task assets |
 | Qwen3.5-2B | [Qwen/Qwen3.5-2B](https://huggingface.co/Qwen/Qwen3.5-2B); fixed revision in [execution.json](next/configs/execution.json) | Student starting model |
 | veRL / vLLM / Transformers / PEFT / FLA | Versions in execution and training manifests | Policy loss, inference, model and adapter training, kernels |

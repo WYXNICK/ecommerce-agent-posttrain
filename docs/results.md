@@ -1,6 +1,6 @@
-# 核心结果与解释边界
+# 实验结果
 
-本页汇总可交付主线：**领域 Baseline → 冷启动 SFT → 纠错 SFT → 终局 GRPO**。其他试验完整保留在[实验档案](experiments.md)。数字由链接的机读结果导出，不用简历中的四舍五入值替代原始记录。
+主线：**领域 Baseline → 冷启动 SFT → 纠错 SFT → 终局 GRPO**。其他试验完整保留在[实验档案](experiments.md)。下表依据归档的逐题评测结果。
 
 ## 1. 固定测试：test1000
 
@@ -15,6 +15,8 @@
 | Astra 教师 | 809 | 80.90% | 0.7837 | 10.390 | 8 | 17 |
 
 证据：[完整测试汇总](../next/results/evaluation/test-comparison/summary.json)、[固定评测方案](../next/configs/test_comparison.json)、[归档回执](../next/results/evaluation/test-comparison/archive.json)。Baseline 指已发布模型的领域训练前状态，不指从预训练权重开始。
+
+![固定测试集成功率与交互步数](assets/test-results.svg)
 
 ### 同题得失
 
@@ -39,6 +41,8 @@
 | S0 → GRPO，step450 | 75.33% | 73.12% | 80.26% | 84.73% | 88.00% | 36 | 152 |
 | **纠错 SFT → 终局 GRPO** | **76.00%** | **74.83%** | **82.14%** | **86.31%** | **89.33%** | **32** | **151** |
 
+![四模型 pass@k 与配对增益](assets/sampling-results.svg)
+
 对每题的 `n=8` 次采样、`c` 次成功，使用 `pass@k = 1 − C(n−c,k) / C(n,k)`，再按任务平均。pass@1 是全部采样的单次成功率估计，不是只取第一条，也不等于贪心成功率。
 
 | 配对比较 | Δpass@1，95% CI | Δpass@8，95% CI |
@@ -54,3 +58,7 @@
 ## 3. 结果复用规则
 
 主展示使用上方固定主线；GRPO step400、S0 直接 RL、Reward 改进、SDPO 等列入[实验表](experiments.md)，不删除未增益结果。主要候选的基座、adapter、文件哈希见[模型清单](../next/results/evaluation/final-candidates/manifest.json)。用精确基座＋adapter 复评；未经验证的 BF16 合并权重不能自动当作相同策略。
+
+## 图表复现
+
+安装 Matplotlib 后，在仓库根目录运行 `python docs/assets/render_results.py`。脚本直接读取上述两份汇总 JSON，生成 SVG 与 PNG；不重新运行模型或修改评测数据。
