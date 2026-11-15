@@ -1,0 +1,21 @@
+{
+  "status": "complete",
+  "artifacts": [
+    {
+      "artifact": "evaluation/grpo-success-test/source",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "evaluation/grpo-success-test/evaluations/grpo-success-50",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    },
+    {
+      "artifact": "evaluation/grpo-success-test/evidence/final",
+      "devbox_verified": true,
+      "hdfs_complete": true
+    }
+  ],
+  "retry": "independent archive daemon"
+}
