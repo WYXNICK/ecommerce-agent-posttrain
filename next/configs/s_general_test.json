@@ -1,0 +1,62 @@
+{
+  "tasks": 1000,
+  "test_sha256": "69de95cd224cb9d1146620354018baedfa6d038da0a8f9a571771291b45a0d34",
+  "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227",
+  "models": [
+    {
+      "name": "s-general",
+      "base": "reflow/general/epoch-72",
+      "adapter": null,
+      "base_files": {
+        "processor_config.json": "d89ef49ce9cd37fbf510158e13c1ef063d9286411c1ec9049932dbe0487143b1",
+        "generation_config.json": "4775156af5f3183b603703a43c3506de9a079e63497871e0886c196de5a484b9",
+        "tokenizer.json": "06b9509352d2af50381ab2247e083b80d32d5c0aba91c272ca9ff729b6a0e523",
+        "config.json": "d2aa2ba0ce0fbabc0900f6e70ecf9b90577581a8812f3dac94566aabea5f929f",
+        "tokenizer_config.json": "7488550a894dcf741616126e322ea31d66cf9457b59ec5825f4c7efdced421f8",
+        "model.safetensors": "412d936889411f9b73df6dd232fabd96706484816a57f440aab375dbd8bd81d3",
+        "chat_template.jinja": "273d8e0e683b885071fb17e08d71e5f2a5ddfb5309756181681de4f5a1822d80"
+      }
+    }
+  ],
+  "reuse": [
+    {
+      "name": "s0",
+      "directory": "outputs/evaluation/test-comparison/s0",
+      "files": {
+        "run.json": "81a4c83f0fd1aa61e81326da460b12fe18996949ea1f8f89da00704c63851bbf",
+        "summary.json": "3c213cfc08c98fdaa4a2e1faba9c902f45b6e9c82a1a2e65664451c8a1a2a7fd",
+        "raw.jsonl": "646e5cb795d96cc7b85f7e24e30375ee3b8a320ae5f6468d7118049de0095e23"
+      },
+      "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227"
+    },
+    {
+      "name": "s-repair",
+      "directory": "outputs/evaluation/test-comparison/s-repair",
+      "files": {
+        "run.json": "cd9c0c93484e5d455714235232851e68b5c73ce61f20de850a1f42b9bac6aa31",
+        "summary.json": "6d8e50937163040b7b07c0860ed23e3aea437c95ba80b8e8e643b1742b0b708e",
+        "raw.jsonl": "978f6d380e0f25b0d8cc220ca6b2b2631283acd512b818485bdde9426228b6fc"
+      },
+      "execution_fingerprint": "e66a82e73e641dc14460fec97c46038f75ee77866e8cbec6ed382fc9e5422227"
+    }
+  ],
+  "pairs": [
+    [
+      "s0",
+      "s-general"
+    ],
+    [
+      "s-repair",
+      "s-general"
+    ]
+  ],
+  "result_directory": "results/evaluation/s-general-test",
+  "report_path": "docs/data-reflow/general-test-results.md",
+  "readme_path": "docs/data-reflow/general-test.md",
+  "report_title": "# \u666e\u901a\u589e\u91cf SFT\uff1a\u8865\u5145\u6d4b\u8bd5\uff08\u5907\u4efd\u5bf9\u7167\uff09",
+  "selection_note": "S-general step72 \u5df2\u6309 dev300 \u4e25\u683c\u6210\u529f\u7387\u9009\u5b9a\uff1btest1000 \u4ec5\u7528\u4e8e\u8865\u5145\u62a5\u544a\uff0c\u4e0d\u53c2\u4e0e\u9009\u6a21\u3002\u8be5\u5b9e\u9a8c\u4e0d\u5217\u5165\u6b63\u5f0f\u4e3b\u7ed3\u679c\u3002",
+  "limitations": [
+    "Single training seed and one execution per task.",
+    "Supplementary control, excluded from headline results."
+  ]
+}
